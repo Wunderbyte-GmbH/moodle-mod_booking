@@ -270,13 +270,15 @@ class slotbooking implements bo_condition {
      * @param int $userid user id
      * @param array $additionaloptionids further option ids to merge into the calendar (sidebar filter)
      * @param bool $hidesidebar suppress the sidebar even when multiple option ids are given
+     * @param string $calendarstyle 'compact' shows the compact calendar, '' the standard calendar
      * @return array
      */
     public function render_page(
         int $optionid,
         int $userid = 0,
         array $additionaloptionids = [],
-        bool $hidesidebar = false
+        bool $hidesidebar = false,
+        string $calendarstyle = ''
     ) {
         $optionids = array_values(array_unique(array_merge([$optionid], $additionaloptionids)));
         $ismultioption = count($optionids) > 1;
@@ -286,6 +288,22 @@ class slotbooking implements bo_condition {
             'userid' => $userid,
             'multioption' => $ismultioption,
         ];
+
+        // Anything but 'compact' keeps the standard calendar. The compact calendar ships with
+        // mod_booking and follows the Moodle calendar: first day of the week and time format.
+        $compact = $calendarstyle === 'compact';
+        $data['calendarstyle'] = $compact ? 'compact' : '';
+        if ($compact) {
+            global $CFG;
+            require_once($CFG->dirroot . '/calendar/lib.php');
+            $timeformat = get_user_preferences('calendar_timeformat');
+            if (empty($timeformat)) {
+                $timeformat = get_config(null, 'calendar_site_timeformat');
+            }
+            $data['calendarlocale'] = str_replace('_', '-', current_language());
+            $data['calendarfirstday'] = (int)calendar_get_starting_weekday();
+            $data['calendarhour12'] = $timeformat === CALENDAR_TF_12 ? 1 : 0;
+        }
 
         if ($ismultioption) {
             $data['optionidsjson'] = json_encode($optionids);

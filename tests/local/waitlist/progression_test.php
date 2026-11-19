@@ -120,6 +120,9 @@ final class progression_test extends \advanced_testcase {
     public function test_k3_free_candidate_is_autobooked_and_notified(): void {
         global $DB;
 
+        // The autobooked notification is the legacy status-changed mail.
+        set_config('uselegacymailtemplates', 1, 'booking');
+
         [$course, $teacher, $booking] = $this->prepare_course_and_booking();
         $this->create_pricecategory('freecat', 0);
         $optionid = $this->create_priced_option($course, $teacher, $booking, 2, 5);

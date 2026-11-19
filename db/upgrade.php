@@ -6056,5 +6056,44 @@ function xmldb_booking_upgrade($oldversion) {
         upgrade_mod_savepoint(true, 2026110501, 'booking');
     }
 
+    if ($oldversion < 2026111800) {
+        // A fixed cancellation date of the booking instance was not stored with the purchases of booking
+        // options without dates (and of self-learning courses), so they could be cancelled forever.
+        $changed = booking_add_fixed_canceluntil_to_purchases_without_dates_2026111800();
+
+        // The step shortens the time in which these purchases can be cancelled, so it leaves a trace
+        // (table upgrade_log): events are not logged while an upgrade is running.
+        foreach ($changed as $canceluntil => $historyids) {
+            upgrade_log(
+                UPGRADE_LOG_NORMAL,
+                'mod_booking',
+                'Cancellation deadline ' . $canceluntil . ' (' . userdate($canceluntil) . ') added to '
+                    . count($historyids) . ' purchases of booking options without dates',
+                'Ids in local_shopping_cart_history: ' . implode(', ', $historyids)
+            );
+        }
+
+        // Booking savepoint reached.
+        upgrade_mod_savepoint(true, 2026111800, 'booking');
+    }
+
+    if ($oldversion < 2026111801) {
+        // Cancelled booking options kept their calendar events (course or site events, events of teachers).
+        $deleted = booking_delete_calendar_events_of_cancelled_options_2026111801();
+
+        // The step deletes calendar events, so it leaves a trace (table upgrade_log).
+        if (!empty($deleted)) {
+            upgrade_log(
+                UPGRADE_LOG_NORMAL,
+                'mod_booking',
+                array_sum($deleted) . ' calendar events of ' . count($deleted) . ' cancelled booking options deleted',
+                'Ids of the booking options: ' . implode(', ', array_keys($deleted))
+            );
+        }
+
+        // Booking savepoint reached.
+        upgrade_mod_savepoint(true, 2026111801, 'booking');
+    }
+
     return true;
 }

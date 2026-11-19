@@ -95,6 +95,36 @@ function readOnlyFuture(selector) {
 }
 
 /**
+ * Decide which booking instance the search is restricted to (0 = all booking instances).
+ *
+ * Two ways are supported on the select element, checked in this order:
+ * - data-bookingidselect="<fieldname>": read the live value of a select with this name in the
+ *   same form, so the user can switch the instance (or choose all instances) next to the field.
+ * - data-bookingid="<id>": a fixed booking instance.
+ *
+ * @param {String|HTMLElement} selector
+ * @return {Number}
+ */
+function readBookingId(selector) {
+  const element = resolveElement(selector);
+  if (!element || !element.dataset) {
+    return 0;
+  }
+
+  const selectname = element.dataset.bookingidselect;
+  if (selectname) {
+    const scope = element.closest("form") || document;
+    const select = scope.querySelector(`select[name="${selectname}"]`);
+    if (select) {
+      const value = Number(select.value || 0);
+      return Number.isFinite(value) ? value : 0;
+    }
+  }
+
+  return readNumericDataAttribute(element, "bookingid");
+}
+
+/**
  * Load the list of booking options matching the query and render the selector labels for them.
  *
  * @param {String} selector The selector of the auto complete element.
@@ -103,7 +133,7 @@ function readOnlyFuture(selector) {
  * @param {Function} failure A function to call in case of failure, receiving the error message.
  */
 export async function transport(selector, query, callback, failure) {
-  const bookingid = readNumericDataAttribute(selector, "bookingid");
+  const bookingid = readBookingId(selector);
   const cmid = readNumericDataAttribute(selector, "cmid");
   const onlyfuture = readOnlyFuture(selector);
 

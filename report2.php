@@ -26,9 +26,11 @@
 require_once(__DIR__ . '/../../config.php');
 require_once($CFG->dirroot . '/mod/booking/lib.php');
 
+use core\output\notification;
 use mod_booking\booking;
 use mod_booking\option\dates_handler;
 use mod_booking\output\booked_users;
+use mod_booking\local\bookingstracker\optiondate_level;
 use mod_booking\local\bookingstracker\report2_access;
 use mod_booking\local\bookingstracker\report2_header_links;
 use mod_booking\local\bookingstracker\report2_infobox;
@@ -75,6 +77,17 @@ if (!empty($optiondateid)) {
     $cmid = $cm->id;
     $courseid = $course->id;
     booking_require_report_login($course, $cm);
+    // The level of a date can be switched off for the whole site (booking/bookingstrackerdisableoptiondatelevel).
+    // Old links to a date (bookmarks, log entries) then lead to the booking option of the date, which runs
+    // its own access check.
+    if (!optiondate_level::is_enabled()) {
+        redirect(
+            optiondate_level::fallback_url($optionid),
+            get_string('bookingstrackeroptiondateleveldisabled', 'mod_booking'),
+            null,
+            notification::NOTIFY_INFO
+        );
+    }
     $optionsettings = singleton_service::get_instance_of_booking_option_settings($optionid);
     $bookingsettings = singleton_service::get_instance_of_booking_settings_by_cmid($cmid);
     $urlparams = ["optionid" => $optionid, "optiondateid" => $optiondateid]; // For PAGE url.
@@ -320,7 +333,12 @@ foreach ($scopes as $navscope) {
 // In option and optiondate scope, a dropdown crumb lists all optiondates
 // (sessions) of the booking option. In optiondate scope it is the active
 // crumb, labelled with the current session and marking it in the menu.
-if (in_array($basescope, ['option', 'optiondate']) && !empty($optionsettings->sessions)) {
+// Without the level of a date (site setting) there is nothing to choose.
+if (
+    optiondate_level::is_enabled()
+    && in_array($basescope, ['option', 'optiondate'])
+    && !empty($optionsettings->sessions)
+) {
     $sessionsdata = [];
     foreach ($optionsettings->sessions as $session) {
         $sessionurl = new moodle_url('/mod/booking/report2.php', [

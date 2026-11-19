@@ -400,4 +400,198 @@ final class diagnose_permissions_skill_test extends advanced_testcase {
         $this->assertStringNotContainsString('Thirdperson', $observation);
         $this->assertStringNotContainsString('Secret', json_encode($result['checklist_rows']));
     }
+
+    /**
+     * #2625: a site administrator without any role assignment, role mode. The result states the admin status
+     * as a fact (first row, diagnosis.siteadmin) instead of a bare "no roles" warning.
+     */
+    public function test_siteadmin_without_roles_role_mode(): void {
+        $this->resetAfterTest();
+        $course = $this->getDataGenerator()->create_course();
+        $this->setAdminUser();
+        $admin = get_admin();
+
+        $result = (new diagnose_permissions_skill())->execute(
+            ['courseid' => (int)$course->id],
+            (int)context_course::instance($course->id)->id,
+            (int)$admin->id
+        );
+
+        $this->assertSame('executed', $result['status']);
+        $this->assertSame('roles', $result['diagnosis']['mode']);
+        $this->assertTrue($result['diagnosis']['siteadmin'] ?? null, 'the admin status is a structured fact');
+        $rows = (array)$result['checklist_rows'];
+        $this->assertSame(self::siteadmin_label(), $rows[0]['check'], 'the admin row comes before the role rows');
+        $this->assertSame('ok', $rows[0]['status']);
+        $this->assertSame(
+            get_string('agent_diagnose_permissions_siteadmin_allcaps', 'bookingextension_agent'),
+            $rows[0]['finding']
+        );
+        $this->assertNotContains('warn', array_column($rows, 'status'), 'no role is not a problem for an admin');
+        $this->assertStringContainsString('No role assignments along this chain', $result['observation_full']);
+        $this->assertStringContainsString(self::siteadmin_label(), $result['observation_full']);
+    }
+
+    /**
+     * #2625: a site administrator without any role assignment, capability mode. The capability is granted
+     * only through the admin status, and the result says so.
+     */
+    public function test_siteadmin_without_roles_capability_mode(): void {
+        $this->resetAfterTest();
+        $course = $this->getDataGenerator()->create_course();
+        $this->setAdminUser();
+        $admin = get_admin();
+
+        $result = (new diagnose_permissions_skill())->execute(
+            ['courseid' => (int)$course->id, 'capability' => 'moodle/course:manageactivities'],
+            (int)context_course::instance($course->id)->id,
+            (int)$admin->id
+        );
+
+        $this->assertSame('capability', $result['diagnosis']['mode']);
+        $this->assertTrue($result['diagnosis']['siteadmin'] ?? null);
+        $this->assertSame('siteadmin', $result['diagnosis']['granted_by'] ?? null);
+        $rows = (array)$result['checklist_rows'];
+        $this->assertSame('You HAVE moodle/course:manageactivities', $rows[0]['check']);
+        $this->assertSame(self::siteadmin_label(), $rows[1]['check'], 'the admin row follows the verdict');
+        $this->assertSame('ok', $rows[1]['status']);
+        $this->assertSame(
+            get_string('agent_diagnose_permissions_siteadmin_onlyadmin', 'bookingextension_agent'),
+            $rows[1]['finding']
+        );
+        $this->assertCount(2, $rows, 'no role, so no override rows');
+    }
+
+    /**
+     * #2625: a site administrator whose role grants the capability, then a PROHIBIT on that role. PROHIBIT
+     * does not apply to admins, so the capability stays granted, now only through the admin status.
+     */
+    public function test_siteadmin_with_role_and_prohibit_capability_mode(): void {
+        global $DB;
+        $this->resetAfterTest();
+        $course = $this->getDataGenerator()->create_course();
+        $coursecontext = context_course::instance($course->id);
+        $this->setAdminUser();
+        $admin = get_admin();
+        $this->getDataGenerator()->enrol_user($admin->id, $course->id, 'editingteacher');
+        $skill = new diagnose_permissions_skill();
+        $input = ['courseid' => (int)$course->id, 'capability' => 'moodle/course:manageactivities'];
+
+        $result = $skill->execute($input, (int)$coursecontext->id, (int)$admin->id);
+        $this->assertSame('roles', $result['diagnosis']['granted_by'] ?? null, 'the role grants it as well');
+        $this->assertSame(
+            get_string('agent_diagnose_permissions_siteadmin_alsoroles', 'bookingextension_agent'),
+            $result['checklist_rows'][1]['finding']
+        );
+
+        $roleid = (int)$DB->get_field('role', 'id', ['shortname' => 'editingteacher']);
+        assign_capability('moodle/course:manageactivities', CAP_PROHIBIT, $roleid, $coursecontext->id, true);
+        accesslib_clear_all_caches_for_unit_testing();
+
+        $result = $skill->execute($input, (int)$coursecontext->id, (int)$admin->id);
+        $this->assertTrue($result['diagnosis']['siteadmin']);
+        $this->assertSame('siteadmin', $result['diagnosis']['granted_by']);
+        $this->assertStringContainsString('You HAVE moodle/course:manageactivities', $result['observation_full']);
+        $this->assertStringContainsString('Override: role "editingteacher" → PROHIBIT', $result['observation_full']);
+        $this->assertSame(
+            get_string('agent_diagnose_permissions_siteadmin_onlyadmin', 'bookingextension_agent'),
+            $result['checklist_rows'][1]['finding']
+        );
+    }
+
+    /**
+     * #2625 control: for a person who is not a site administrator the rows stay as they were; only the
+     * structured facts siteadmin=false and granted_by are new.
+     */
+    public function test_non_admin_result_is_unchanged(): void {
+        $this->resetAfterTest();
+        $course = $this->getDataGenerator()->create_course(['fullname' => 'Control course']);
+        $teacher = $this->getDataGenerator()->create_user();
+        $student = $this->getDataGenerator()->create_user();
+        $this->getDataGenerator()->enrol_user($teacher->id, $course->id, 'editingteacher');
+        $this->getDataGenerator()->enrol_user($student->id, $course->id, 'student');
+        $coursecontextid = (int)context_course::instance($course->id)->id;
+        $skill = new diagnose_permissions_skill();
+
+        $this->setUser($teacher);
+        $roles = $skill->execute(['courseid' => (int)$course->id], $coursecontextid, (int)$teacher->id);
+        $this->assertFalse($roles['diagnosis']['siteadmin'] ?? null);
+        $this->assertSame(['Course: Control course'], array_column($roles['checklist_rows'], 'check'));
+        $this->assertSame(['ok'], array_column($roles['checklist_rows'], 'status'));
+        $this->assertSame(['Roles: editingteacher'], array_column($roles['checklist_rows'], 'finding'));
+
+        $capability = $skill->execute(
+            ['courseid' => (int)$course->id, 'capability' => 'moodle/course:manageactivities'],
+            $coursecontextid,
+            (int)$teacher->id
+        );
+        $this->assertFalse($capability['diagnosis']['siteadmin'] ?? null);
+        $this->assertSame('roles', $capability['diagnosis']['granted_by'] ?? null);
+        $this->assertSame(
+            ['You HAVE moodle/course:manageactivities', 'Override: role "editingteacher" → ALLOW'],
+            array_column($capability['checklist_rows'], 'check')
+        );
+
+        $this->setUser($student);
+        $denied = $skill->execute(
+            ['courseid' => (int)$course->id, 'capability' => 'moodle/course:manageactivities'],
+            $coursecontextid,
+            (int)$student->id
+        );
+        $this->assertFalse($denied['diagnosis']['siteadmin'] ?? null);
+        $this->assertSame('none', $denied['diagnosis']['granted_by'] ?? null);
+        $this->assertSame(
+            ['You do NOT have moodle/course:manageactivities'],
+            array_column($denied['checklist_rows'], 'check')
+        );
+        foreach ([$roles, $capability, $denied] as $result) {
+            $this->assertStringNotContainsString(self::siteadmin_label(), $result['observation_full']);
+        }
+    }
+
+    /**
+     * #2625 cross-user: a manager holding moodle/role:review checks a site administrator without roles.
+     */
+    public function test_manager_checks_siteadmin(): void {
+        $this->resetAfterTest();
+        $course = $this->getDataGenerator()->create_course();
+        $coursecontextid = (int)context_course::instance($course->id)->id;
+        $manager = $this->getDataGenerator()->create_user();
+        $roleid = (int)$this->getDataGenerator()->create_role(['shortname' => 'reviewer']);
+        assign_capability('moodle/role:review', CAP_ALLOW, $roleid, \context_system::instance()->id, true);
+        $this->getDataGenerator()->role_assign($roleid, $manager->id, \context_system::instance()->id);
+        $admin = get_admin();
+        $this->setUser($manager);
+        $skill = new diagnose_permissions_skill();
+
+        $roles = $skill->execute(
+            ['courseid' => (int)$course->id, 'userid' => (int)$admin->id],
+            $coursecontextid,
+            (int)$manager->id
+        );
+        $this->assertSame('executed', $roles['status']);
+        $this->assertTrue($roles['diagnosis']['siteadmin'] ?? null);
+        $this->assertSame(self::siteadmin_label(), $roles['checklist_rows'][0]['check']);
+
+        $capability = $skill->execute(
+            ['courseid' => (int)$course->id, 'userid' => (int)$admin->id, 'capability' => 'moodle/course:manageactivities'],
+            $coursecontextid,
+            (int)$manager->id
+        );
+        $this->assertTrue($capability['diagnosis']['siteadmin'] ?? null);
+        $this->assertSame('siteadmin', $capability['diagnosis']['granted_by'] ?? null);
+        $this->assertStringContainsString(
+            fullname($admin) . ' HAS moodle/course:manageactivities',
+            $capability['observation_full']
+        );
+    }
+
+    /**
+     * The label of the site administrator row.
+     *
+     * @return string
+     */
+    private static function siteadmin_label(): string {
+        return get_string('agent_diagnose_permissions_siteadmin', 'bookingextension_agent');
+    }
 }

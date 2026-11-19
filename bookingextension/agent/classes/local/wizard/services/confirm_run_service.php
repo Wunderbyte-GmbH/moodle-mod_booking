@@ -151,6 +151,14 @@ class confirm_run_service {
             $requestedqueueitemid
         );
         if (isset($target['result'])) {
+            // Consuming the intent first is the exactly-once guard for the execution below. When the
+            // target cannot even be resolved (stale id from an old button, a dependency not met yet)
+            // nothing ran, and without the intent the user had no card left to confirm (#2679,
+            // thread 6342): give it back as it was.
+            $codes = (array)($target['result']['issue_codes'] ?? []);
+            if (array_intersect($codes, ['INVALID_QUEUE_ITEM_ID', 'DEPENDENCY_WAITING', 'RETRY_WAITING'])) {
+                $this->pendingintentsvc->restore($threadid, $pendingintent);
+            }
             return $target['result'];
         }
         $activequeueitemid = (string)$target['activequeueitemid'];

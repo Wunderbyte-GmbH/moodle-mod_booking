@@ -33,9 +33,9 @@ namespace bookingextension_agent\local;
  * Booking + Agent license). The key is read from the agent's own licensekey setting
  * first; a combined key pasted into Booking's licensekey field also counts.
  *
- * mod_booking is probed at runtime, never imported: the engine also ships as the
- * standalone local_wizard plugin where mod_booking may be absent — without the
- * booking crypto no key can validate, so the engine stays in its unlicensed tier.
+ * mod_booking is probed at runtime, never imported. The class exists only in the engine
+ * bundled with mod_booking: the local_wizard generator leaves it out of the standalone
+ * plugin, which is a free plugin without any license check (Wunderbyte-GmbH/moodle-local_wizard#2).
  */
 class wb_license {
     /** @var string Fully qualified booking class carrying the license crypto (runtime-probed). */
@@ -58,6 +58,9 @@ class wb_license {
     /**
      * Helper function to determine if a valid, unexpired agent license is set.
      *
+     * Test runs get full access in agent_access_service::has_full_access(), not here: the
+     * standalone local_wizard plugin ships without this class and still needs that override.
+     *
      * @return bool true if the agent license is valid at current date
      */
     public static function agent_license_is_activated(): bool {
@@ -65,12 +68,6 @@ class wb_license {
             if (self::licensekey_activates_agent($licensekey)) {
                 return true;
             }
-        }
-
-        // Overriding - always use PRO for testing / debugging.
-        // Check if Behat OR PhpUnit tests are running.
-        if ((defined('BEHAT_SITE_RUNNING') && BEHAT_SITE_RUNNING) || (defined('PHPUNIT_TEST') && PHPUNIT_TEST)) {
-            return true;
         }
 
         return false;

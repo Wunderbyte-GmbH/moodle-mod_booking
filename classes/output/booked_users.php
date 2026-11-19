@@ -99,6 +99,9 @@ class booked_users implements renderable, templatable {
     /** @var bool $lazyload Render the users tables as lazy loaded (AJAX) tables */
     private $lazyload;
 
+    /** @var bool $futureonly Only show answers of booking options which have not ended yet (if the scope supports it) */
+    private $futureonly;
+
     /**
      * Constructor
      *
@@ -118,6 +121,7 @@ class booked_users implements renderable, templatable {
      * @param bool $showsentmessages
      * @param int $perpage number of rows per page for the users tables
      * @param bool $lazyload render the users tables lazily via AJAX instead of inline
+     * @param bool $futureonly only show answers of booking options which have not ended yet (supervisorteam scopes)
      */
     public function __construct(
         string $scope = 'system',
@@ -135,10 +139,12 @@ class booked_users implements renderable, templatable {
         array $customfields = [],
         bool $showsentmessages = false,
         int $perpage = 100,
-        bool $lazyload = false
+        bool $lazyload = false,
+        bool $futureonly = false
     ) {
         $this->perpage = $perpage > 0 ? $perpage : 100;
         $this->lazyload = $lazyload;
+        $this->futureonly = $futureonly;
 
         $ba = new booking_answers();
         /** @var scope_base $class */
@@ -298,6 +304,9 @@ class booked_users implements renderable, templatable {
         $ba = new booking_answers();
         /** @var scope_base $class */
         $class = $ba->return_class_for_scope($scope);
+        if ($this->futureonly && property_exists($class, 'futureonly')) {
+            $class->futureonly = true;
+        }
         $table = $class->return_users_table(
             $scope,
             $scopeid,
@@ -364,6 +373,9 @@ class booked_users implements renderable, templatable {
         $ba = new booking_answers();
         /** @var scope_base $class */
         $class = $ba->return_class_for_scope($scope);
+        if ($this->futureonly && property_exists($class, 'futureonly')) {
+            $class->futureonly = true;
+        }
         $columns = $class->return_cols_for_tables($statusparam, $scopeid);
         $table = $class->return_users_table(
             $scope,

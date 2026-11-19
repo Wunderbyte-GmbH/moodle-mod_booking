@@ -24,6 +24,8 @@
 
 namespace mod_booking\local\slotbooking;
 
+use mod_booking\singleton_service;
+
 /**
  * Helper class to read and write slot data in booking_answers.json.
  */
@@ -45,6 +47,108 @@ class slot_answer {
         }
 
         return $payload['slot'];
+    }
+
+    /**
+     * Whether the user has booked the given session of a session slot option.
+     *
+     * Only options with slot type "session" restrict per session. For every other option the
+     * session counts as booked, so callers keep their option-level booking check.
+     *
+     * @param int $optionid booking option id
+     * @param int $sessionid booking_optiondates id
+     * @param int $userid user id
+     * @return bool
+     */
+    public static function user_booked_session(int $optionid, int $sessionid, int $userid): bool {
+        $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
+        if ((string)($settings->slotconfig->slot_type ?? '') !== 'session') {
+            return true;
+        }
+
+        $session = $settings->sessions[$sessionid] ?? null;
+        if (empty($session)) {
+            return false;
+        }
+
+        $answers = singleton_service::get_instance_of_booking_answers($settings);
+        foreach ($answers->get_answers() as $answer) {
+            if ((int)$answer->userid !== $userid || (int)$answer->waitinglist !== MOD_BOOKING_STATUSPARAM_BOOKED) {
+                continue;
+            }
+            if (self::answer_covers_session($answer, $session)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Whether the slots stored in a booking answer contain the given session.
+     *
+     * A session slot option creates one optiondate per slot, so a slot and its session share
+     * the very same start and end time.
+     *
+     * @param object $answer booking_answers record (needs json)
+     * @param object $session booking_optiondates record (needs coursestarttime, courseendtime)
+     * @return bool
+     */
+    private static function answer_covers_session(object $answer, object $session): bool {
+        foreach (slot_availability::extract_booked_ranges_from_answer($answer) as $range) {
+            if (
+                $range['start'] === (int)$session->coursestarttime
+                && $range['end'] === (int)$session->courseendtime
+            ) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Removes the records of sessions a user did not book from the records of a booking rule.
+     *
+     * Rules on the date field "optiondatestarttime" join every booking answer with every session
+     * of its option. For options with slot type "session" an answer only holds some of the
+     * sessions, so only the records of those sessions are kept. Records without a booking answer
+     * (baid), e.g. of teachers, records without a session and records of all other options are
+     * returned unchanged.
+     *
+     * @param array $records records with optionid, optiondateid and baid
+     * @return array the records without the sessions that were not booked
+     */
+    public static function filter_session_records(array $records): array {
+        global $DB;
+
+        $sessions = [];
+        $answerids = [];
+        foreach ($records as $key => $record) {
+            if (empty($record->optionid) || empty($record->optiondateid) || empty($record->baid)) {
+                continue;
+            }
+            $settings = singleton_service::get_instance_of_booking_option_settings((int)$record->optionid);
+            if ((string)($settings->slotconfig->slot_type ?? '') !== 'session') {
+                continue;
+            }
+            $sessions[$key] = $settings->sessions[$record->optiondateid] ?? null;
+            $answerids[$key] = (int)$record->baid;
+        }
+        if (empty($answerids)) {
+            return $records;
+        }
+
+        // The slots are part of the answer the rule selected, whatever its booking status is.
+        $answers = $DB->get_records_list('booking_answers', 'id', array_unique($answerids), '', 'id, json');
+        foreach ($answerids as $key => $answerid) {
+            if (
+                empty($sessions[$key])
+                || empty($answers[$answerid])
+                || !self::answer_covers_session($answers[$answerid], $sessions[$key])
+            ) {
+                unset($records[$key]);
+            }
+        }
+        return $records;
     }
 
     /**

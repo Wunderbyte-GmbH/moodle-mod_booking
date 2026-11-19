@@ -24,6 +24,7 @@
 
 use local_wunderbyte_table\wunderbyte_table;
 use mod_booking\booking_answers\booking_answers;
+use mod_booking\local\bookingstracker\optiondate_level;
 use mod_booking\table\manageusers_table;
 
 require_once("../../config.php");
@@ -43,6 +44,9 @@ $scopeid = optional_param('scopeid', 0, PARAM_INT); // Needed to resolve the boo
 $syscontext = context_system::instance();
 $PAGE->set_context($syscontext);
 $PAGE->set_url('/download_report2.php');
+
+// The level of a date can be switched off for the whole site.
+optiondate_level::require_scope_enabled($scope);
 
 $ba = new booking_answers();
 /** @var \mod_booking\booking_answers\scope_base $class */

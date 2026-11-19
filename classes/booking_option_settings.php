@@ -1536,6 +1536,13 @@ class booking_option_settings {
     /**
      * Function to match ad the teachers sql to the booking_options request.
      *
+     * Two columns are added to every booking option:
+     * - teacherobjects: one JSON object per teacher ({"id":..., "firstname":..., "lastname":..., "name":...}).
+     *   It is made for the code (filter by teacher id, display of the teachers), never search it as text:
+     *   the ids of the users and the keys of the JSON would be found as well.
+     * - teachernames: only the names of the teachers ("lastname, firstname", several teachers separated by "; ").
+     *   This is the column for the fulltext search.
+     *
      * @param array $searchparams
      * @return array
      */
@@ -1545,7 +1552,7 @@ class booking_option_settings {
 
         // The teachers are already aggregated to one row per option inside the subquery (bt1),
         // so the outer select does not need any GROUP BY for this column.
-        $select = 'bt1.teacherobjects as teacherobjects';
+        $select = 'bt1.teacherobjects as teacherobjects, bt1.teachernames as teachernames';
 
         // We have to create the teacher object beforehand, in order to be able to use group_concat afterwards.
         $innerselect = $DB->sql_concat_join("''", [
@@ -1561,12 +1568,15 @@ class booking_option_settings {
             'u.firstname',
             "'\"}'",
         ]);
+        // The names only, for the fulltext search. "Lastname, firstname" is the format of the "name" in the JSON.
+        $nameselect = $DB->sql_concat_join("', '", ['u.lastname', 'u.firstname']);
         $where = '';
         $params = [];
 
         $from = 'LEFT JOIN
         (
-            SELECT bt.optionid, ' . $DB->sql_group_concat($innerselect) . ' as teacherobjects
+            SELECT bt.optionid, ' . $DB->sql_group_concat($innerselect) . ' as teacherobjects, '
+                . $DB->sql_group_concat($nameselect, '; ') . ' as teachernames
             FROM {booking_teachers} bt
             JOIN {user} u
             ON bt.userid = u.id

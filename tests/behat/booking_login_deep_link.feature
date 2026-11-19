@@ -79,3 +79,55 @@ Feature: Deep link from the "Login to book" button back to the booking option
     And I press "Log in"
     Then the url should match "/mod/booking/optionview\.php"
     And I should see "Priced option"
+
+  ## Sites with "Auto-login guests": a guest counts as logged in for require_login(), so the click
+  ## on the button only reloaded the option page instead of showing the login form.
+  @javascript
+  Scenario: Logging in through the button works for a visitor when auto-login guests is active
+    Given the following config values are set as admin:
+      | config                  | value | plugin  |
+      | showbookingdetailstoall | 1     | booking |
+      | autologinguests         | 1     |         |
+    And I am on the option detail page for option "Origin (free)" in booking "Deep link test"
+    And I should see "Log in to book this option."
+    When I click on "Log in to book this option." "text"
+    Then the url should match "/login/index\.php"
+    And I set the field "Username" to "student1"
+    And I set the field "Password" to "student1"
+    And I press "Log in"
+    And the url should match "/mod/booking/optionview\.php"
+    And I should see "Free option"
+
+  @javascript
+  Scenario: Logging in through the button works for a user who is already a guest
+    Given the following config values are set as admin:
+      | config                  | value | plugin  |
+      | showbookingdetailstoall | 1     | booking |
+      | autologinguests         | 1     |         |
+    And I log in as "guest"
+    And I am on the option detail page for option "Origin (priced)" in booking "Deep link test"
+    And I should see "Log in to book this option."
+    When I click on "Log in to book this option." "text"
+    Then the url should match "/login/index\.php"
+    And I set the field "Username" to "student1"
+    And I set the field "Password" to "student1"
+    And I press "Log in"
+    And the url should match "/mod/booking/optionview\.php"
+    And I should see "Priced option"
+
+  ## Without "Show booking details to all" the option page itself needs a real account. A guest
+  ## got a missing capability error there instead of the login form.
+  @javascript
+  Scenario: A guest who opens an option detail page that needs a login gets the login form
+    Given the following config values are set as admin:
+      | config                  | value | plugin  |
+      | showbookingdetailstoall | 0     | booking |
+      | autologinguests         | 1     |         |
+    And I log in as "guest"
+    When I am on the option detail page for option "Free option" in booking "Deep link test"
+    Then the url should match "/login/index\.php"
+    And I set the field "Username" to "student1"
+    And I set the field "Password" to "student1"
+    And I press "Log in"
+    And the url should match "/mod/booking/optionview\.php"
+    And I should see "Free option details"

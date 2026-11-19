@@ -29,6 +29,8 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 import DynamicForm from 'core_form/dynamicform';
+import {saveCancelPromise} from 'core/notification';
+import {getStrings} from 'core/str';
 
 const SELECTORS = {
     OPTIONDATELEMENT: '[name="optiondate-element"]',
@@ -204,6 +206,34 @@ export const init = (cmid, id, optionid, bookingid, copyoptionid, returnurl) => 
         // This will also remove previous submission errors. You will need to pass the same arguments to the form
         // that you passed when you rendered the form on the page.
         dynamicForm.load(e.detail);
+    });
+
+    // Passing the cancellation deadline on to existing purchases changes what users have bought, so
+    // we ask again before the form is submitted. The server refuses the request without the flag
+    // that only this dialog sets (see mod_booking\option\fields\canceluntil::validation()).
+    dynamicForm.addEventListener(dynamicForm.events.SUBMIT_BUTTON_PRESSED, (e) => {
+        const checkbox = element.querySelector('input[type="checkbox"][name="canceluntilapplytopurchases"]');
+        const confirmed = element.querySelector('input[name="canceluntilapplyconfirmed"]');
+        if (!checkbox || !checkbox.checked || checkbox.disabled || !confirmed) {
+            return;
+        }
+        e.preventDefault();
+        // A confirmation only ever counts for the submission it was given for.
+        confirmed.value = 0;
+
+        getStrings([
+            {key: 'canceluntilapplytopurchasesconfirmtitle', component: 'mod_booking'},
+            {key: 'canceluntilapplytopurchasesconfirm', component: 'mod_booking', param: checkbox.dataset.purchases},
+            {key: 'canceluntilapplytopurchasesconfirmbutton', component: 'mod_booking'},
+        ]).then(([title, question, savelabel]) => saveCancelPromise(title, question, savelabel)).then(() => {
+            confirmed.value = 1;
+            // Calling this directly does not trigger SUBMIT_BUTTON_PRESSED again.
+            dynamicForm.submitFormAjax();
+            return;
+        }).catch(() => {
+            // Dialog cancelled: nothing is saved, the form stays as it is.
+            return;
+        });
     });
 
     dynamicForm.addEventListener(dynamicForm.events.FORM_CANCELLED, (e) => {

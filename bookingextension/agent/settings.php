@@ -91,8 +91,7 @@ if ($adminroot->fulltree) {
                 // The "Booking 10" pill is mod_booking's branding: shown only where mod_booking provides it, so the
                 // page also builds in an engine installed without mod_booking.
                 . (get_string_manager()->string_exists('badge:booking10', 'mod_booking')
-                    ? ' ' . get_string('badge:booking10', 'mod_booking') : '')
-                . ' ' . get_string('badge_experimental', 'bookingextension_agent'),
+                    ? ' ' . get_string('badge:booking10', 'mod_booking') : ''),
             get_string('aisettings_desc', 'bookingextension_agent')
         )
     );
@@ -134,7 +133,7 @@ if ($adminroot->fulltree) {
     );
 
     // Navbar magic-wand toggle, directly below the enable checkbox; like the rest of the agent
-    // settings it is only shown while the agent is on (see the hide_if loop below).
+    // settings it is only shown while the agent is on (see the hidden-settings loop below).
     $aisettingspage->add(
         new admin_setting_configcheckbox(
             'bookingextension_agent/inject_in_navbar',
@@ -143,6 +142,21 @@ if ($adminroot->fulltree) {
             1
         )
     );
+
+    // Enhanced content generation: course chapters, outlines and quiz questions run on the provider's
+    // generate_content action (a larger model behind the alias wunderbyte-privat-content) instead of the
+    // chat model. Off by default (more tokens, longer runs). Switching it on probes the model once; an
+    // unreachable alias switches it back off.
+    $contentmodel = new admin_setting_configcheckbox(
+        'bookingextension_agent/contentmodel_enabled',
+        get_string('contentmodel_enabled', 'bookingextension_agent'),
+        get_string('contentmodel_enabled_desc', 'bookingextension_agent'),
+        0
+    );
+    $contentmodel->set_updatedcallback(
+        '\\bookingextension_agent\\local\\wizard\\services\\llm\\content_model_switch::on_setting_updated'
+    );
+    $aisettingspage->add($contentmodel);
 
     // Hard cap on the character length of a single user message. Messages longer than this are rejected
     // immediately at the entry point (before any provider/token spend). Keeps the agent public-facing but
@@ -227,7 +241,8 @@ $benchmarksettingsurl = new moodle_url('/admin/settings.php', ['section' => 'boo
 
 // The agent's settings are always registered, also while the agent is switched off, so that their defaults
 // (privacy mode, prompts, retention, ...) are stored on install and upgrade. Enabling the agent later - also via
-// CLI - therefore never runs it without them. While the agent is off they are only hidden (hide_if below).
+// CLI - therefore never runs it without them. While the agent is off they are only hidden on the page (see the
+// end of this block).
 if ($adminroot->fulltree) {
     if ($agentenabled) {
         $agentpageslist = html_writer::alist([
@@ -246,6 +261,7 @@ if ($adminroot->fulltree) {
         );
     }
 
+    // BEGIN bundled-engine-only: the PRO license key (the local_wizard generator removes this block).
     // License key (same mechanism as Booking PRO; products 'wbagent' or combined
     // 'bookingagent'). A combined key in Booking's licensekey field also unlocks
     // the agent — the status text reflects whichever candidate key is valid.
@@ -305,6 +321,7 @@ if ($adminroot->fulltree) {
             ''
         )
     );
+    // END bundled-engine-only.
 
     // Auto-generate a security token the first time so the [wizard] shortcode is
     // protected out of the box; an admin can rotate it by clearing/editing the field.
@@ -555,6 +572,7 @@ if ($adminroot->fulltree) {
     );
 
     // Everything but the enable switch and the one-time announcement is hidden while the agent is off.
+    $hiddensettings = [];
     foreach ($aisettingspage->settings as $setting) {
         if ($setting instanceof admin_setting_heading) {
             continue;
@@ -563,7 +581,25 @@ if ($adminroot->fulltree) {
         if (in_array($settingname, ['bookingextension_agent/agent_enabled', 'bookingextension_agent/hideupdatehint'], true)) {
             continue;
         }
-        $aisettingspage->hide_if($settingname, 'bookingextension_agent/agent_enabled');
+        $hiddensettings[$settingname] = $setting;
+    }
+    if (!\bookingextension_agent\admin\setting_hide_when_disabled::core_passes_rules_as_js_argument()) {
+        foreach (array_keys($hiddensettings) as $settingname) {
+            $aisettingspage->hide_if($settingname, 'bookingextension_agent/agent_enabled');
+        }
+    } else {
+        // Older cores (4.5, 5.0.0-5.0.4, 5.1.0-5.1.1) pass all hide_if rules of a page as one js_call_amd
+        // argument; for this page it is longer than 1024 characters and shows a developer warning. The
+        // same rules go into one hidden setting that passes only an element id. The "depends on" note
+        // under each setting is added here, as hide_if would do.
+        foreach ($hiddensettings as $setting) {
+            $setting->add_dependent_on('bookingextension_agent | agent_enabled');
+        }
+        $aisettingspage->add(new \bookingextension_agent\admin\setting_hide_when_disabled(
+            'bookingextension_agent_hidewhendisabled',
+            'bookingextension_agent/agent_enabled',
+            array_keys($hiddensettings)
+        ));
     }
 }
 

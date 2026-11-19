@@ -31,6 +31,7 @@ use mod_booking\booking_answers\scope_base_answers;
 use mod_booking\output\booked_users;
 use mod_booking\table\manageusers_table;
 use moodle_url;
+use mod_booking\local\bookingstracker\optiondate_level;
 
 /**
  * Booking answers scope: system - non-aggregated.
@@ -60,7 +61,7 @@ class systemanswers extends scope_base_answers {
         $where = ' 1 = 1 ';
 
         $params['statusparam'] = $statusparam;
-        if (get_config('booking', 'bookingstrackerpresencecounter')) {
+        if (optiondate_level::presence_counter_enabled()) {
             $params['statustocount'] = get_config('booking', 'bookingstrackerpresencecountervaluetocount');
         }
         $endpart = $this->get_endpart();

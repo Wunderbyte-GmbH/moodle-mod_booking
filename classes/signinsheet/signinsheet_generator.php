@@ -16,6 +16,8 @@
 
 namespace mod_booking\signinsheet;
 use mod_booking\booking_option_settings;
+use mod_booking\local\file_content;
+use mod_booking\local\pdf_download;
 use mod_booking\option\fields\sharedplaces;
 use core_text;
 use mod_booking\placeholders\placeholders_info;
@@ -265,6 +267,25 @@ class signinsheet_generator {
      * Marks the position of the [[users]] section until the generated user rows are inserted.
      */
     private const USERROWS_MARKER = '@@signinsheet_userrows@@';
+
+    /**
+     * Finds the header row of the table with the CSS class "signaturetable", the row that gets the
+     * header cells of the session columns ("start" is everything up to the end of its last cell,
+     * "end" its closing tag).
+     *
+     * - "signaturetable" has to be a class of its own in the value of the class attribute, i.e. between
+     *   its quotes (either kind), alone or separated from other classes by whitespace:
+     *   class="signaturetable", class="table signaturetable", class='signaturetable wide'.
+     *   A longer class name that merely contains the word (signaturetable-wide, my_signaturetable)
+     *   does not count, and neither does the word in another attribute (data-class, title).
+     * - The header row is the first row of the table in front of the [[users]] section. The search
+     *   stops at [[users]] and at the end of the table, so a table without a header row is not
+     *   matched at all - neither the row template of the users nor a row of a following table
+     *   is taken for its header.
+     */
+    private const SIGNATURETABLE_HEADERROW_REGEX = '/(?<start><table\b[^>]*\sclass\s*=\s*(?<quote>["\'])'
+        . '(?:(?!\k<quote>).)*?(?<![^\s\"\'])signaturetable(?![^\s\"\'])(?:(?!\k<quote>).)*\k<quote>[^>]*>'
+        . '(?:(?!\[\[users\]\]|<\/table>).)*?<tr\b[^>]*>(?:(?!\[\[users\]\]|<\/table>).)*?)(?<end><\/tr>)/si';
 
     /**
      * Protect the curly braces of the template itself (e.g. css rules) from the placeholder engine.
@@ -518,14 +539,26 @@ class signinsheet_generator {
                 . $sessiondate . '</th>';
         }
 
+        // The session columns belong to the table with the class "signaturetable": header cells and the
+        // empty cells of the user rows are added together or not at all. $sessionheadersadded counts
+        // the header rows that got the cells; it stays 0 when the template has no such table.
+        $sessionheadersadded = 0;
         if (count($extrasessioncols) > 0) {
-            // Target only the header row inside the table with class "signaturetable".
-            $confightml = preg_replace(
-                '/(<table[^>]*class="signaturetable"[^>]*>.*?<tr[^>]*>.*?)(<\/tr>)/s',
-                '$1' . $sessionheader . '$2',
-                $confightml
+            $withsessionheader = preg_replace_callback(
+                self::SIGNATURETABLE_HEADERROW_REGEX,
+                // A callback instead of a replacement string: the labels are inserted literally.
+                fn(array $match): string => $match['start'] . $sessionheader . $match['end'],
+                $confightml,
+                -1,
+                $sessionheadersadded
             );
+            // On a PCRE error (null) the template stays as it is, and no columns are added.
+            if ($withsessionheader !== null) {
+                $confightml = $withsessionheader;
+            }
         }
+        // One empty cell per session column for every user row - only below a header that has the columns.
+        $sessioncols = $sessionheadersadded > 0 ? str_repeat('<td></td>', count($extrasessioncols)) : '';
 
         // Generate user rows with session columns.
         $userrows = '';
@@ -573,7 +606,6 @@ class signinsheet_generator {
                 $replacements['[[userpic]]'] = '<img src="data:image/jpeg;base64,' .
                     base64_encode($imagedata) . '" width="56" height="56"/>';
             }
-            $sessioncols = str_repeat('<td></td>', count($extrasessioncols));
             foreach ($replacements as $placeholder => $realvalue) {
                 $row = str_ireplace($placeholder, $realvalue, $row);
             }
@@ -661,20 +693,22 @@ class signinsheet_generator {
         $html = str_ireplace('[[dates]]', $dates, $html);
         // Add the logo to the HTML as a data URI, so TCPDF and PhpWord can render
         // it without fetching a pluginfile URL (which would require a login session).
-        if ($this->get_signinsheet_logo()) {
-            $src = 'data:' . $this->signinsheetlogo->get_mimetype() . ';base64,' .
-                base64_encode($this->signinsheetlogo->get_content());
+        $logocontent = $this->get_signinsheet_logo() ? file_content::read($this->signinsheetlogo) : null;
+        if ($logocontent !== null) {
+            $src = 'data:' . $this->signinsheetlogo->get_mimetype() . ';base64,' . base64_encode($logocontent);
             $html = str_ireplace('[[logourl]]', $src, $html);
         } else {
-            // No logo configured: drop the img tag, an unresolved placeholder would make PhpWord throw.
+            // No logo configured, or its content is missing in the file storage: drop the img tag,
+            // an unresolved placeholder would make PhpWord throw.
             $html = preg_replace('/<img[^>]*\[\[logourl\]\][^>]*>/i', '', $html);
             $html = str_ireplace('[[logourl]]', '', $html);
         }
 
         // The footer logo of the sign-in sheet settings (instance, then site), inlined like the header logo.
         $footerlogo = $this->get_signinsheet_logo_footer_file();
-        if ($footerlogo) {
-            $src = 'data:' . $footerlogo->get_mimetype() . ';base64,' . base64_encode($footerlogo->get_content());
+        $footerlogocontent = $footerlogo ? file_content::read($footerlogo) : null;
+        if ($footerlogocontent !== null) {
+            $src = 'data:' . $footerlogo->get_mimetype() . ';base64,' . base64_encode($footerlogocontent);
             $html = str_ireplace('[[footerlogourl]]', $src, $html);
         } else {
             $html = preg_replace('/<img[^>]*\[\[footerlogourl\]\][^>]*>/i', '', $html);
@@ -783,7 +817,8 @@ class signinsheet_generator {
         foreach ($files as $file) {
             // Note: f1 is the standard-size profile picture stored by Moodle.
             if (strpos($file->get_filename(), 'f1') === 0 && $file->get_filesize() > 0) {
-                return $file->get_content();
+                // Null when the content of the picture is missing in the file storage: no picture then.
+                return file_content::read($file);
             }
         }
         return null;
@@ -909,7 +944,7 @@ class signinsheet_generator {
     private function download_pdf_from_html($htmloutput, $settings) {
         $pdf = $this->create_pdf_from_html((string)$htmloutput);
         $downloadfilename = self::get_clean_filename($settings->get_title_with_prefix());
-        $pdf->Output($downloadfilename . '.pdf', 'D');
+        pdf_download::send($pdf, $downloadfilename . '.pdf');
     }
 
     /**
@@ -1267,7 +1302,7 @@ class signinsheet_generator {
         }
 
         $downloadfilename = self::get_clean_filename($settings->get_title_with_prefix());
-        $this->pdf->Output($downloadfilename . '.pdf', 'D');
+        pdf_download::send($this->pdf, $downloadfilename . '.pdf');
     }
 
     /**
@@ -1439,17 +1474,10 @@ class signinsheet_generator {
             );
         }
         if ($files) {
-            $file = reset($files);
-            $filepath = $file->get_filepath() . $file->get_filename();
-            $imageinfo = $file->get_imageinfo();
-            $this->signinsheetlogo = $file;
-            $filetype = str_replace('image/', '', $file->get_mimetype());
+            // The logo is always scaled to a height of 20 mm, the width follows.
+            $this->signinsheetlogo = reset($files);
             $this->w = 0;
             $this->h = 20;
-
-            if ($imageinfo['height'] > 20) {
-                $this->h = 20;
-            }
             $this->uselogo = true;
         }
         return $this->uselogo;
@@ -1518,9 +1546,10 @@ class signinsheet_generator {
         // Get header and footer logo for signin sheet.
         $this->pdf->SetXY(18, $this->pdf->getY() - 15);
 
-        if ($this->get_signinsheet_logo()) {
+        $logocontent = $this->get_signinsheet_logo() ? file_content::read($this->signinsheetlogo) : null;
+        if ($logocontent !== null) {
             $this->pdf->Image(
-                '@' . $this->signinsheetlogo->get_content(),
+                '@' . $logocontent,
                 null,
                 null,
                 $this->w,

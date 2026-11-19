@@ -299,6 +299,27 @@ Feature: In a course add a booking option and manage its waiting list
     And I should see "0" in the ".allbookingoptionstable_r1 .col-ap-availableplaces" "css_element"
     And I should see "Waiting list: 4/4" in the ".allbookingoptionstable_r1 .col-ap-waitingplacesavailable" "css_element"
 
+  @javascript
+  Scenario: Booking option: waiting list after full pass-through only visible when booking is opened for notified users
+    Given the following "mod_booking > options" exist:
+      | booking    | text                | course | description  | importing | teachersforoption | maxanswers | maxoverbooking | datesmarker | optiondateid_0 | daystonotify_0 | coursestarttime_0 | courseendtime_0 |
+      | My booking | Option: recycling   | C1     | Waiting list | 1         | teacher1          | 2          | 2              | 1           | 0              | 0              | ## tomorrow ##    | ## +2 days ##   |
+    And I am on the "My booking" Activity page logged in as admin
+    And I click on "Edit booking option" "icon" in the ".allbookingoptionstable_r1" "css_element"
+    And I expand all fieldsets
+    ## No confirmation at all: notified users cannot be opened, so the setting has no effect.
+    When I set the field "Book after confirmation" to "No restriction"
+    Then "Waiting list after full pass-through" "field" should not be visible
+    ## Confirmation required, but notifications do not open the booking.
+    And I set the field "Book after confirmation" to "Confirmation only for waitinglist"
+    And I set the field "Open booking for notified user?" to "Notifications have no effects on confirmations"
+    And "Waiting list after full pass-through" "field" should not be visible
+    ## Waiting list progression is active (values 1 and 2 behave the same).
+    And I set the field "Open booking for notified user?" to "Yes, for all notified users"
+    And "Waiting list after full pass-through" "field" should be visible
+    And I set the field "Open booking for notified user?" to "Yes, confirmation only for one user at a time"
+    And "Waiting list after full pass-through" "field" should be visible
+
   @javascript @accessibility @booking_report2_tracker
   Scenario: Booking option: validate waiting list labels
     Given the following config values are set as admin:

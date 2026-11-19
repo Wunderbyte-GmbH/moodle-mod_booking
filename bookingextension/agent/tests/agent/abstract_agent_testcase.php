@@ -145,6 +145,10 @@ abstract class abstract_agent_testcase extends agent_testcase_parent {
         // on the bx_agent_ai_llm_debug trail, so enable debug mode for the suite.
         set_config('aidebugmode', 1, 'bookingextension_agent');
 
+        // The embeddings fixtures are committed in a compact form; the store reads CSV files.
+        \bookingextension_agent\local\wizard\services\embeddings\embeddings_fixture_codec::unpack_directory(
+            __DIR__ . '/fixtures'
+        );
         $this->maybe_register_live_ai_provider();
         $this->maybe_load_embeddings_fixture();
     }

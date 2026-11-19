@@ -32,6 +32,7 @@ The current course context comes from `$PAGE->course`.
 | `perpage="5"` | Rows per page. |
 | `search="1"` | Show full-text search. |
 | `fulltextsearchcolumns="description,shortname1"` | Add booking option fields and/or booking custom field shortnames to the full-text search. Implicitly enables the search box. |
+| `priority="titleprefix,text"` | Order the full-text search results by these booking option fields, the teachers (`teachernames`, also `teacher` or `teachers`) and/or booking custom field shortnames: options where the first column equals the search text first, then options where it contains every word, then the same for the next column, then all other results. The columns must also be searched. Without the argument, a shortcode of exactly one booking instance (`cmid="42"`) uses the instance setting "Priority of the search results"; the argument replaces that setting. |
 | `sort="1"` | Show sort controls. |
 | `filter="1"` | Show standard filters. |
 | `filterbookablenextdays="28"` | Add a toggle filter switch that shows only bookable options starting within the next N days (requires `filter="1"`). |

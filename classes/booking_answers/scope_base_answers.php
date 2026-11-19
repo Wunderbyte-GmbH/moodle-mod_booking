@@ -25,6 +25,8 @@
 
 namespace mod_booking\booking_answers;
 
+use mod_booking\local\bookingstracker\optiondate_level;
+
 /**
  * Scope base class for non-aggregated answers view.
  *
@@ -44,7 +46,7 @@ class scope_base_answers extends scope_base {
         // If presence counter is activated, we add that to SQL.
         $selectpresencecount = '';
         $presencecountsqlpart = '';
-        if (get_config('booking', 'bookingstrackerpresencecounter')) {
+        if (optiondate_level::presence_counter_enabled()) {
             $selectpresencecount = 'pcnt.presencecount,';
             $presencecountsqlpart =
                 "LEFT JOIN (

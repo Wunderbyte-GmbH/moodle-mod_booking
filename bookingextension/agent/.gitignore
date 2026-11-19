@@ -101,3 +101,6 @@ htmlcov/
 
 # pyenv
 # .python-version
+
+# Embeddings fixtures: the CSV files are built from the committed .json and .f16 files
+tests/agent/fixtures/skill_catalog_embeddings__*.csv

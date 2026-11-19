@@ -52,6 +52,19 @@ final class report_schedule_skill_test extends advanced_testcase {
     }
 
     /**
+     * Skip when the schedule types are missing: they and the schedule skill need Moodle 5.1.
+     *
+     * The delivery diagnosis of the report details skill does not need them and runs everywhere.
+     *
+     * @return void
+     */
+    private function require_schedule_types(): void {
+        if (!class_exists(\core_reportbuilder\local\schedules\base::class)) {
+            $this->markTestSkipped('Report schedule types and the schedule skill need Moodle 5.1.');
+        }
+    }
+
+    /**
      * A user holding the manager role in the system context.
      *
      * @return \stdClass
@@ -96,6 +109,7 @@ final class report_schedule_skill_test extends advanced_testcase {
      * Card contract: R2, person field, fences mutual with audience, update and details.
      */
     public function test_card_contract(): void {
+        $this->require_schedule_types();
         $registry = skill_registry_factory::get_default();
         $bykey = [];
         foreach ($registry->get_all_prompt_contracts() as $contract) {
@@ -117,6 +131,7 @@ final class report_schedule_skill_test extends advanced_testcase {
      * The service exposes enums from core (types, formats, recurrences, empty policies).
      */
     public function test_service_enums(): void {
+        $this->require_schedule_types();
         $service = new schedule_service();
         $types = $service->types();
         $this->assertNotEmpty($types);
@@ -137,6 +152,7 @@ final class report_schedule_skill_test extends advanced_testcase {
      * confirmation card rows, observation with the schedule, replacing preview.
      */
     public function test_create_schedule(): void {
+        $this->require_schedule_types();
         $manager = $this->create_manager();
         ['report' => $report, 'audienceid' => $audienceid] = $this->create_report($manager, true);
         $skill = new schedule_report_skill();
@@ -181,6 +197,7 @@ final class report_schedule_skill_test extends advanced_testcase {
      * Update, disable, enable and send now on the single schedule of a report (no id needed).
      */
     public function test_update_toggle_and_send_now(): void {
+        $this->require_schedule_types();
         $manager = $this->create_manager();
         ['report' => $report] = $this->create_report($manager, true);
         $skill = new schedule_report_skill();
@@ -228,6 +245,7 @@ final class report_schedule_skill_test extends advanced_testcase {
      * unparsable start, view-as user without the capability, unknown schedule id; nothing written.
      */
     public function test_clarifications(): void {
+        $this->require_schedule_types();
         $manager = $this->create_manager();
         ['report' => $noaudience] = $this->create_report($manager, false);
         $skill = new schedule_report_skill();

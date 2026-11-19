@@ -54,6 +54,7 @@ $string['agent_booking_diagnose_reason_maxperuser_exceeded_other'] = 'Die ausgew
 $string['agent_booking_diagnose_reason_option_invisible'] = 'Diese Buchungsoption ist auf unsichtbar gestellt und für normale Nutzer/innen nicht sichtbar.';
 $string['agent_booking_diagnose_reason_option_invisible_other'] = 'Die ausgewählte Buchungsoption ist auf unsichtbar gestellt und für normale Nutzer/innen nicht sichtbar.';
 $string['agent_booking_resolve_user_ambiguous'] = 'Mehrere Nutzer/innen wurden gefunden: {$a}. Bitte geben Sie eine spezifischere Nutzerabfrage an (z. B. mit E-Mail oder Nutzer-ID).';
+$string['agent_booking_user_booked_completion_notonlist'] = 'Nutzer/in {$a} ist gebucht, steht aber nicht auf der Teilnehmerliste der Option, daher konnte der Abschluss nicht gesetzt werden.';
 $string['ai_property_bookuserscompleted'] = 'Nutzer/innen buchen: als abgeschlossen markieren';
 $string['ai_property_bookuserstimebooked'] = 'Nutzer/innen buchen: Buchungszeit';
 $string['ai_property_bookusersupdateexisting'] = 'Nutzer/innen buchen: bestehende Buchungen aktualisieren';
@@ -104,6 +105,16 @@ $string['bocondmaxnumberofbookingsfullnotavailable'] = 'Nutzer/in hat die max. B
 $string['bocondonnotifylistfullnotavailable'] = 'Ausgebucht - Nutzer/in ist auf der Benachrichtigungliste';
 $string['bocondonwaitinglistfullnotavailable'] = 'Nutzer/in ist auf der Warteliste';
 $string['bocondpreviouslybooked'] = 'Benutzer/in hat früher eine bestimmte Option gebucht';
+$string['bocondpreviouslybookedbookednotcompleted'] = 'Die Option <a href="{$a->url}">{$a->title}</a> ist gebucht, aber nicht abgeschlossen; nur Benutzer/innen, die sie abgeschlossen haben, dürfen buchen.';
+$string['bocondpreviouslybookedbookednotcompletedfull'] = 'Die Option <a href="{$a->url}">{$a->title}</a> ist gebucht, aber nicht abgeschlossen; nur Benutzer/innen, die sie abgeschlossen haben, dürfen buchen.
+ <br>Sie haben aber das Recht dennoch zu buchen.';
+$string['bocondpreviouslybookedcompletedfullnotavailable'] = 'Nur Benutzer/innen, die <a href="{$a->url}">{$a->title}</a> bereits abgeschlossen haben, dürfen buchen.
+ <br>Sie haben aber das Recht dennoch zu buchen.';
+$string['bocondpreviouslybookedcompletedfullnotavailableall'] = 'Nur Benutzer/innen, die alle folgenden Optionen bereits abgeschlossen haben, dürfen buchen: {$a}';
+$string['bocondpreviouslybookedcompletedfullnotavailableany'] = 'Nur Benutzer/innen, die zumindest eine der folgenden Optionen bereits abgeschlossen haben, dürfen buchen: {$a}';
+$string['bocondpreviouslybookedcompletednotavailable'] = 'Nur Benutzer/innen, die <a href="{$a->url}">{$a->title}</a> bereits abgeschlossen haben, dürfen buchen.';
+$string['bocondpreviouslybookedcompletednotavailableall'] = 'Nur Benutzer/innen, die alle folgenden Optionen bereits abgeschlossen haben, dürfen buchen: {$a}';
+$string['bocondpreviouslybookedcompletednotavailableany'] = 'Nur Benutzer/innen, die zumindest eine der folgenden Optionen bereits abgeschlossen haben, dürfen buchen: {$a}';
 $string['bocondpreviouslybookedfullnotavailable'] = 'Nur Benutzer/innen, die früher bereits <a href="{$a->url}">{$a->title}</a> gebucht haben, dürfen buchen.
  <br>Sie haben aber das Recht dennoch zu buchen.';
 $string['bocondpreviouslybookedfullnotavailableall'] = 'Nur Benutzer/innen, die früher bereits alle folgenden Optionen gebucht haben, dürfen buchen: {$a}';
@@ -194,6 +205,9 @@ $string['bulkchecknotifyusers_desc'] = 'Diese Nutzer/innen erhalten die Warnung,
 $string['bulkcheckusercolumn'] = 'Empfänger/in';
 $string['cachedef_bookedusertable'] = 'Gebuchte Nutzer/innen-Tabelle (Cache)';
 $string['cachedef_usercompetenciescache'] = 'Kompetenzen von Nutzer/innen (Cache)';
+$string['cachedef_usercoursestate'] = 'Kursstatus von Nutzer/innen: Einschreibungen und Abschlüsse (Cache)';
+$string['cachedef_usercoursestaterequest'] = 'Kursstatus von Nutzer/innen, Request-Ebene (Cache)';
+$string['cachedef_userpurchases'] = 'Von Nutzer/innen bezahlte Preise für Buchungsoptionen (Cache)';
 $string['cachereportfindingkeysharingcritical'] = 'Nahezu jede erfasste Person erzeugt eigene Cache-Einträge ({$a} unterschiedliche Key-Stämme). Die Caches wachsen mit der Anzahl der Benutzer/innen.';
 $string['cachereportfindingkeysharingok'] = 'Cache-Keys werden gut zwischen den Benutzer/innen geteilt ({$a} unterschiedliche Key-Stämme).';
 $string['cachereportfindingkeysharingwarning'] = 'Cache-Keys werden nur teilweise zwischen den Benutzer/innen geteilt ({$a} unterschiedliche Key-Stämme).';
@@ -502,6 +516,7 @@ $string['rulesendmailcpf_desc'] = 'Wählen Sie ein Event aus, auf das reagiert w
 Beispiel: Alle Nutzer/innen, die im benutzerdefinierten Feld "Studienzentrumsleitung" den Wert "SZL Wien" stehen haben.';
 $string['ruletemplateselectusersuseradded'] = 'Template - Benutzer/in zu "Nur bestimmte Benutzer/in(nen) dürfen buchen" hinzugefügt';
 $string['ruletemplatetrainerreminderbody'] = 'Ihre Kurs startet in einigen Tagen:<br>{bookingdetails}<br>Sie haben {numberparticipants} gebuchte Teilnehmer/innen und {numberwaitinglist} Personen auf der Warteliste.<br>Um eine Übersicht über alle Buchungen zu erhalten, klicken Sie auf den folgenden Link:<br>{bookinglink}<br>Hier geht\'s zum Kurs: {courselink}';
+$string['ruleuserprofilefieldchanged_help'] = 'Die Regel reagiert, wenn sich dieses benutzerdefinierte Nutzerprofilfeld einer Person auf einen Wert ändert, der dem Operator und dem unten eingegebenen Wert entspricht (z.B. "ist größer als 3": Die Regel reagiert bei einer Änderung von 2 auf 5, aber nicht von 4 auf 5). Zahlen werden als Zahlen verglichen, alles andere als Text. Sie wird einmal für jede Buchungsoption ausgeführt, in der diese Person bereits gebucht oder auf der Warteliste ist. Änderungen anderer Felder oder auf andere Werte werden ignoriert. Es werden nur Änderungen erkannt, die nach dem Speichern dieser Regel erfolgen: Beim Speichern der Regel wird der aktuelle Wert des Felds für alle Nutzer/innen gemerkt.';
 $string['screstoreitemfromreserved_desc'] = 'Dadurch werden Artikel nach dem Löschen des Caches wieder automatisch in den Warenkorb der Nutzer/innen gelegt';
 $string['selectallusers'] = 'Alle Nutzer/innen auswählen';
 $string['selectbookingmanager'] = 'Wähle Verwalter/in der Buchungen';
@@ -626,12 +641,12 @@ $string['transefusers'] = 'Benutzer/innen übertragen';
 $string['transferconfirmlabel'] = 'Ich habe die obenstehenden Warnungen verstanden und möchte die ausgewählten Nutzer/innen trotzdem umbuchen.';
 $string['transferheading'] = 'Ausgewählte Nutzer/innen in die ausgewählte Buchungsoption umbuchen';
 $string['transferhelp'] = 'Benutzer/innen, die die Aktivität nicht abgeschlossen haben, von der ausgewählten Option zu {$a} übertragen.';
-$string['transferonlyfutureglobal_desc'] = 'Wenn aktiv, schlägt die Suche nach der Ziel-Buchungsoption im Dialog „Nutzer/innen umbuchen“ des Buchungs-Trackers nur Buchungsoptionen vor, die noch nicht beendet sind (Optionen ohne Termine bleiben). Das Kästchen „Nur zukünftige Buchungsoptionen“ im Dialog ist dann angehakt und kann nicht geändert werden. Wenn inaktiv, entscheiden die Nutzer/innen bei jeder Umbuchung selbst über das Kästchen (standardmäßig nicht angehakt).';
+$string['transferonlyfutureglobal_desc'] = 'Wenn aktiv, ist das Kästchen „Nur zukünftige Buchungsoptionen“ im Dialog „Nutzer/innen umbuchen“ des Buchungs-Trackers standardmäßig angehakt, sodass die Suche nach der Ziel-Buchungsoption nur Buchungsoptionen vorschlägt, die noch nicht beendet sind (Optionen ohne Termine bleiben). Nutzer/innen können das Häkchen für eine einzelne Umbuchung entfernen, um in allen Buchungsoptionen zu suchen. Wenn inaktiv, ist das Kästchen standardmäßig nicht angehakt.';
 $string['transferoptionsuccess'] = 'Die Buchungsoption und die registrierten Nutzer/innen wurden erfolgreich umgebucht';
 $string['transferproblem'] = 'Die folgenden Nutzer/innen konnten aufgrund einer limitierten Anzahl an Plätzen der Buchungsoption oder aufgrund individueller Limitierungen seitens des/der Nutzer/in nicht umgebucht werden: {$a}';
 $string['transfersameoption'] = 'Bitte wählen Sie eine andere Buchungsoption als jene, in der die Nutzer/innen aktuell gebucht sind.';
 $string['transfersuccess'] = 'Die Nutzer/innen wurden erfolgreich umgebucht';
-$string['transfertargetoption_help'] = 'Suchen Sie die Buchungsoption, in die Sie die ausgewählten Nutzer/innen umbuchen möchten. Die Vorschläge zeigen den Titel der Buchungsoption (mit Präfix), die Options-ID und die Buchungsinstanz, zu der die Option gehört. Sie können auch in Optionen anderer Buchungsinstanzen umbuchen. Mit „Nur zukünftige Buchungsoptionen“ werden bereits beendete Buchungsoptionen ausgeblendet (Optionen ohne Termine bleiben in der Liste).';
+$string['transfertargetoption_help'] = 'Suchen Sie die Buchungsoption, in die Sie die ausgewählten Nutzer/innen umbuchen möchten. Die Vorschläge zeigen den Titel der Buchungsoption (mit Präfix), die Options-ID und die Buchungsinstanz, zu der die Option gehört. Gesucht wird in der oben gewählten Buchungsinstanz; wählen Sie dort „Alle Buchungsinstanzen“, um in Optionen anderer Buchungsinstanzen umzubuchen. Mit „Nur zukünftige Buchungsoptionen“ werden bereits beendete Buchungsoptionen ausgeblendet (Optionen ohne Termine bleiben in der Liste).';
 $string['transferusers'] = 'Nutzer/innen umbuchen';
 $string['transferwarningcustomform'] = 'Mindestens eine/r der ausgewählten Nutzer/innen hat für die aktuelle Buchungsoption ein individuelles Formular ausgefüllt. Diese Formulardaten gehen beim Umbuchen verloren.';
 $string['unenroluserswithoutaccess'] = 'Abmelden von Nutzer/innen ohne Zugang';

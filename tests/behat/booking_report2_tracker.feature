@@ -174,6 +174,29 @@ Feature: Use the bookings tracker (report2.php) as replacement of the old report
     And "//tr[contains(@id, 'booked_option_') and contains(@id, '_r2')][.//td[@data-label='email' and normalize-space(.)='student4@example.com']]//td[@data-label='status' and normalize-space(.)='Complete']" "xpath_element" should exist
 
   @javascript
+  Scenario: Booking report2: the level of a date can be switched off in the plugin settings
+    Given I log in as "admin"
+    And I visit "/mod/booking/report2.php"
+    And I follow "B1-Option1"
+    And I switch to a second window
+    And I should see "Manage bookings for Booking option: \"B1-Option1\""
+    ## By default, the option scope offers the dates of the booking option.
+    And I should see "Choose date (session)..."
+    And I click on "Choose date (session)..." "button"
+    And I click on ".report2-sessions-menu a.dropdown-item" "css_element"
+    And I should see "Manage bookings for Date: \"B1-Option1"
+    ## Switch off the level of a date for the whole site.
+    When the following config values are set as admin:
+      | config                                | value | plugin  |
+      | bookingstrackerdisableoptiondatelevel | 1     | booking |
+    ## The link to the date now leads to the booking option, which no longer offers the dates.
+    And I reload the page
+    Then I should see "Bookings are not tracked per date on this site."
+    And I should see "Manage bookings for Booking option: \"B1-Option1\""
+    And I should not see "Choose date (session)..."
+    And ".report2-sessions-toggle" "css_element" should not exist
+
+  @javascript
   Scenario: Booking report2: manage messages in the option scope
     Given I log in as "admin"
     And I visit "/mod/booking/report2.php"

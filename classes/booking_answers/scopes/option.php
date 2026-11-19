@@ -37,6 +37,7 @@ use mod_booking\utils\wb_payment;
 use context_module;
 use mod_booking\table\manageusers_table;
 use moodle_url;
+use mod_booking\local\bookingstracker\optiondate_level;
 
 /**
  * Booking answers scope: option.
@@ -401,7 +402,7 @@ class option extends scope_base {
         switch ($statusparam) {
             case MOD_BOOKING_STATUSPARAM_BOOKED:
                 if (
-                    get_config('booking', 'bookingstrackerpresencecounter')
+                    optiondate_level::presence_counter_enabled()
                     && !isset($columns['presencecount'])
                 ) {
                     $columns['presencecount'] = get_string('presencecount', 'mod_booking');
@@ -584,7 +585,7 @@ class option extends scope_base {
         // If presence counter is activated, we add that to SQL.
         $selectpresencecount = '';
         $presencecountsqlpart = '';
-        if (get_config('booking', 'bookingstrackerpresencecounter')) {
+        if (optiondate_level::presence_counter_enabled()) {
             $selectpresencecount = 'pcnt.presencecount,';
             $presencecountsqlpart =
                 "LEFT JOIN (

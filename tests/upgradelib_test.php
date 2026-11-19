@@ -36,6 +36,8 @@ require_once($CFG->dirroot . '/mod/booking/db/upgradelib.php');
  *
  * @covers ::booking_delete_duplicate_customfields_2017112101
  * @covers ::booking_performance_measurements_notnull_2026101401
+ * @covers ::booking_add_fixed_canceluntil_to_purchases_without_dates_2026111800
+ * @covers ::booking_delete_calendar_events_of_cancelled_options_2026111801
  */
 final class upgradelib_test extends booking_advanced_testcase {
     /**
@@ -201,5 +203,256 @@ final class upgradelib_test extends booking_advanced_testcase {
             $this->performance_measurement_notnull_flags()
         );
         $this->assertCount(2, $DB->get_records('booking_performance_measurements'));
+    }
+
+    /**
+     * The upgrade step adds the fixed cancellation date of the instance to the purchases without a deadline
+     * of booking options without dates and of self-learning courses - and to nothing else.
+     */
+    public function test_add_fixed_canceluntil_to_purchases_without_dates(): void {
+        global $DB;
+
+        $this->resetAfterTest();
+        $this->setAdminUser();
+
+        $fixeddate = strtotime('+ 10 days');
+        $otherdate = strtotime('+ 50 days');
+        $dates = [
+            'optiondateid_0' => '0',
+            'daystonotify_0' => '0',
+            'coursestarttime_0' => strtotime('+ 30 days'),
+            'courseendtime_0' => strtotime('+ 31 days'),
+        ];
+        $selflearning = ['selflearningcourse' => 1, 'duration' => 86400];
+
+        $fixed = $this->create_booking_with_cancel_mode(
+            ['cancelrelativedate' => MOD_BOOKING_CANCANCELBOOK_ABSOLUTE, 'allowupdatetimestamp' => $fixeddate]
+        );
+        $relative = $this->create_booking_with_cancel_mode(
+            ['cancelrelativedate' => MOD_BOOKING_CANCANCELBOOK_RELATIVE, 'allowupdatedays' => 1]
+        );
+        $unlimited = $this->create_booking_with_cancel_mode(['cancelrelativedate' => MOD_BOOKING_CANCANCELBOOK_UNLIMITED]);
+
+        $nodates = $this->create_option_for_upgrade($fixed);
+        $withdates = $this->create_option_for_upgrade($fixed, $dates);
+        $selflearn = $this->create_option_for_upgrade($fixed, $selflearning);
+        $relativenodates = $this->create_option_for_upgrade($relative);
+        $unlimitednodates = $this->create_option_for_upgrade($unlimited);
+
+        // Payment status: 0 pending, 1 aborted, 2 paid, 3 cancelled.
+        $expected = [
+            'paid, no deadline' => [$this->insert_purchase($nodates, 0), $fixeddate],
+            'paid, deadline NULL' => [$this->insert_purchase($nodates, null), $fixeddate],
+            'pending, no deadline' => [$this->insert_purchase($nodates, 0, 0), $fixeddate],
+            'self-learning course' => [$this->insert_purchase($selflearn, 0), $fixeddate],
+            'aborted payment' => [$this->insert_purchase($nodates, 0, 1), 0],
+            'cancelled purchase' => [$this->insert_purchase($nodates, 0, 3), 0],
+            'purchase with a deadline' => [$this->insert_purchase($nodates, $otherdate), $otherdate],
+            'subbooking with the same id' => [$this->insert_purchase($nodates, 0, 2, 'subbooking'), 0],
+            'item of another plugin' => [$this->insert_purchase($nodates, 0, 2, 'option', 'local_other'), 0],
+            'option with dates' => [$this->insert_purchase($withdates, 0), 0],
+            'instance with relative deadline' => [$this->insert_purchase($relativenodates, 0), 0],
+            'instance without limit' => [$this->insert_purchase($unlimitednodates, 0), 0],
+        ];
+
+        $changed = booking_add_fixed_canceluntil_to_purchases_without_dates_2026111800();
+
+        foreach ($expected as $case => [$historyid, $canceluntil]) {
+            $this->assertSame(
+                $canceluntil,
+                (int)$DB->get_field('local_shopping_cart_history', 'canceluntil', ['id' => $historyid]),
+                $case
+            );
+        }
+        // The step reports exactly the purchases it changed.
+        $changedids = array_column(array_filter($expected, fn($e) => $e[1] === $fixeddate), 0);
+        $this->assertSame([$fixeddate => $changedids], $changed);
+
+        // A second run changes nothing.
+        $this->assertSame([], booking_add_fixed_canceluntil_to_purchases_without_dates_2026111800());
+    }
+
+    /**
+     * Creates a booking instance where users can cancel, with the given cancel mode.
+     *
+     * @param array $cancelsettings
+     * @return int id of the booking instance
+     */
+    private function create_booking_with_cancel_mode(array $cancelsettings): int {
+        $course = $this->getDataGenerator()->create_course();
+        $manager = $this->getDataGenerator()->create_user();
+
+        $booking = $this->getDataGenerator()->create_module('booking', array_merge([
+            'name' => 'Booking for upgrade step',
+            'eventtype' => 'Test event',
+            'bookedtext' => ['text' => 'text'],
+            'waitingtext' => ['text' => 'text'],
+            'notifyemail' => ['text' => 'text'],
+            'statuschangetext' => ['text' => 'text'],
+            'deletedtext' => ['text' => 'text'],
+            'pollurltext' => ['text' => 'text'],
+            'pollurlteacherstext' => ['text' => 'text'],
+            'notificationtext' => ['text' => 'text'],
+            'userleave' => ['text' => 'text'],
+            'tags' => '',
+            'showviews' => ['mybooking,myoptions,showall,showactive,myinstitution'],
+            'course' => $course->id,
+            'bookingmanager' => $manager->username,
+            'cancancelbook' => 1,
+        ], $cancelsettings));
+
+        return (int)$booking->id;
+    }
+
+    /**
+     * Creates a booking option.
+     *
+     * @param int $bookingid
+     * @param array $optiondata additional fields, e.g. dates
+     * @return int id of the booking option
+     */
+    private function create_option_for_upgrade(int $bookingid, array $optiondata = []): int {
+        /** @var \mod_booking_generator $plugingenerator */
+        $plugingenerator = self::getDataGenerator()->get_plugin_generator('mod_booking');
+        $option = $plugingenerator->create_option((object)array_merge([
+            'bookingid' => $bookingid,
+            'text' => 'Option for upgrade step',
+            'courseid' => 0,
+            'maxanswers' => 5,
+            'importing' => 1,
+        ], $optiondata));
+
+        return (int)$option->id;
+    }
+
+    /**
+     * The upgrade step deletes the calendar events of the booking options that are already cancelled
+     * (site events and events of teachers) and nothing else. Running it twice changes nothing.
+     */
+    public function test_delete_calendar_events_of_cancelled_options(): void {
+        global $DB;
+
+        $this->setAdminUser();
+        $teacher = $this->getDataGenerator()->create_user(['username' => 'teacher1']);
+        $bookingid = $this->create_booking_with_cancel_mode([]);
+        $dates = [
+            'addtocalendar' => 2,
+            'optiondateid_0' => 0,
+            'daystonotify_0' => 0,
+            'coursestarttime_0' => strtotime('20 June 2050 08:00:00'),
+            'courseendtime_0' => strtotime('20 June 2050 09:00:00'),
+            'optiondateid_1' => 0,
+            'daystonotify_1' => 0,
+            'coursestarttime_1' => strtotime('21 June 2050 08:00:00'),
+            'courseendtime_1' => strtotime('21 June 2050 09:00:00'),
+        ];
+        $cancelledid = $this->create_option_for_upgrade($bookingid, $dates);
+        $activeid = $this->create_option_for_upgrade($bookingid, $dates);
+        $cancellednoeventsid = $this->create_option_for_upgrade($bookingid);
+
+        // Two events of the teacher per option, tracked in booking_userevents like the plugin does it.
+        foreach ([$cancelledid, $activeid] as $optionid) {
+            foreach ($DB->get_records('booking_optiondates', ['optionid' => $optionid]) as $optiondate) {
+                $eventid = $DB->insert_record('event', (object)[
+                    'name' => 'Option for upgrade step',
+                    'description' => '',
+                    'format' => FORMAT_HTML,
+                    'component' => 'mod_booking',
+                    'eventtype' => 'user',
+                    'userid' => $teacher->id,
+                    'timestart' => $optiondate->coursestarttime,
+                    'timemodified' => time(),
+                ]);
+                $DB->insert_record('booking_userevents', (object)[
+                    'userid' => $teacher->id,
+                    'optionid' => $optionid,
+                    'optiondateid' => $optiondate->id,
+                    'eventid' => $eventid,
+                ]);
+            }
+        }
+
+        // Before the fix a cancellation only set the status, the events stayed.
+        $DB->set_field('booking_options', 'status', 1, ['id' => $cancelledid]);
+        $DB->set_field('booking_options', 'status', 1, ['id' => $cancellednoeventsid]);
+        // An event of another component whose uuid happens to start like the ones of the cancelled option.
+        $foreignid = $DB->insert_record('event', (object)[
+            'name' => 'Imported event',
+            'description' => '',
+            'format' => FORMAT_HTML,
+            'eventtype' => 'site',
+            'courseid' => SITEID,
+            'uuid' => $cancelledid . '-imported',
+            'timestart' => time(),
+            'timemodified' => time(),
+        ]);
+
+        $instancesql = "component = 'mod_booking' AND eventtype = 'site' AND " . $DB->sql_like('uuid', ':pattern');
+        // Two site events and two events of the teacher per option.
+        $this->assertSame(2, $DB->count_records_select('event', $instancesql, ['pattern' => $cancelledid . '-%']));
+        $this->assertSame(2, $DB->count_records('booking_userevents', ['optionid' => $cancelledid]));
+        $eventsbefore = $DB->count_records('event');
+
+        $deleted = booking_delete_calendar_events_of_cancelled_options_2026111801();
+
+        $this->assertSame([$cancelledid => 4], $deleted);
+        $this->assertSame($eventsbefore - 4, $DB->count_records('event'));
+        $this->assertSame(0, $DB->count_records_select('event', $instancesql, ['pattern' => $cancelledid . '-%']));
+        $this->assertSame(0, $DB->count_records('booking_userevents', ['optionid' => $cancelledid]));
+        $this->assertSame(
+            2,
+            $DB->count_records('event', ['userid' => $teacher->id, 'eventtype' => 'user']),
+            'The teacher keeps the two events of the option that is not cancelled'
+        );
+        foreach ($DB->get_records('booking_optiondates', ['optionid' => $cancelledid]) as $optiondate) {
+            $this->assertEmpty($optiondate->eventid);
+        }
+
+        // The option that is not cancelled and the event of the other component are untouched.
+        $this->assertSame(2, $DB->count_records_select('event', $instancesql, ['pattern' => $activeid . '-%']));
+        $this->assertSame(2, $DB->count_records('booking_userevents', ['optionid' => $activeid]));
+        foreach ($DB->get_records('booking_optiondates', ['optionid' => $activeid]) as $optiondate) {
+            $this->assertTrue($DB->record_exists('event', ['id' => $optiondate->eventid]));
+        }
+        $this->assertTrue($DB->record_exists('event', ['id' => $foreignid]));
+
+        // Running it again changes nothing.
+        $this->assertSame([], booking_delete_calendar_events_of_cancelled_options_2026111801());
+        $this->assertSame($eventsbefore - 4, $DB->count_records('event'));
+    }
+
+    /**
+     * Inserts a purchase into the history of shopping cart, like it is stored at checkout.
+     *
+     * @param int $itemid
+     * @param int|null $canceluntil
+     * @param int $paymentstatus 2 is paid
+     * @param string $area
+     * @param string $componentname
+     * @return int id of the row
+     */
+    private function insert_purchase(
+        int $itemid,
+        ?int $canceluntil,
+        int $paymentstatus = 2,
+        string $area = 'option',
+        string $componentname = 'mod_booking'
+    ): int {
+        global $DB, $USER;
+
+        return (int)$DB->insert_record('local_shopping_cart_history', (object)[
+            'userid' => $USER->id,
+            'itemid' => $itemid,
+            'itemname' => 'Purchase for upgrade step',
+            'price' => 10,
+            'currency' => 'EUR',
+            'componentname' => $componentname,
+            'area' => $area,
+            'paymentstatus' => $paymentstatus,
+            'usermodified' => $USER->id,
+            'canceluntil' => $canceluntil,
+            'timecreated' => time(),
+            'timemodified' => time(),
+        ]);
     }
 }

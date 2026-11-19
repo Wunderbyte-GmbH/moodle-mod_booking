@@ -174,6 +174,23 @@ class option_input_verification {
             }
         }
 
+        foreach ((array)($input['optionfieldvalues'] ?? []) as $fieldkey => $requested) {
+            $requestedtext = is_array($requested) ? (string)($requested['text'] ?? '') : (string)$requested;
+            $actualtext = (string)($settings->customfields[$fieldkey] ?? '');
+            if ($requestedtext !== $actualtext) {
+                self::add_failure(
+                    $failures,
+                    'POSTCOND_OPTIONFIELD_MISMATCH',
+                    get_string('agent_booking_verify_field_optionfield_failed', 'booking', (object)[
+                        'field' => (string)$fieldkey,
+                        'requested' => $requestedtext,
+                        'actual' => $actualtext,
+                    ]),
+                    ['field' => 'optionfields', 'key' => (string)$fieldkey, 'requested' => $requestedtext, 'actual' => $actualtext]
+                );
+            }
+        }
+
         if (!empty($teacherlist) && !empty($input['teacherids']) && is_array($input['teacherids'])) {
             $actualids = [];
             foreach ($teacherlist as $teacherrow) {

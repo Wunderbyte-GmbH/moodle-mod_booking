@@ -17,8 +17,13 @@
 namespace mod_booking\external;
 use core_external\external_api;
 use core_external\external_function_parameters;
+use core_external\external_multiple_structure;
+use core_external\external_single_structure;
 use core_external\external_value;
+use context_system;
+use core_user;
 use mod_booking\booking_option;
+use mod_booking\permissions;
 
 /**
  * Provides the mod_booking_search_booking_options external function.
@@ -70,8 +75,8 @@ class search_booking_options extends external_api {
 
         // This autocomplete backend searches across all booking options,
         // so it is restricted to users who may edit booking options anywhere.
-        self::validate_context(\context_system::instance());
-        \mod_booking\permissions::require_any_booking_editing_capability();
+        self::validate_context(context_system::instance());
+        permissions::require_any_booking_editing_capability();
 
         return booking_option::load_booking_options_filtered(
             $params['query'],
@@ -86,18 +91,23 @@ class search_booking_options extends external_api {
      *
      * @return external_single_structure
      */
-    public static function execute_returns(): \core_external\external_single_structure {
+    public static function execute_returns(): external_single_structure {
 
-        return new \core_external\external_single_structure([
-            'list' => new \core_external\external_multiple_structure(
-                new \core_external\external_single_structure([
-                    'id' => new \core_external\external_value(\core_user::get_property_type('id'), 'ID of the booking option'),
-                    'titleprefix' => new \core_external\external_value(PARAM_TEXT, 'Prefix of the booking option name'),
-                    'text' => new \core_external\external_value(PARAM_TEXT, 'Name of the booking option'),
-                    'instancename' => new \core_external\external_value(PARAM_TEXT, 'Name of the booking instance'),
+        return new external_single_structure([
+            'list' => new external_multiple_structure(
+                new external_single_structure([
+                    'id' => new external_value(core_user::get_property_type('id'), 'ID of the booking option'),
+                    'titleprefix' => new external_value(PARAM_TEXT, 'Prefix of the booking option name'),
+                    'text' => new external_value(PARAM_TEXT, 'Name of the booking option'),
+                    'instancename' => new external_value(PARAM_TEXT, 'Name of the booking instance'),
+                    'dates' => new external_value(
+                        PARAM_TEXT,
+                        'Start of the first date until end of the last date, empty for options without dates',
+                        VALUE_OPTIONAL
+                    ),
                 ])
             ),
-            'warnings' => new \core_external\external_value(PARAM_TEXT, 'Warnings'),
+            'warnings' => new external_value(PARAM_TEXT, 'Warnings'),
         ]);
     }
 }

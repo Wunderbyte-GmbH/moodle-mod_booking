@@ -354,6 +354,45 @@ class behat_mod_booking extends behat_base {
     }
 
     /**
+     * Like "I make option ... show option ... via shortcode", but with further arguments of the
+     * bookingoptionview shortcode, given as space separated key=value pairs without quotes
+     * (e.g. "inlinestartpage=slotbooking calendar=compact").
+     *
+     * @Given /^I make option "([^"]*)" show option "([^"]*)" via shortcode with "([^"]*)", both in booking "([^"]*)"$/
+     * @param string $originoptiontext
+     * @param string $targetoptiontext
+     * @param string $arguments
+     * @param string $bookingname
+     * @return void
+     */
+    public function i_make_option_show_option_via_shortcode_with(
+        string $originoptiontext,
+        string $targetoptiontext,
+        string $arguments,
+        string $bookingname
+    ): void {
+        global $DB;
+
+        $this->i_make_option_show_option_via_shortcode($originoptiontext, $targetoptiontext, $bookingname);
+
+        $cm = $this->get_cm_by_booking_name($bookingname);
+        $origin = $DB->get_record('booking_options', [
+            'bookingid' => (int)$cm->instance,
+            'text' => $originoptiontext,
+        ], '*', MUST_EXIST);
+
+        $extra = '';
+        foreach (preg_split('/\s+/', trim($arguments), -1, PREG_SPLIT_NO_EMPTY) as $pair) {
+            [$key, $value] = array_pad(explode('=', $pair, 2), 2, '');
+            $extra .= ' ' . $key . '="' . $value . '"';
+        }
+        $description = str_replace('"]', '"' . $extra . ']', (string)$origin->description);
+        $DB->set_field('booking_options', 'description', $description, ['id' => $origin->id]);
+        \mod_booking\booking_option::purge_cache_for_option((int)$origin->id);
+        singleton_service::destroy_booking_option_singleton((int)$origin->id);
+    }
+
+    /**
      * Open the "new booking option" form page for a booking instance by name.
      *
      * @Given /^I open the new booking option page for booking "([^"]*)"$/

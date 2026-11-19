@@ -166,7 +166,8 @@ class activity_creation_service {
      * Move an existing course module to a different section, transactionally.
      *
      * Section placement is a course-structure operation, not a mod_form field — this uses the core
-     * moveto_module() so the section sequences, module visibility and course cache stay consistent.
+     * course format move action (moveto_module() before Moodle 5.2) so the section sequences, module
+     * visibility and course cache stay consistent.
      *
      * @param stdClass $cm Course module record (from get_coursemodule_from_id) carrying the CURRENT section id.
      * @param int $sectionnum Target section number (0-based topic index) — must already exist in the course.
@@ -187,7 +188,12 @@ class activity_creation_service {
 
         $transaction = $DB->start_delegated_transaction();
         try {
-            moveto_module($cm, $section);
+            // Moodle 5.2 deprecated moveto_module() (MDL-86854); 4.5-5.1 have no cmactions::move_end_section() yet.
+            if (method_exists(\core_courseformat\local\cmactions::class, 'move_end_section')) {
+                \core_courseformat\formatactions::cm($course)->move_end_section((int)$cm->id, (int)$section->id);
+            } else {
+                moveto_module($cm, $section);
+            }
             $transaction->allow_commit();
         } catch (\Throwable $e) {
             $transaction->rollback($e);

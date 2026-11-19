@@ -1,4 +1,4 @@
-# Booking Wizard documentation
+# Wizard documentation
 
 The user guide covers the wizard on every site and, in marked sections, the features that only exist when mod_booking
 is installed. On a site without mod_booking, skip the pages and sections marked *with mod_booking*; examples there that

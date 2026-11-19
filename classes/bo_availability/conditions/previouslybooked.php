@@ -31,6 +31,7 @@ use context_system;
 use mod_booking\bo_availability\bo_condition;
 use mod_booking\bo_availability\freezable_condition;
 use mod_booking\bo_availability\bo_info;
+use mod_booking\booking_option;
 use mod_booking\booking_option_settings;
 use mod_booking\singleton_service;
 use mod_booking\utils\wb_payment;
@@ -307,7 +308,7 @@ class previouslybooked implements bo_condition, freezable_condition {
 
         $isavailable = $this->is_available($settings, $userid, $not);
 
-        $description = !$isavailable ? $this->get_description_string($isavailable, $full, $settings) : '';
+        $description = !$isavailable ? $this->get_description_string($isavailable, $full, $settings, (int)$userid) : '';
 
         return [$isavailable, $description, MOD_BOOKING_BO_PREPAGE_NONE, MOD_BOOKING_BO_BUTTON_MYALERT];
     }
@@ -360,25 +361,7 @@ class previouslybooked implements bo_condition, freezable_condition {
                 'multiple' => true,
                 'noselectionstring' => get_string('choose...', 'mod_booking'),
                 'ajax' => 'mod_booking/form_booking_options_selector',
-                'valuehtmlcallback' => function ($value) {
-                    global $OUTPUT;
-                    if (empty($value)) {
-                        return get_string('choose...', 'mod_booking');
-                    }
-                    $optionsettings = singleton_service::get_instance_of_booking_option_settings((int)$value);
-                    $instancesettings = singleton_service::get_instance_of_booking_settings_by_cmid($optionsettings->cmid);
-
-                    $details = (object)[
-                        'id' => $optionsettings->id,
-                        'titleprefix' => $optionsettings->titleprefix,
-                        'text' => $optionsettings->text,
-                        'instancename' => $instancesettings->name,
-                    ];
-                    return $OUTPUT->render_from_template(
-                        'mod_booking/form_booking_options_selector_suggestion',
-                        $details
-                    );
-                },
+                'valuehtmlcallback' => fn($value) => booking_option::get_suggestion_html((int)$value),
             ];
             $mform->addElement(
                 'autocomplete',
@@ -623,9 +606,10 @@ class previouslybooked implements bo_condition, freezable_condition {
      * @param bool $isavailable
      * @param bool $full
      * @param booking_option_settings $settings
+     * @param int $userid The user the text is for; 0 gives the text without the user-specific variant.
      * @return string
      */
-    public function get_description_string(bool $isavailable, bool $full, booking_option_settings $settings) {
+    public function get_description_string(bool $isavailable, bool $full, booking_option_settings $settings, int $userid = 0) {
 
         if (
             !$isavailable
@@ -660,28 +644,62 @@ class previouslybooked implements bo_condition, freezable_condition {
                 $links[] = self::option_link($optionid);
             }
 
+            // With "require completion" the text says so (Wunderbyte-GmbH#2623: "not previously booked" was shown to
+            // users who had booked but not completed); for one required option a user who booked it but did not
+            // complete it is told exactly that.
+            $requirecompletion = !empty($this->customsettings->requirecompletion);
+            $infix = $requirecompletion ? 'completed' : '';
+
             if (count($links) === 1) {
-                $description = $full ?
-                    get_string('bocondpreviouslybookedfullnotavailable', 'mod_booking', $links[0]) :
-                    get_string('bocondpreviouslybookednotavailable', 'mod_booking', $links[0]);
+                if ($requirecompletion && $userid > 0 && self::booked_but_not_completed($settings, $userid, (int)$optionids[0])) {
+                    $description = $full ?
+                        get_string('bocondpreviouslybookedbookednotcompletedfull', 'mod_booking', $links[0]) :
+                        get_string('bocondpreviouslybookedbookednotcompleted', 'mod_booking', $links[0]);
+                } else {
+                    $description = $full ?
+                        get_string('bocondpreviouslybooked' . $infix . 'fullnotavailable', 'mod_booking', $links[0]) :
+                        get_string('bocondpreviouslybooked' . $infix . 'notavailable', 'mod_booking', $links[0]);
+                }
             } else {
                 $a = implode(', ', array_map(
                     fn(stdClass $link) => '<a href="' . $link->url . '">' . $link->title . '</a>',
                     $links
                 ));
-                if (self::operator($this->customsettings) === 'OR') {
-                    $description = $full ?
-                        get_string('bocondpreviouslybookedfullnotavailableany', 'mod_booking', $a) :
-                        get_string('bocondpreviouslybookednotavailableany', 'mod_booking', $a);
-                } else {
-                    $description = $full ?
-                        get_string('bocondpreviouslybookedfullnotavailableall', 'mod_booking', $a) :
-                        get_string('bocondpreviouslybookednotavailableall', 'mod_booking', $a);
-                }
+                $suffix = self::operator($this->customsettings) === 'OR' ? 'any' : 'all';
+                $description = $full ?
+                    get_string('bocondpreviouslybooked' . $infix . 'fullnotavailable' . $suffix, 'mod_booking', $a) :
+                    get_string('bocondpreviouslybooked' . $infix . 'notavailable' . $suffix, 'mod_booking', $a);
             }
         }
 
         return $description;
+    }
+
+    /**
+     * Whether the user holds a booking of the required option that is not completed.
+     *
+     * @param booking_option_settings $settings The option carrying the condition.
+     * @param int $userid
+     * @param int $requiredoptionid
+     * @return bool
+     */
+    private static function booked_but_not_completed(booking_option_settings $settings, int $userid, int $requiredoptionid): bool {
+        try {
+            $answers = singleton_service::get_instance_of_booking_answers($settings)
+                ->get_all_answers_for_user($userid, 0, [MOD_BOOKING_STATUSPARAM_BOOKED]);
+        } catch (Throwable $e) {
+            return false;
+        }
+        foreach ($answers as $answer) {
+            if (
+                (int)$answer->optionid === $requiredoptionid
+                && (int)$answer->waitinglist === MOD_BOOKING_STATUSPARAM_BOOKED
+                && (int)($answer->completed ?? 0) !== 1
+            ) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**

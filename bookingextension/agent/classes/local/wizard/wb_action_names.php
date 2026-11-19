@@ -46,6 +46,9 @@ class wb_action_names {
     /** @var string The generate-embeddings action. */
     public const GENERATE_EMBEDDINGS = 'aiprovider_wunderbyte\\aiactions\\generate_embeddings';
 
+    /** Content creation (course chapters, outlines, quiz questions) on the content model. */
+    public const GENERATE_CONTENT = 'aiprovider_wunderbyte\\aiactions\\generate_content';
+
     /**
      * Whether an action class is one of the Wunderbyte planner actions (selector or constructor).
      *

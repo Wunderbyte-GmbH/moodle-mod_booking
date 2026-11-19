@@ -300,6 +300,10 @@ class provider implements
     /**
      * Export the AI conversation threads (and their messages, runs and debug logs) for a user in a context.
      *
+     * Each thread is written into its own folder, and its messages, runs and debug logs are read
+     * through recordsets. Memory therefore holds one thread at a time, however long the user's
+     * history is (the debug logs carry full prompts and replies).
+     *
      * @param context $context
      * @param int $userid
      * @return void
@@ -307,21 +311,24 @@ class provider implements
     private static function export_conversations(context $context, int $userid): void {
         global $DB;
 
+        // Only the small thread rows are read at once; the large child rows come per thread below.
         $threads = $DB->get_records(
             self::THREADS_TABLE,
             ['userid' => $userid, 'contextid' => $context->id],
-            'timecreated ASC, id ASC'
+            'timecreated ASC, id ASC',
+            'id, status, timecreated, timemodified'
         );
         if (empty($threads)) {
             return;
         }
 
-        $exportthreads = [];
+        $folder = get_string('privacy:metadata:bx_agent_ai_threads', 'bookingextension_agent');
         foreach ($threads as $thread) {
             $threadid = (int)$thread->id;
 
             $messages = [];
-            foreach ($DB->get_records(self::MESSAGES_TABLE, ['threadid' => $threadid], 'timecreated ASC, id ASC') as $msg) {
+            $records = $DB->get_recordset(self::MESSAGES_TABLE, ['threadid' => $threadid], 'timecreated ASC, id ASC');
+            foreach ($records as $msg) {
                 $messages[] = (object)[
                     'role' => (string)$msg->role,
                     'content' => (string)($msg->content ?? ''),
@@ -329,9 +336,11 @@ class provider implements
                     'timecreated' => transform::datetime((int)$msg->timecreated),
                 ];
             }
+            $records->close();
 
             $runs = [];
-            foreach ($DB->get_records(self::RUNS_TABLE, ['threadid' => $threadid], 'timecreated ASC, id ASC') as $run) {
+            $records = $DB->get_recordset(self::RUNS_TABLE, ['threadid' => $threadid], 'timecreated ASC, id ASC');
+            foreach ($records as $run) {
                 $runs[] = (object)[
                     'status' => (string)$run->status,
                     'commandsjson' => (string)($run->commandsjson ?? ''),
@@ -340,9 +349,11 @@ class provider implements
                     'timemodified' => transform::datetime((int)$run->timemodified),
                 ];
             }
+            $records->close();
 
             $debug = [];
-            foreach ($DB->get_records(self::DEBUG_TABLE, ['threadid' => $threadid], 'timecreated ASC, id ASC') as $entry) {
+            $records = $DB->get_recordset(self::DEBUG_TABLE, ['threadid' => $threadid], 'timecreated ASC, id ASC');
+            foreach ($records as $entry) {
                 $debug[] = (object)[
                     'source' => (string)$entry->source,
                     'requesttext' => (string)($entry->requesttext ?? ''),
@@ -352,21 +363,17 @@ class provider implements
                     'timecreated' => transform::datetime((int)$entry->timecreated),
                 ];
             }
+            $records->close();
 
-            $exportthreads[] = (object)[
+            writer::with_context($context)->export_data([$folder, (string)$threadid], (object)[
                 'status' => (string)$thread->status,
                 'timecreated' => transform::datetime((int)$thread->timecreated),
                 'timemodified' => transform::datetime((int)$thread->timemodified),
                 'messages' => $messages,
                 'runs' => $runs,
                 'debuglogs' => $debug,
-            ];
+            ]);
         }
-
-        writer::with_context($context)->export_data(
-            [get_string('privacy:metadata:bx_agent_ai_threads', 'bookingextension_agent')],
-            (object)['threads' => $exportthreads]
-        );
     }
 
     /**

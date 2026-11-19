@@ -119,6 +119,11 @@ class optionhasstarted implements bo_condition {
         } else if (!empty($settings->selflearningcourse)) {
             // For self-learning courses this condition may never block.
             $isavailable = true;
+        } else if ((int)($settings->type ?? MOD_BOOKING_OPTIONTYPE_DEFAULT) === MOD_BOOKING_OPTIONTYPE_SLOTBOOKING) {
+            // Slot booking options do not use "Allow booking after course start": each slot is
+            // booked on its own, and ended slots are neither offered nor bookable (slot_availability).
+            // When no slot is left, the fullybooked condition shows "No more dates available".
+            $isavailable = true;
         } else if (!empty($settings->coursestarttime)) {
             // In this case, we have to check if the booking option has already started.
             $start = $settings->coursestarttime;

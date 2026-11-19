@@ -33,6 +33,7 @@ use mod_booking\singleton_service;
 use mod_booking\table\manageusers_table;
 use local_wunderbyte_table\wunderbyte_table;
 use moodle_url;
+use mod_booking\local\bookingstracker\optiondate_level;
 
 /**
  * Booking answers scope: options to confirm.
@@ -277,7 +278,7 @@ class optionstoconfirm extends option {
         // If presence counter is activated, we add that to SQL.
         $selectpresencecount = '';
         $presencecountsqlpart = '';
-        if (get_config('booking', 'bookingstrackerpresencecounter')) {
+        if (optiondate_level::presence_counter_enabled()) {
             $selectpresencecount = 'pcnt.presencecount,';
             $presencecountsqlpart =
                 "LEFT JOIN (
@@ -316,6 +317,10 @@ class optionstoconfirm extends option {
         }
 
         $whereneedtoconfirm = " AND " . $this->get_whereneedtoconfirm_sql($params);
+        $wherenotyetapproved = $this->get_wherenotyetapproved_sql();
+        if (!empty($wherenotyetapproved)) {
+            $whereneedtoconfirm .= " AND " . $wherenotyetapproved;
+        }
         $whereneedtoconfirmjoin = " JOIN {booking_options} bo ON bo.id = ba.optionid
                                     JOIN {course_modules} cm ON bo.bookingid = cm.instance
                                     JOIN {modules} m ON m.id = cm.module AND m.name = 'booking'";
@@ -339,6 +344,7 @@ class optionstoconfirm extends option {
                     ba.notes,
                     bo.text,
                     bo.coursestarttime,
+                    bo.courseendtime,
                     $selectpresencecount
                     ba.timemodified,
                     ba.timecreated,
@@ -426,6 +432,39 @@ class optionstoconfirm extends option {
             }
         }
         return "( " . implode(' OR ', $wherearray) . " )";
+    }
+
+    /**
+     * Returns the DB dependent restriction to hide answers which already received all required confirmations.
+     * Such answers can remain on the waiting list (e.g. option fully booked, or the user still has to pay),
+     * but there is nothing left to approve, so they must not show up in the list to approve anymore.
+     *
+     * @return string
+     *
+     */
+    public function get_wherenotyetapproved_sql(): string {
+
+        global $DB;
+
+        switch ($DB->get_dbfamily()) {
+            case 'postgres':
+                // Answers can have an empty json, which must not be cast to jsonb.
+                $confirmationcount = "COALESCE((NULLIF(ba.json, '')::jsonb ->> 'confirmationcount')::int, 0)";
+                $supervisorlevel = "COALESCE((bo.json::jsonb ->> 'confirmationsupervisorenabled')::int, 0)";
+                break;
+            case 'mysql':
+                $confirmationcount = "COALESCE(CAST(JSON_UNQUOTE(JSON_EXTRACT(NULLIF(ba.json, ''), '$.confirmationcount'))
+                    AS UNSIGNED), 0)";
+                $supervisorlevel = "COALESCE(CAST(JSON_UNQUOTE(JSON_EXTRACT(bo.json, '$.confirmationsupervisorenabled'))
+                    AS UNSIGNED), 0)";
+                break;
+            default:
+                return '';
+        }
+
+        // Only the two step supervisor workflows (HR -> supervisor and supervisor -> HR) need two confirmations.
+        // Everything else is fully approved with the first confirmation.
+        return "( $confirmationcount < (CASE WHEN $supervisorlevel IN (2, 4) THEN 2 ELSE 1 END) )";
     }
 
     /**

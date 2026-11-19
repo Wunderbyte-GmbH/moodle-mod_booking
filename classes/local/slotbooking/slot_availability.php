@@ -759,6 +759,14 @@ class slot_availability {
             return $result;
         }
 
+        // A slot that has already ended cannot be booked, whatever the slot type. The pickers do
+        // not offer it (see get_default_slot_range()), but a request can still send it directly.
+        // A running slot (start in the past, end in the future) stays bookable.
+        if ($slotend <= time()) {
+            $result['errormessage'] = get_string('slot_error_selected_unavailable', 'mod_booking');
+            return $result;
+        }
+
         // If the option is tied to an entity that is already occupied during this slot — exclusive
         // mode: any overlapping booking on the entity; capacity mode: the entity's shared pool is
         // exhausted — the slot is not available. At booking commit time this reads live
@@ -1446,7 +1454,11 @@ class slot_availability {
                 $minsession = min($starts);
                 $maxsession = max($ends);
                 if ($minsession > 0 && $maxsession > $minsession) {
-                    return [$minsession, $maxsession];
+                    // Like fixed slots, the range starts now at the earliest, so ended sessions
+                    // are not offered. A running session stays: get_session_slots_for_range()
+                    // keeps every session that ends after the range start. When all sessions
+                    // have ended, the range is empty.
+                    return [max($minsession, time()), $maxsession];
                 }
             }
         }

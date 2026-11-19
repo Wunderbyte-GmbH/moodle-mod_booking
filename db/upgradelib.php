@@ -362,3 +362,153 @@ function booking_performance_measurements_notnull_2026101401(): void {
         }
     }
 }
+
+/**
+ * Adds the missing cancellation deadline to purchases of booking options without dates.
+ *
+ * A fixed cancellation date of the booking instance ("Cancelling is only possible until certain date")
+ * was not applied to booking options without a start time and to self-learning courses. Shopping cart
+ * stores the deadline with every purchase at checkout and only checks this stored date, so these
+ * purchases were stored without a deadline and can be cancelled forever. This sets the fixed date of
+ * the instance for them, as it would have been stored at checkout.
+ *
+ * Only purchases without a deadline are changed and only paid and pending ones. Booking options
+ * with dates never were affected: their purchases without a deadline were made while the instance
+ * had no limit, so they keep it. Running it again changes nothing.
+ *
+ * Plain SQL on purpose: an upgrade step must not rely on the classes of the plugin (they expect the
+ * final database structure) and there is no cashier logged in whom the API of shopping cart asks for.
+ *
+ * @return array ids of the changed rows of local_shopping_cart_history, grouped by the deadline that was set
+ */
+function booking_add_fixed_canceluntil_to_purchases_without_dates_2026111800(): array {
+    global $DB;
+
+    // Shopping cart is optional.
+    if (!$DB->get_manager()->table_exists('local_shopping_cart_history')) {
+        return [];
+    }
+
+    // The cancel mode and the fixed date of an instance are stored in its json.
+    $bookings = $DB->get_records_select(
+        'booking',
+        $DB->sql_like('json', ':needle'),
+        ['needle' => '%allowupdatetimestamp%'],
+        'id ASC',
+        'id, json'
+    );
+
+    $changed = [];
+    foreach ($bookings as $booking) {
+        $json = json_decode($booking->json ?? '');
+        // The mode "fixed date" (MOD_BOOKING_CANCANCELBOOK_ABSOLUTE) is 0, so the key has to exist.
+        if (
+            !is_object($json)
+            || !isset($json->cancelrelativedate)
+            || (int)$json->cancelrelativedate !== 0
+            || empty($json->allowupdatetimestamp)
+        ) {
+            continue;
+        }
+        $canceluntil = (int)$json->allowupdatetimestamp;
+
+        // Payment status 0 is pending, 2 is paid (LOCAL_SHOPPING_CART_PAYMENT_PENDING and ..._SUCCESS).
+        // Booking option type 1 is a self-learning course, its start time is only used for sorting.
+        $historyids = $DB->get_fieldset_sql(
+            "SELECT h.id
+               FROM {local_shopping_cart_history} h
+               JOIN {booking_options} bo ON bo.id = h.itemid
+              WHERE h.componentname = :componentname
+                    AND h.area = :area
+                    AND h.paymentstatus IN (0, 2)
+                    AND (h.canceluntil IS NULL OR h.canceluntil = 0)
+                    AND bo.bookingid = :bookingid
+                    AND (bo.coursestarttime IS NULL OR bo.coursestarttime = 0 OR bo.type = 1)
+           ORDER BY h.id ASC",
+            ['componentname' => 'mod_booking', 'area' => 'option', 'bookingid' => $booking->id]
+        );
+
+        // In chunks, databases limit the number of parameters of a query.
+        foreach (array_chunk($historyids, 1000) as $chunk) {
+            [$insql, $inparams] = $DB->get_in_or_equal($chunk, SQL_PARAMS_NAMED);
+            $DB->set_field_select('local_shopping_cart_history', 'canceluntil', $canceluntil, "id $insql", $inparams);
+        }
+
+        if (!empty($historyids)) {
+            $changed[$canceluntil] = array_merge($changed[$canceluntil] ?? [], array_map('intval', $historyids));
+        }
+    }
+
+    return $changed;
+}
+
+/**
+ * Deletes the calendar events of cancelled booking options.
+ *
+ * Until now cancelling a booking option only deleted the calendar events of the booked users. The
+ * instance-wide events (course or site events) and the events of the teachers stayed in the calendar.
+ * Cancelling deletes all of them now, this does the same for the options that are already cancelled.
+ *
+ * Deleted are the instance-wide events of the option (found by their uuid "optionid-optiondateid" and
+ * by the reference in booking_optiondates) and all its user events (tracked in booking_userevents).
+ * Events of other components and of options that are not cancelled are not touched. Running it again
+ * changes nothing.
+ *
+ * Plain SQL on purpose: an upgrade step must not rely on the classes of the plugin (they expect the
+ * final database structure).
+ *
+ * @return array number of deleted calendar events, indexed by the id of the cancelled booking option
+ */
+function booking_delete_calendar_events_of_cancelled_options_2026111801(): array {
+    global $DB;
+
+    $deleted = [];
+    // Status 1 is cancelled, see booking_option::cancelbookingoption().
+    $optionids = $DB->get_fieldset_select('booking_options', 'id', 'status = 1', [], 'id ASC');
+    foreach ($optionids as $optionid) {
+        // Instance-wide events by uuid. Events of other components (e.g. imported iCal events) may have a
+        // uuid starting the same way, so the component is part of the condition.
+        $eventids = $DB->get_fieldset_select(
+            'event',
+            'id',
+            "component = 'mod_booking' AND eventtype <> 'user' AND " . $DB->sql_like('uuid', ':pattern'),
+            ['pattern' => $DB->sql_like_escape($optionid . '-') . '%']
+        );
+        // Instance-wide events the dates of the option refer to.
+        $eventids = array_merge($eventids, $DB->get_fieldset_sql(
+            "SELECT od.eventid
+               FROM {booking_optiondates} od
+              WHERE od.optionid = :optionid AND od.eventid > 0",
+            ['optionid' => $optionid]
+        ));
+        // User events of teachers (and of booked users, if any are left).
+        $eventids = array_merge($eventids, $DB->get_fieldset_sql(
+            "SELECT bue.eventid
+               FROM {booking_userevents} bue
+              WHERE bue.optionid = :optionid AND bue.eventid > 0",
+            ['optionid' => $optionid]
+        ));
+        $eventids = array_unique(array_map('intval', $eventids));
+
+        $count = 0;
+        // In chunks, databases limit the number of parameters of a query.
+        foreach (array_chunk($eventids, 1000) as $chunk) {
+            [$insql, $inparams] = $DB->get_in_or_equal($chunk, SQL_PARAMS_NAMED);
+            $count += $DB->count_records_select('event', "id $insql", $inparams);
+            $DB->delete_records_select('event', "id $insql", $inparams);
+        }
+
+        // The references to the deleted events.
+        $DB->delete_records('booking_userevents', ['optionid' => $optionid]);
+        $DB->set_field_select('booking_optiondates', 'eventid', null, 'optionid = :optionid AND eventid IS NOT NULL', [
+            'optionid' => $optionid,
+        ]);
+        $DB->set_field_select('booking_options', 'calendarid', 0, 'id = :id AND calendarid <> 0', ['id' => $optionid]);
+
+        if ($count > 0) {
+            $deleted[(int)$optionid] = $count;
+        }
+    }
+
+    return $deleted;
+}

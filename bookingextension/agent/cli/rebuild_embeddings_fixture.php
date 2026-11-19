@@ -15,7 +15,10 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * CLI helper to rebuild the skill-catalog embeddings fixture CSV for tests.
+ * CLI helper to rebuild the skill-catalog embeddings fixture for tests.
+ *
+ * The fixture is committed in a compact form (index file and half-float vectors, see
+ * embeddings_fixture_codec). The script works on the CSV file and writes the compact form next to it.
  *
  * @package    bookingextension_agent
  * @copyright  2026 Wunderbyte GmbH <info@wunderbyte.at>
@@ -31,6 +34,7 @@ require_once($CFG->libdir . '/clilib.php');
 
 use bookingextension_agent\local\wizard\embeddings_action_config_resolver;
 use bookingextension_agent\local\wizard\services\embeddings\embeddings_catalog_builder_service;
+use bookingextension_agent\local\wizard\services\embeddings\embeddings_fixture_codec;
 use bookingextension_agent\local\wizard\embeddings_csv_repository;
 use bookingextension_agent\local\wizard\orchestrator;
 use bookingextension_agent\local\wizard\skill_registry_factory;
@@ -48,7 +52,7 @@ Options:
   --force            With --embed: regenerate embeddings for all current skills.
   --model=MODEL      Embedding model override.
   --dimensions=N     Embedding dimensions override.
-    --output=PATH      Output CSV path (default: tests/agent/fixtures/skill_catalog_embeddings.csv).
+    --output=PATH      Output CSV path (default: tests/agent/fixtures/skill_catalog_embeddings__<model>__<dimensions>.csv).
   --help             Show this help.
 
 Default behavior (without --embed):
@@ -82,11 +86,6 @@ if ($force && !$doembed) {
     mtrace('Warning: --force has no effect without --embed.');
 }
 
-$outputpath = trim((string)$options['output']);
-if ($outputpath === '') {
-    $outputpath = dirname(__DIR__) . '/tests/agent/fixtures/skill_catalog_embeddings.csv';
-}
-
 $resolver = new embeddings_action_config_resolver();
 $resolved = $resolver->resolve();
 
@@ -106,6 +105,13 @@ if ($dimensions < 1) {
     $dimensions = orchestrator::EMBEDDINGS_DEFAULT_DIMENSIONS;
 }
 
+// The tests read one fixture per model and dimensions, so that is the file the script writes by default.
+$outputpath = trim((string)$options['output']);
+if ($outputpath === '') {
+    $variantkey = embeddings_csv_repository::normalize_variant_key($model . '__' . $dimensions);
+    $outputpath = dirname(__DIR__) . '/tests/agent/fixtures/skill_catalog_embeddings__' . $variantkey . '.csv';
+}
+
 $registry = skill_registry_factory::get_default();
 $builder = new embeddings_catalog_builder_service();
 $rows = $builder->build_full_catalog_rows($registry, $model, $dimensions);
@@ -113,7 +119,8 @@ if (empty($rows)) {
     cli_error('No skill rows generated from registry.');
 }
 
-$existingrows = read_fixture_rows($outputpath);
+embeddings_fixture_codec::unpack($outputpath);
+$existingrows = bookingextension_agent_read_fixture_rows($outputpath);
 $existingbyskill = [];
 foreach ($existingrows as $row) {
     $skillname = trim((string)($row['skill'] ?? ''));
@@ -247,7 +254,8 @@ foreach ($rows as $idx => $row) {
     unset($rows[$idx]['_embedding_input']);
 }
 
-write_fixture_rows($outputpath, $rows);
+bookingextension_agent_write_fixture_rows($outputpath, $rows);
+embeddings_fixture_codec::pack($outputpath);
 
 mtrace('bookingextension_agent fixture rebuild done: ' . $outputpath);
 mtrace('model=' . $model . ', dimensions=' . $dimensions . ', embed=' . ($doembed ? 'yes' : 'no')
@@ -274,7 +282,7 @@ if (!empty($deletedskills)) {
  * @param string $path
  * @return array<int,array<string,string>>
  */
-function read_fixture_rows(string $path): array {
+function bookingextension_agent_read_fixture_rows(string $path): array {
     // Delegate to the repository so reading uses the same RFC-4180 (escape-free) parsing as the
     // runtime; a bespoke reader here previously diverged and silently dropped JSON-bearing rows.
     return (new embeddings_csv_repository($path))->read_rows();
@@ -287,7 +295,7 @@ function read_fixture_rows(string $path): array {
  * @param array $rows
  * @return void
  */
-function write_fixture_rows(string $path, array $rows): void {
+function bookingextension_agent_write_fixture_rows(string $path, array $rows): void {
     $dir = dirname($path);
     if (!is_dir($dir)) {
         if (!mkdir($dir, 0775, true) && !is_dir($dir)) {

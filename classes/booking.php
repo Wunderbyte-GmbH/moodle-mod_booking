@@ -56,6 +56,24 @@ require_once($CFG->dirroot . '/mod/booking/locallib.php');
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class booking {
+    /**
+     * Preset of the instance setting "Priority of the search results" in the form of a new booking instance.
+     *
+     * @var string[]
+     */
+    public const DEFAULT_SEARCHPRIORITYCOLUMNS = ['titleprefix', 'text'];
+
+    /**
+     * Other names users may write for a column of the booking options table, e.g. in the shortcode arguments
+     * priority and fulltextsearchcolumns: alias => column. See split_fulltextsearchcolumns().
+     *
+     * @var string[]
+     */
+    public const FULLTEXTSEARCHCOLUMN_ALIASES = [
+        'teacher' => 'teachernames',
+        'teachers' => 'teachernames',
+    ];
+
     /** @var int id booking id  */
     public $id = 0;
 
@@ -2452,6 +2470,12 @@ class booking {
             if (in_array($customfield, $columns, true)) {
                 $requiredcustomfields[] = $customfield;
             }
+
+            // 6. Check priority columns of the search (shortcode argument priority) if there are any custom fields.
+            $columns = empty($tableinstance) ? [] : ($tableinstance->prioritycolumns ?? []);
+            if (in_array($customfield, $columns, true)) {
+                $requiredcustomfields[] = $customfield;
+            }
         }
 
         return array_values(array_unique($requiredcustomfields));
@@ -2460,43 +2484,92 @@ class booking {
     /**
      * Returns those of the given columns that may be added to the full text search of a booking options table.
      *
-     * The names come from user input (shortcode argument fulltextsearchcolumns, instance setting) and end up
-     * unescaped in the SQL of the table, so only known names are accepted: columns of the table booking_options
-     * and shortnames of booking customfields. Anything else is ignored with a debugging message for developers.
+     * The names come from user input (shortcode arguments fulltextsearchcolumns and priority, instance setting)
+     * and end up unescaped in the SQL of the table, so only known names are accepted: columns of the table
+     * booking_options, the names of the teachers (teachernames, also written teacher or teachers) and shortnames
+     * of booking customfields. Anything else is ignored with a debugging message
+     * for developers.
      *
      * Public API: also used by other plugins that build their own booking options tables (e.g. local_musi).
      *
      * @param array $columns column names, e.g. the exploded value of the shortcode argument
+     * @param string $argumentname name of the shortcode argument, for the debugging message
      * @return array list of valid column names without duplicates
      */
-    public static function get_valid_fulltextsearchcolumns(array $columns): array {
+    public static function get_valid_fulltextsearchcolumns(
+        array $columns,
+        string $argumentname = 'fulltextsearchcolumns'
+    ): array {
+        [$validcolumns, $invalidcolumns] = self::split_fulltextsearchcolumns($columns);
+        foreach ($invalidcolumns as $column) {
+            debugging(
+                "Invalid column '$column' in $argumentname shortcode argument was ignored.",
+                DEBUG_DEVELOPER
+            );
+        }
+        return $validcolumns;
+    }
+
+    /**
+     * Splits column names into those that may be used in the SQL of a booking options table and all others.
+     *
+     * Valid are the columns of the table booking_options, the names of the teachers (teachernames) and the
+     * shortnames of booking customfields, see get_valid_fulltextsearchcolumns(). Use this function where
+     * invalid names are reported to the user (form validation) instead of being ignored with a debugging message.
+     *
+     * The aliases "teacher" and "teachers" are returned as "teachernames" (see FULLTEXTSEARCHCOLUMN_ALIASES),
+     * unless a booking customfield has that shortname: an existing customfield always wins.
+     *
+     * @param array $columns column names
+     * @return array [valid column names, invalid column names], both without duplicates and empty names
+     */
+    public static function split_fulltextsearchcolumns(array $columns): array {
         global $DB;
 
         if (empty($columns)) {
-            return [];
+            return [[], []];
         }
 
-        $validcolumns = array_keys($DB->get_columns('booking_options', true));
+        $optioncolumns = array_keys($DB->get_columns('booking_options', true));
+        // Columns that only exist in the SQL of the booking options table, see get_options_filter_sql().
+        $optioncolumns[] = 'teachernames';
         $customfieldshortnames = array_map(
             fn($field) => $field->shortname,
             booking_handler::get_customfields()
         );
 
-        $fulltextsearchcolumns = [];
+        $validcolumns = [];
+        $invalidcolumns = [];
         foreach ($columns as $column) {
             $column = clean_param(trim((string)$column), PARAM_ALPHANUMEXT);
             if (
-                in_array($column, $validcolumns, true)
-                || in_array($column, $customfieldshortnames, true)
+                isset(self::FULLTEXTSEARCHCOLUMN_ALIASES[$column])
+                && !in_array($column, $customfieldshortnames, true)
             ) {
-                $fulltextsearchcolumns[] = $column;
+                $column = self::FULLTEXTSEARCHCOLUMN_ALIASES[$column];
+            }
+            if (in_array($column, $optioncolumns, true) || in_array($column, $customfieldshortnames, true)) {
+                $validcolumns[] = $column;
             } else if (!empty($column)) {
-                debugging(
-                    "Invalid column '$column' in fulltextsearchcolumns shortcode argument was ignored.",
-                    DEBUG_DEVELOPER
-                );
+                $invalidcolumns[] = $column;
             }
         }
-        return array_values(array_unique($fulltextsearchcolumns));
+        return [array_values(array_unique($validcolumns)), array_values(array_unique($invalidcolumns))];
+    }
+
+    /**
+     * Returns the columns of the instance setting "Priority of the search results" as a clean list.
+     *
+     * The setting comes as a comma separated string from the form of the booking instance
+     * (e.g. "titleprefix,text") or as an array from code. The order of the columns is the priority.
+     *
+     * @param array|string|null $columns the submitted value
+     * @return array list of valid column names in their order
+     */
+    public static function prepare_searchprioritycolumns($columns): array {
+        if (!is_array($columns)) {
+            $columns = explode(',', (string)$columns);
+        }
+        return self::get_valid_fulltextsearchcolumns($columns, 'searchprioritycolumns');
     }
 }

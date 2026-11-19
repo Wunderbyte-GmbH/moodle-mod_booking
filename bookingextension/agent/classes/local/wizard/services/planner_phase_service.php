@@ -436,9 +436,30 @@ class planner_phase_service {
                 'required_groups' => (array)($contract['required_groups'] ?? []),
             ];
         }
+        // 2026-10-21 (#2678, A/B MEM4): the facts the user keeps on file reach the constructor as the user's own
+        // earlier turn, in the prompt only (nothing is stored). In the same thread the remembered room reached the
+        // location field 12/12 because the user's sentence stood in the conversation; as a USER MEMORY block alone
+        // it reached it 0/3 (LOC1), 1/6 (rule sentence, MEM1), 3/6 (block header, MEM2), 0/6 (block after the
+        // catalog, MEM3). Rule 1 of the constructor counts "earlier in the conversation" as the user's words.
+        $promptmessages = $messages;
+        $keptfacts = [];
+        foreach ((new user_memory_service())->get_for_scope($userid, user_memory_service::SCOPE_CONSTRUCTION) as $kept) {
+            $fact = trim((string)($kept->memory ?? ''));
+            if ($fact !== '') {
+                $keptfacts[] = '"' . $fact . '"';
+            }
+        }
+        if (!empty($keptfacts)) {
+            array_unshift(
+                $promptmessages,
+                (object)['role' => 'user', 'content' => 'Keep this on file for my requests: ' . implode(' ', $keptfacts)],
+                (object)['role' => 'assistant', 'content' => 'Noted. I keep it on file and use it whenever a request '
+                    . 'of yours leaves such a value open.']
+            );
+        }
         $prompt = $this->build_prompt(
             $systemprompt,
-            $messages,
+            $promptmessages,
             $constructionobservations,
             orchestrator::PHASE_PARAMETER_CONSTRUCTION,
             $runtimeblocks['stable'],
@@ -448,7 +469,8 @@ class planner_phase_service {
             $runtimeblocks['volatile'],
             $selectedskillisreadonly,
             [],
-            $selectedskillinput
+            $selectedskillinput,
+            $this->resolve_plan_step($threadid, $selectionstate)
         );
 
         $historycount = count(
@@ -937,6 +959,46 @@ class planner_phase_service {
             'lang' => (string)($selectionstate['lang'] ?? ''),
             'user_lang' => (string)($selectionstate['user_lang'] ?? ''),
         ];
+    }
+
+    /**
+     * The plan step this construction realizes, from engine state (#2762, thread 8947).
+     *
+     * Follow-up turns: the oldest planned placeholder is the step the decision service binds to the first real
+     * mutating command of the turn ({@see queue_manager::bind_next_placeholder()}), so it is the current step;
+     * the other planned placeholders remain, the succeeded ones are done. First turn of a plan (no placeholders
+     * yet): the selected command itself is the current step (unnamed - next_step_intent is not a reliable name for
+     * it) and the selector's planned_steps are the remaining ones. Single-step turns, also those after an earlier
+     * plan finished, yield an empty array and no block.
+     *
+     * @param int $threadid
+     * @param array $selectionstate
+     * @return array{current:string,remaining:string[],completed:string[]}|array{}
+     */
+    private function resolve_plan_step(int $threadid, array $selectionstate): array {
+        $context = (new queue_manager($this->store, $this->registry))->plan_step_context($threadid, false);
+        if (!empty($context)) {
+            return [
+                'current' => (string)$context['current'],
+                'remaining' => (array)$context['remaining'],
+                'completed' => (array)$context['completed'],
+            ];
+        }
+        // First turn of a plan: the current step is the selected command itself. It is NOT named from
+        // next_step_intent - the selector uses that field for the current step, for the first future step
+        // or for a collapsed rest (26 live outputs, 2026-11-09) - and the planned steps are listed as declared.
+        $remaining = [];
+        foreach ((array)($selectionstate['planned_steps'] ?? []) as $plannedstep) {
+            $intent = trim((string)(is_array($plannedstep) ? ($plannedstep['intent'] ?? '') : $plannedstep));
+            if ($intent !== '') {
+                $remaining[] = $intent;
+            }
+        }
+        if (empty($remaining)) {
+            // No plan in flight and none declared: a single-step turn, also after an earlier plan finished.
+            return [];
+        }
+        return ['current' => '', 'remaining' => $remaining, 'completed' => []];
     }
 
     /**

@@ -104,6 +104,13 @@ class privacy_anonymizer {
     /** @var string Visual marker appended to a de-masked identity so an authorized viewer sees it was privacy-masked. */
     private const DEMASK_MARKER = '👤';
 
+    /**
+     * @var string Result-entry key: the user ids of the persons a skill observation names (declared persons,
+     * Wunderbyte-GmbH#2614). An entry carrying the key - an empty list when the text names nobody - gets the declared
+     * treatment ({@see self::anonymize_value_for_llm_with_declared_persons()}); an entry without it keeps the full detection.
+     */
+    public const RESULT_OBSERVATION_PERSONS = 'observation_persons';
+
     /** @var bool Storage mode: known map values are re-masked, no single-word name tokens are minted. */
     private bool $storagemode = false;
 
@@ -297,6 +304,39 @@ class privacy_anonymizer {
     }
 
     /**
+     * Mask the text of an uploaded document before it becomes part of the user message.
+     *
+     * Full names of site users and e-mail addresses are replaced by tokens of the thread, as in a
+     * user message. A single word that happens to be a first or last name is left alone: in a long
+     * text such words are mostly ordinary words, and nobody is there to be asked about each of them.
+     *
+     * @param int $threadid
+     * @param string $text
+     * @param bool $persist False to count only: the tokens are not added to the thread.
+     * @return array{text:string, names:int, emails:int}
+     */
+    public function anonymize_document_text(int $threadid, string $text, bool $persist = true): array {
+        if (!$this->should_anonymize_llm_backend_data() || trim($text) === '') {
+            return ['text' => $text, 'names' => 0, 'emails' => 0];
+        }
+
+        $tokenmap = $this->get_token_map($threadid);
+        $previous = $this->storagemode;
+        $this->storagemode = true;
+        try {
+            [$sanitized, $emails] = $this->anonymize_emails(self::valid_utf8($text), $tokenmap);
+            [$sanitized, $names] = $this->anonymize_names($sanitized, $tokenmap);
+        } finally {
+            $this->storagemode = $previous;
+        }
+        if ($persist) {
+            $this->set_token_map($threadid, $tokenmap);
+        }
+
+        return ['text' => (string)$sanitized, 'names' => (int)$names, 'emails' => (int)$emails];
+    }
+
+    /**
      * Replace ANON_USER tokens in command input recursively with original values.
      *
      * @param int $threadid
@@ -455,6 +495,141 @@ class privacy_anonymizer {
         $this->set_token_map($threadid, $tokenmap);
 
         return $sanitized;
+    }
+
+    /**
+     * The persons a result entry declares for its observation, or null when the entry declares nothing.
+     *
+     * @param array $entry A skill result entry.
+     * @return int[]|null User ids (deduplicated, positive), or null without the declaration.
+     */
+    public static function declared_persons_of(array $entry): ?array {
+        if (
+            !array_key_exists(self::RESULT_OBSERVATION_PERSONS, $entry)
+            || !is_array($entry[self::RESULT_OBSERVATION_PERSONS])
+        ) {
+            return null;
+        }
+        $ids = [];
+        foreach ($entry[self::RESULT_OBSERVATION_PERSONS] as $id) {
+            if (is_numeric($id) && (int)$id > 0) {
+                $ids[(int)$id] = (int)$id;
+            }
+        }
+        return array_values($ids);
+    }
+
+    /**
+     * Mask a value whose persons the skill DECLARED (user ids) before it reaches an LLM.
+     *
+     * A skill observation is template text plus data; the full detection could not tell them apart and masked
+     * every word that is also an account's name ("Admin action:" -> "ANON_USER_1_firstname action:", thread 31983,
+     * Wunderbyte-GmbH#2614). Here every variant of each declared account (full name, first name, last name, e-mail)
+     * is minted into the thread map first, so the storage-mode pass replaces them all - the single first name
+     * included. That pass also replaces every value the map already knows and the full names of other accounts
+     * (pass 1 of anonymize_names); the single-word fallback does not run, so template words stay.
+     *
+     * @param int $threadid
+     * @param mixed $value
+     * @param int[] $personuserids
+     * @return mixed
+     */
+    public function anonymize_value_for_llm_with_declared_persons(int $threadid, $value, array $personuserids) {
+        if (!$this->should_anonymize_llm_backend_data()) {
+            return $value;
+        }
+
+        $tokenmap = $this->get_token_map($threadid);
+        foreach ($personuserids as $userid) {
+            $this->mint_tokens_for_declared_user((int)$userid, $tokenmap);
+        }
+        $previous = $this->storagemode;
+        $this->storagemode = true;
+        try {
+            $sanitized = $this->anonymize_value_recursive($value, $tokenmap);
+        } finally {
+            $this->storagemode = $previous;
+        }
+        $this->set_token_map($threadid, $tokenmap);
+
+        return $sanitized;
+    }
+
+    /**
+     * Mint the tokens of a declared account into the map: one entry per identity variant, one shared base token.
+     *
+     * @param int $userid
+     * @param array $tokenmap
+     * @return void
+     */
+    private function mint_tokens_for_declared_user(int $userid, array &$tokenmap): void {
+        if ($userid <= 0) {
+            return;
+        }
+        $identity = $this->resolve_identity_from_user_ids([$userid]);
+        $identitykey = (string)($identity['identitykey'] ?? '');
+        if (!str_starts_with($identitykey, 'user:')) {
+            // A deleted or unknown account has no name to mask.
+            return;
+        }
+        $variants = (array)($identity['variants'] ?? []);
+        foreach (['both', 'firstname', 'lastname', 'email'] as $type) {
+            $value = trim((string)($variants[$type] ?? ''));
+            if ($value === '') {
+                continue;
+            }
+            $this->get_or_create_token($tokenmap, $identitykey, $type, $value, $value, $variants, 'declared_person');
+        }
+    }
+
+    /**
+     * Mask a step observation built from result entries: the one rule agent_runtime and the synchronizer input share.
+     *
+     * Engine-static entries (instructional engine text, threads 286/288) stay as they are. When every
+     * observation-carrying entry declares its persons, the observation gets the declared treatment with the union
+     * of those persons; a single undeclared entry keeps the full detection for the whole observation, so the
+     * masking is never weaker than before (P2).
+     *
+     * @param int $threadid
+     * @param array $results Result entries that produced the observation.
+     * @param string $observation
+     * @return string
+     */
+    public function mask_observation_for_llm(int $threadid, array $results, string $observation): string {
+        if (trim($observation) === '' || !$this->should_anonymize_llm_backend_data()) {
+            return $observation;
+        }
+
+        $allenginestatic = !empty($results);
+        $alldeclared = !empty($results);
+        $persons = [];
+        foreach ($results as $entry) {
+            if (!is_array($entry)) {
+                continue;
+            }
+            $carriesobservation = trim((string)($entry['observation_full'] ?? '')) !== ''
+                || trim((string)($entry['detail'] ?? '')) !== '';
+            if (!$carriesobservation || !empty($entry['observation_engine_static'])) {
+                continue;
+            }
+            $allenginestatic = false;
+            $declared = self::declared_persons_of($entry);
+            if ($declared === null) {
+                $alldeclared = false;
+                continue;
+            }
+            foreach ($declared as $id) {
+                $persons[$id] = $id;
+            }
+        }
+        if ($allenginestatic) {
+            return $observation;
+        }
+        if ($alldeclared) {
+            return (string)$this->anonymize_value_for_llm_with_declared_persons($threadid, $observation, array_values($persons));
+        }
+
+        return (string)$this->anonymize_value_for_llm($threadid, $observation);
     }
 
     /**

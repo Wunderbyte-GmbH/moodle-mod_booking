@@ -1,0 +1,2265 @@
+{
+    "dimensions": 1536,
+    "rows": [
+        {
+            "skill": "mod_booking.add_price_category",
+            "anchor_index": "0",
+            "anchor_kind": "description",
+            "anchor_text": "Create a new price category (for example student, member, external) that can be used in booking option pricing. Use this when users ask to add or manage named price types. Requires site-level configuration capability.",
+            "embedding_model": "text-embedding-3-small",
+            "embedding_dimensions": "1536",
+            "content_hash": "9479b29324a5952a83f28ae2e051bcbc2f15b73dc90f148f5890161048cee950",
+            "has_vector": true
+        },
+        {
+            "skill": "mod_booking.analyze_rules",
+            "anchor_index": "0",
+            "anchor_kind": "description",
+            "anchor_text": "Read-only analysis of booking rules and notification behavior in the current booking context. Use this for natural-language questions like \"what emails are sent\", \"which rules are active\", or \"how are confirmations/reminders configured\".",
+            "embedding_model": "text-embedding-3-small",
+            "embedding_dimensions": "1536",
+            "content_hash": "593ade2788304fd60ec03a43059dbfa60d1866f171478ec49737a244eeedce35",
+            "has_vector": true
+        },
+        {
+            "skill": "mod_booking.analyze_rules",
+            "anchor_index": "1",
+            "anchor_kind": "utterance",
+            "anchor_text": "What emails does this booking send out?",
+            "embedding_model": "text-embedding-3-small",
+            "embedding_dimensions": "1536",
+            "content_hash": "9ccd052f5f2f36475b20f7eb3b002d6bd7792e7849e4bd1e5ce5e7cba98265c9",
+            "has_vector": true
+        },
+        {
+            "skill": "mod_booking.analyze_rules",
+            "anchor_index": "2",
+            "anchor_kind": "utterance",
+            "anchor_text": "Which rules are currently set up here?",
+            "embedding_model": "text-embedding-3-small",
+            "embedding_dimensions": "1536",
+            "content_hash": "fa3e0b570ab0e0539e0ed9f1d42d83d57dee8cff4e3ae03f848da7b4a2366720",
+            "has_vector": true
+        },
+        {
+            "skill": "mod_booking.analyze_rules",
+            "anchor_index": "3",
+            "anchor_kind": "utterance",
+            "anchor_text": "Show me how the reminders are configured",
+            "embedding_model": "text-embedding-3-small",
+            "embedding_dimensions": "1536",
+            "content_hash": "2d98ea6b30581323c05f891b0b444f49e53484993f4cbea276c90b03885b360c",
+            "has_vector": true
+        },
+        {
+            "skill": "mod_booking.analyze_rules",
+            "anchor_index": "4",
+            "anchor_kind": "utterance",
+            "anchor_text": "List the notification rules on this booking",
+            "embedding_model": "text-embedding-3-small",
+            "embedding_dimensions": "1536",
+            "content_hash": "7de2c9d4e1497ab90f382f035cb764776c14ad24cc35ecb946b7bcd40c735ec2",
+            "has_vector": true
+        },
+        {
+            "skill": "mod_booking.analyze_rules",
+            "anchor_index": "5",
+            "anchor_kind": "utterance",
+            "anchor_text": "Explain what automations are active on this instance",
+            "embedding_model": "text-embedding-3-small",
+            "embedding_dimensions": "1536",
+            "content_hash": "70a13b07e7ddac97441f97b0bdc93c0ac5d5dd2ce8802c37187b34b9df3ec671",
+            "has_vector": true
+        },
+        {
+            "skill": "mod_booking.book_users",
+            "anchor_index": "0",
+            "anchor_kind": "description",
+            "anchor_text": "Book one or more users into an existing booking option. All booking conditions are enforced. Use bookusersquery to name the users and optionquery to name the target option directly (a title or fragment, e.g. the course/event name) — this skill resolves the option itself, so do NOT run a separate search/find step first; call it directly even when only the option name is known.",
+            "embedding_model": "text-embedding-3-small",
+            "embedding_dimensions": "1536",
+            "content_hash": "da2c585129052d37103fc55036aa19ced6d904cbbd7ce825801e9e67bf953a94",
+            "has_vector": true
+        },
+        {
+            "skill": "mod_booking.book_users",
+            "anchor_index": "1",
+            "anchor_kind": "utterance",
+            "anchor_text": "Enrol Maria into the Tuesday cooking course",
+            "embedding_model": "text-embedding-3-small",
+            "embedding_dimensions": "1536",
+            "content_hash": "99802d79126c144009d4c5a1464483ff0bc3f85addc44865438050894db46ca2",
+            "has_vector": true
+        },
+        {
+            "skill": "mod_booking.book_users",
+            "anchor_index": "2",
+            "anchor_kind": "utterance",
+            "anchor_text": "Book John and Sarah into the Spring Workshop",
+            "embedding_model": "text-embedding-3-small",
+            "embedding_dimensions": "1536",
+            "content_hash": "542413980ca5c00a39e3184d7f701a99cba9a054f4aacc80fafca7e260bd3eb4",
+            "has_vector": true
+        },
+        {
+            "skill": "mod_booking.book_users",
+            "anchor_index": "3",
+            "anchor_kind": "utterance",
+            "anchor_text": "Add three participants to this option",
+            "embedding_model": "text-embedding-3-small",
+            "embedding_dimensions": "1536",
+            "content_hash": "fd069a82009ad0f4d839e782046ae85814b41e900202b08bcbc9f864bf17792d",
+            "has_vector": true
+        },
+        {
+            "skill": "mod_booking.book_users",
+            "anchor_index": "4",
+            "anchor_kind": "utterance",
+            "anchor_text": "Register the student with email anna@example.com for the First Aid Course",
+            "embedding_model": "text-embedding-3-small",
+            "embedding_dimensions": "1536",
+            "content_hash": "3b5a8a61d2252d2d19753b8cf961279e0bb17781df4e911ec1b0a6ad22f7ebfa",
+            "has_vector": true
+        },
+        {
+            "skill": "mod_booking.book_users",
+            "anchor_index": "5",
+            "anchor_kind": "utterance",
+            "anchor_text": "Sign me up for the yoga class",
+            "embedding_model": "text-embedding-3-small",
+            "embedding_dimensions": "1536",
+            "content_hash": "0840ecca58b1393cb12eff7eb56f17d1e4e5ce3a9acdce6f25c2e21aa5c5e978",
+            "has_vector": true
+        },
+        {
+            "skill": "mod_booking.bulk_update_options",
+            "anchor_index": "0",
+            "anchor_kind": "description",
+            "anchor_text": "Update multiple booking options at once. All provided fields are applied to every matched option. Requires optionids, optionquery, or apply_to_all=true to select targets.",
+            "embedding_model": "text-embedding-3-small",
+            "embedding_dimensions": "1536",
+            "content_hash": "8398e3a1b3565407adfe2231e8df87aff9ebed9d4132d7b899a803229e00177e",
+            "has_vector": true
+        },
+        {
+            "skill": "mod_booking.bulk_update_options",
+            "anchor_index": "1",
+            "anchor_kind": "utterance",
+            "anchor_text": "Set the price to 30 euros for all yoga options",
+            "embedding_model": "text-embedding-3-small",
+            "embedding_dimensions": "1536",
+            "content_hash": "b57f3744c8e8f58c9a2c3cd3f9e5451125135b5a72073f9de27cee4735155b7a",
+            "has_vector": true
+        },
+        {
+            "skill": "mod_booking.bulk_update_options",
+            "anchor_index": "2",
+            "anchor_kind": "utterance",
+            "anchor_text": "Apply the same end date to every option in this activity",
+            "embedding_model": "text-embedding-3-small",
+            "embedding_dimensions": "1536",
+            "content_hash": "a22e814c3b44b8adc33073b68e776639a8000d172a00ea8cc4b9832972886bf2",
+            "has_vector": true
+        },
+        {
+            "skill": "mod_booking.bulk_update_options",
+            "anchor_index": "3",
+            "anchor_kind": "utterance",
+            "anchor_text": "Increase the capacity of all workshops to 25 seats",
+            "embedding_model": "text-embedding-3-small",
+            "embedding_dimensions": "1536",
+            "content_hash": "d7a5cc3220beea0f8c9b265943add3be0e5724cc50e852bd8314196c075d6591",
+            "has_vector": true
+        },
+        {
+            "skill": "mod_booking.bulk_update_options",
+            "anchor_index": "4",
+            "anchor_kind": "utterance",
+            "anchor_text": "Make all options visible at once",
+            "embedding_model": "text-embedding-3-small",
+            "embedding_dimensions": "1536",
+            "content_hash": "ad54cd2d003967367ab45b1c80c214bca5afc30a24bc63e697fa2cf98cb2417a",
+            "has_vector": true
+        },
+        {
+            "skill": "mod_booking.bulk_update_options",
+            "anchor_index": "5",
+            "anchor_kind": "utterance",
+            "anchor_text": "Change the teacher for every Tuesday class in one go",
+            "embedding_model": "text-embedding-3-small",
+            "embedding_dimensions": "1536",
+            "content_hash": "8d30f5bc93ec3cf2576c30441369157c1c3a4d9db8faf20a1adbc221f649c450",
+            "has_vector": true
+        },
+        {
+            "skill": "mod_booking.configure_booking_instance",
+            "anchor_index": "0",
+            "anchor_kind": "description",
+            "anchor_text": "Configure the current booking activity instance settings. Use action=list_fields to discover which fields exist and their current values. Use action=update to apply specific changes. Natural-language mapping: questions like \"what can I configure\" or \"show current settings\" should map to action=list_fields; requests like \"change X to Y\" should map to action=update with a changes array.",
+            "embedding_model": "text-embedding-3-small",
+            "embedding_dimensions": "1536",
+            "content_hash": "6dfc7615a72f0ca9f85ccc5f1a02cba3df66caf022126c01f03d03ad5572908e",
+            "has_vector": true
+        },
+        {
+            "skill": "mod_booking.configure_booking_instance",
+            "anchor_index": "1",
+            "anchor_kind": "utterance",
+            "anchor_text": "Change the settings of this booking activity",
+            "embedding_model": "text-embedding-3-small",
+            "embedding_dimensions": "1536",
+            "content_hash": "814f5f1d020aeb0e3135c7a0281c52a391a6cd514832b2fcee5386ed5ebfd24d",
+            "has_vector": true
+        },
+        {
+            "skill": "mod_booking.configure_booking_instance",
+            "anchor_index": "2",
+            "anchor_kind": "utterance",
+            "anchor_text": "Add a new price category for students",
+            "embedding_model": "text-embedding-3-small",
+            "embedding_dimensions": "1536",
+            "content_hash": "e4d2a9f91971b26aac1e10eb53bce82a656b91f5b68f875f39f27a6f9b2394e2",
+            "has_vector": true
+        },
+        {
+            "skill": "mod_booking.configure_booking_instance",
+            "anchor_index": "3",
+            "anchor_kind": "utterance",
+            "anchor_text": "What can I configure for this booking instance?",
+            "embedding_model": "text-embedding-3-small",
+            "embedding_dimensions": "1536",
+            "content_hash": "fb77a6647fcda8ab7b2d3144eab2e5f4913669e85cfaabe7cbea9975432430f5",
+            "has_vector": true
+        },
+        {
+            "skill": "mod_booking.configure_booking_instance",
+            "anchor_index": "4",
+            "anchor_kind": "utterance",
+            "anchor_text": "Show the current activity-level settings",
+            "embedding_model": "text-embedding-3-small",
+            "embedding_dimensions": "1536",
+            "content_hash": "db0309e7f8586aed60c7bbbbc075f6ef768b0d17be3b06bb18070c211b4ccc30",
+            "has_vector": true
+        },
+        {
+            "skill": "mod_booking.configure_booking_instance",
+            "anchor_index": "5",
+            "anchor_kind": "utterance",
+            "anchor_text": "Rename the booking activity and adjust its defaults",
+            "embedding_model": "text-embedding-3-small",
+            "embedding_dimensions": "1536",
+            "content_hash": "70cdb6fa21eee202543e9dc38fefa301775129e8381d8bfd69bdb3248c6dd0fe",
+            "has_vector": true
+        },
+        {
+            "skill": "mod_booking.create_option",
+            "anchor_index": "0",
+            "anchor_kind": "description",
+            "anchor_text": "Create a new booking option in the current booking activity. Canonical keys for normal dated options are text, coursestarttime, courseendtime, maxanswers and optiondates. Do not use non-canonical keys like day/date/start/end for this task. Use this general create task when the user asks for a standard dated option (for example \"create a workshop next Tuesday from 10:00 to 12:00\"). Also use this task for recurring weekday event series with fixed start/end times, numbered titles (for example \"Lecture 1, Lecture 2, ...\"), trainer assignment, and capacity. Use the specialized slot-booking task for appointment-slot availability and the specialized self-learning task for duration-based self-learning offers. New options are created as invisible by default and can be made visible later via update.",
+            "embedding_model": "text-embedding-3-small",
+            "embedding_dimensions": "1536",
+            "content_hash": "d6438a4e376665c0147a5736d2f916f1346d26155d8370c6266ce3d1c90f2882",
+            "has_vector": true
+        },
+        {
+            "skill": "mod_booking.create_option",
+            "anchor_index": "1",
+            "anchor_kind": "utterance",
+            "anchor_text": "Create a new booking option for a workshop next Tuesday from 10:00 to 12:00",
+            "embedding_model": "text-embedding-3-small",
+            "embedding_dimensions": "1536",
+            "content_hash": "87672a427e202c6abc52c50ece9c4b3eaa7e8183e438984286859da037ed87d3",
+            "has_vector": true
+        },
+        {
+            "skill": "mod_booking.create_option",
+            "anchor_index": "2",
+            "anchor_kind": "utterance",
+            "anchor_text": "Add a bookable event titled \"First Aid Course\" with 20 seats",
+            "embedding_model": "text-embedding-3-small",
+            "embedding_dimensions": "1536",
+            "content_hash": "7c2be3ce13b62f17e30fe7589416cd4cd9d310bd2775e51c94aaa56b5c5030a5",
+            "has_vector": true
+        },
+        {
+            "skill": "mod_booking.create_option",
+            "anchor_index": "3",
+            "anchor_kind": "utterance",
+            "anchor_text": "Set up a weekday lecture series Monday to Friday next week",
+            "embedding_model": "text-embedding-3-small",
+            "embedding_dimensions": "1536",
+            "content_hash": "df9e47217b997614370101d382c1b553252177e8f0bd7beec03322c74d70c4c5",
+            "has_vector": true
+        },
+        {
+            "skill": "mod_booking.create_option",
+            "anchor_index": "4",
+            "anchor_kind": "utterance",
+            "anchor_text": "I want to create a course that people can book",
+            "embedding_model": "text-embedding-3-small",
+            "embedding_dimensions": "1536",
+            "content_hash": "94053eef778a950cf655c8a0376897fd8bd744cc54eb9aae72feba01fff2cd1c",
+            "has_vector": true
+        },
+        {
+            "skill": "mod_booking.create_option",
+            "anchor_index": "5",
+            "anchor_kind": "utterance",
+            "anchor_text": "Make a new dated event with a start and end time",
+            "embedding_model": "text-embedding-3-small",
+            "embedding_dimensions": "1536",
+            "content_hash": "c960ef26d896ce2e9a2f079ec3c785b63fdb67217738b91a1f5e40638489753d",
+            "has_vector": true
+        },
+        {
+            "skill": "mod_booking.create_rule_from_template",
+            "anchor_index": "0",
+            "anchor_kind": "description",
+            "anchor_text": "Create a booking rule from a booking-rule template via the existing server-side rules form pipeline. Use this for natural-language requests like adding a booking confirmation, reminder, waitlist, or cancellation notification rule. If the user explicitly asks for a booking confirmation, resolve templatequery directly to \"booking confirmation\" without asking for template type again. If the user says \"with the name ...\", map that value to rulename (not to optionquery).",
+            "embedding_model": "text-embedding-3-small",
+            "embedding_dimensions": "1536",
+            "content_hash": "d5de029d8425c7436d9d7f28a623fbf5f9798b632a443520d10ad633aa390500",
+            "has_vector": true
+        },
+        {
+            "skill": "mod_booking.create_rule_from_template",
+            "anchor_index": "1",
+            "anchor_kind": "utterance",
+            "anchor_text": "Set up a confirmation email when someone books",
+            "embedding_model": "text-embedding-3-small",
+            "embedding_dimensions": "1536",
+            "content_hash": "ddaee20dfad4da468a82c894fc739ed42f4bac8cad827db1189a306764a097e5",
+            "has_vector": true
+        },
+        {
+            "skill": "mod_booking.create_rule_from_template",
+            "anchor_index": "2",
+            "anchor_kind": "utterance",
+            "anchor_text": "Add a reminder rule one day before the course starts",
+            "embedding_model": "text-embedding-3-small",
+            "embedding_dimensions": "1536",
+            "content_hash": "5d5f4fecbd092eb664f50dffb2aa2c108d178d6496de064de7a32a69dfc0eaa0",
+            "has_vector": true
+        },
+        {
+            "skill": "mod_booking.create_rule_from_template",
+            "anchor_index": "3",
+            "anchor_kind": "utterance",
+            "anchor_text": "Create a notification rule for the waiting list",
+            "embedding_model": "text-embedding-3-small",
+            "embedding_dimensions": "1536",
+            "content_hash": "96385b75990ccb24c45f3f49ff725d56c950e0b502fb82cc14e0dd243b78cf4c",
+            "has_vector": true
+        },
+        {
+            "skill": "mod_booking.create_rule_from_template",
+            "anchor_index": "4",
+            "anchor_kind": "utterance",
+            "anchor_text": "I want a new rule that emails participants on cancellation",
+            "embedding_model": "text-embedding-3-small",
+            "embedding_dimensions": "1536",
+            "content_hash": "9b3ca8816f588e638881e1e63c373afa31db5bc38855b28a9316ed7537cfb2a6",
+            "has_vector": true
+        },
+        {
+            "skill": "mod_booking.create_rule_from_template",
+            "anchor_index": "5",
+            "anchor_kind": "utterance",
+            "anchor_text": "Add an automatic booking confirmation message",
+            "embedding_model": "text-embedding-3-small",
+            "embedding_dimensions": "1536",
+            "content_hash": "6ed4f0afffa962bb4a7c7f8df064f5ccee28899fc437bb7c1e004539f21646a9",
+            "has_vector": true
+        },
+        {
+            "skill": "mod_booking.create_selflearning_option",
+            "anchor_index": "0",
+            "anchor_kind": "description",
+            "anchor_text": "Create a self-learning booking option for duration-based participation. Use this task when the user wants a self-paced or e-learning style offer with a duration (for example 2h, 4h, or 14400 seconds) instead of fixed appointment slots. This is the canonical self-learning create task and should be preferred over the general create_option task whenever the request is about a course-like learning period.",
+            "embedding_model": "text-embedding-3-small",
+            "embedding_dimensions": "1536",
+            "content_hash": "994161d9215e6d93b76bfe62dda744785979be523b4900baa9089024591fa56b",
+            "has_vector": true
+        },
+        {
+            "skill": "mod_booking.create_selflearning_option",
+            "anchor_index": "1",
+            "anchor_kind": "utterance",
+            "anchor_text": "Create a new booking option for a workshop next Tuesday from 10:00 to 12:00",
+            "embedding_model": "text-embedding-3-small",
+            "embedding_dimensions": "1536",
+            "content_hash": "7366bffdaafa9365d09f891c3ef511869b241dbd7dde3d2ebfb670411daf1f21",
+            "has_vector": true
+        },
+        {
+            "skill": "mod_booking.create_selflearning_option",
+            "anchor_index": "2",
+            "anchor_kind": "utterance",
+            "anchor_text": "Add a bookable event titled \"First Aid Course\" with 20 seats",
+            "embedding_model": "text-embedding-3-small",
+            "embedding_dimensions": "1536",
+            "content_hash": "c4e5cac534649bf2cf87987e42561c8d60f1ee44b4029a50feae9954a5a28ce1",
+            "has_vector": true
+        },
+        {
+            "skill": "mod_booking.create_selflearning_option",
+            "anchor_index": "3",
+            "anchor_kind": "utterance",
+            "anchor_text": "Set up a weekday lecture series Monday to Friday next week",
+            "embedding_model": "text-embedding-3-small",
+            "embedding_dimensions": "1536",
+            "content_hash": "0f015efe1048158e7bc7c58caaf3a10386fa7644a6da19355cfe1bc4e85ac202",
+            "has_vector": true
+        },
+        {
+            "skill": "mod_booking.create_selflearning_option",
+            "anchor_index": "4",
+            "anchor_kind": "utterance",
+            "anchor_text": "I want to create a course that people can book",
+            "embedding_model": "text-embedding-3-small",
+            "embedding_dimensions": "1536",
+            "content_hash": "3b805efdb9cee2871af78c2387cae5d535356d26b33476060c3d16aa821b69ed",
+            "has_vector": true
+        },
+        {
+            "skill": "mod_booking.create_selflearning_option",
+            "anchor_index": "5",
+            "anchor_kind": "utterance",
+            "anchor_text": "Make a new dated event with a start and end time",
+            "embedding_model": "text-embedding-3-small",
+            "embedding_dimensions": "1536",
+            "content_hash": "fcf671d0f6c1614990025672699400cd6c2fc9ccdbf33151735f76cfbbc8d105",
+            "has_vector": true
+        },
+        {
+            "skill": "mod_booking.create_slotbooking_option",
+            "anchor_index": "0",
+            "anchor_kind": "description",
+            "anchor_text": "Create a slot-based booking option for appointment scheduling with reusable availability windows, slot duration, validity range and per-slot capacity. Use this canonical task for requests like consultation slots, court appointments, office-hour availability, or any recurring bookable time window. Do not use it for fixed dated event series with trainer/capacity and numbered titles (for example Lecture 1..n on specific weekdays); those are normal dated options. Do not use it for single dated events or normal course sessions; those belong to the general create_option task.",
+            "embedding_model": "text-embedding-3-small",
+            "embedding_dimensions": "1536",
+            "content_hash": "bb8b8318b30a59f6ac1dc8b855693d2a147a13e73f66f130e4066eb6faf7dc9e",
+            "has_vector": true
+        },
+        {
+            "skill": "mod_booking.create_slotbooking_option",
+            "anchor_index": "1",
+            "anchor_kind": "utterance",
+            "anchor_text": "Create bookable consultation slots every Monday from 10:00 to 14:00",
+            "embedding_model": "text-embedding-3-small",
+            "embedding_dimensions": "1536",
+            "content_hash": "7125a7c343d07a57f41359ba91e90bc04cf698727130aa4e6a5a75e148e56af3",
+            "has_vector": true
+        },
+        {
+            "skill": "mod_booking.create_slotbooking_option",
+            "anchor_index": "2",
+            "anchor_kind": "utterance",
+            "anchor_text": "Set up 30-minute appointment slots for office hours",
+            "embedding_model": "text-embedding-3-small",
+            "embedding_dimensions": "1536",
+            "content_hash": "fe13a5888f8320013d69b026369c6190ecb63866403e5295574509b4f25e0ca6",
+            "has_vector": true
+        },
+        {
+            "skill": "mod_booking.create_slotbooking_option",
+            "anchor_index": "3",
+            "anchor_kind": "utterance",
+            "anchor_text": "Make a slot-based option for court appointments next month",
+            "embedding_model": "text-embedding-3-small",
+            "embedding_dimensions": "1536",
+            "content_hash": "ec2c9be570a867b6f68bbe55e3f3ba4d86adb2ebe5344faaa2a5f41779cb420d",
+            "has_vector": true
+        },
+        {
+            "skill": "mod_booking.create_slotbooking_option",
+            "anchor_index": "4",
+            "anchor_kind": "utterance",
+            "anchor_text": "Offer reusable availability windows people can book individual time slots in",
+            "embedding_model": "text-embedding-3-small",
+            "embedding_dimensions": "1536",
+            "content_hash": "cbc63cbbf892f2584b128d4a123fde3b7dce7ab6841d8c5f0331820d00b111f4",
+            "has_vector": true
+        },
+        {
+            "skill": "mod_booking.create_slotbooking_option",
+            "anchor_index": "5",
+            "anchor_kind": "utterance",
+            "anchor_text": "Create 25-minute meeting slots on Mondays and Wednesdays in July",
+            "embedding_model": "text-embedding-3-small",
+            "embedding_dimensions": "1536",
+            "content_hash": "5ecf865d8f30f912b5d4afb129be32481908a9ef300d1bcc06d048732dab5815",
+            "has_vector": true
+        },
+        {
+            "skill": "mod_booking.diagnose_booking_issue",
+            "anchor_index": "0",
+            "anchor_kind": "description",
+            "anchor_text": "Diagnose why the current user (or a specified target user) is not booked, cannot book, or did not receive email for a booking option or have any other issue regarding a booking option. PATTERN: If user asks \"why can [Name] not book [Option]\", extract Name→userquery, Option→optionquery. Do NOT ask for clarification if both are identifiable in the user message; supply them directly.",
+            "embedding_model": "text-embedding-3-small",
+            "embedding_dimensions": "1536",
+            "content_hash": "bcb970b6bb24ef5e7a667dd04e4d1f882e8ee761d613e08965b85a0f2e5fe15d",
+            "has_vector": true
+        },
+        {
+            "skill": "mod_booking.diagnose_booking_issue",
+            "anchor_index": "1",
+            "anchor_kind": "utterance",
+            "anchor_text": "Why is this person stuck on the waiting list?",
+            "embedding_model": "text-embedding-3-small",
+            "embedding_dimensions": "1536",
+            "content_hash": "19ab6a7aa71eb12c69a51ad368de4ce106742239de9f835954045b540b45d50d",
+            "has_vector": true
+        },
+        {
+            "skill": "mod_booking.diagnose_booking_issue",
+            "anchor_index": "2",
+            "anchor_kind": "utterance",
+            "anchor_text": "The booking didn't confirm for this user",
+            "embedding_model": "text-embedding-3-small",
+            "embedding_dimensions": "1536",
+            "content_hash": "11cb2a9937522c869473a8a9056879efc9e6f1f0a379999bead7616941819628",
+            "has_vector": true
+        },
+        {
+            "skill": "mod_booking.diagnose_booking_issue",
+            "anchor_index": "3",
+            "anchor_kind": "utterance",
+            "anchor_text": "Why can't Maria book this course?",
+            "embedding_model": "text-embedding-3-small",
+            "embedding_dimensions": "1536",
+            "content_hash": "ac72d6fcd8351b8d327a9c31c507ad5dc78c25af1e2f5fe236516a84549d79c4",
+            "has_vector": true
+        },
+        {
+            "skill": "mod_booking.diagnose_booking_issue",
+            "anchor_index": "4",
+            "anchor_kind": "utterance",
+            "anchor_text": "A participant says they never got the confirmation email",
+            "embedding_model": "text-embedding-3-small",
+            "embedding_dimensions": "1536",
+            "content_hash": "58aa541c0cf3fb7f632bc2f2f879b866a838fcc64a2e7a9342b6cb7274f1b8b5",
+            "has_vector": true
+        },
+        {
+            "skill": "mod_booking.diagnose_booking_issue",
+            "anchor_index": "5",
+            "anchor_kind": "utterance",
+            "anchor_text": "Why am I not enrolled even though I booked?",
+            "embedding_model": "text-embedding-3-small",
+            "embedding_dimensions": "1536",
+            "content_hash": "b6e46a28e0af442d6d0e7b7a17d02a7d28ba175b875ed215b54190523d8b1914",
+            "has_vector": true
+        },
+        {
+            "skill": "mod_booking.diagnose_booking_issue",
+            "anchor_index": "6",
+            "anchor_kind": "utterance",
+            "anchor_text": "This user booked but isn't showing as participant",
+            "embedding_model": "text-embedding-3-small",
+            "embedding_dimensions": "1536",
+            "content_hash": "0b58476d5c68893883ae1a25261ef298e21c0de8b8a61f87f8967da2f597cb6e",
+            "has_vector": true
+        },
+        {
+            "skill": "mod_booking.diagnose_cancellation_issue",
+            "anchor_index": "0",
+            "anchor_kind": "description",
+            "anchor_text": "Diagnose why the current user cannot cancel their own booking for a booking option.",
+            "embedding_model": "text-embedding-3-small",
+            "embedding_dimensions": "1536",
+            "content_hash": "4d44cdf06e0ee693445b07c06eb13e225d1bd9ade601c5d0ad2d576ca53764c2",
+            "has_vector": true
+        },
+        {
+            "skill": "mod_booking.diagnose_cancellation_issue",
+            "anchor_index": "1",
+            "anchor_kind": "utterance",
+            "anchor_text": "Why can't I cancel my booking?",
+            "embedding_model": "text-embedding-3-small",
+            "embedding_dimensions": "1536",
+            "content_hash": "f73f4e2acfd5ec5efc46a1e1ad69d50a115a1a896bcc64d7103182e0cca69085",
+            "has_vector": true
+        },
+        {
+            "skill": "mod_booking.diagnose_cancellation_issue",
+            "anchor_index": "2",
+            "anchor_kind": "utterance",
+            "anchor_text": "Why didn't my refund go through?",
+            "embedding_model": "text-embedding-3-small",
+            "embedding_dimensions": "1536",
+            "content_hash": "c2acb25133abe9ad808ff1c807cd1247527d6a001358d051b993b5c7f33292b5",
+            "has_vector": true
+        },
+        {
+            "skill": "mod_booking.diagnose_cancellation_issue",
+            "anchor_index": "3",
+            "anchor_kind": "utterance",
+            "anchor_text": "The cancel button is greyed out for me",
+            "embedding_model": "text-embedding-3-small",
+            "embedding_dimensions": "1536",
+            "content_hash": "66bc785c6500b7e9b77577cf4600663963b04d0bc1d6fd55a24087f28fd380cc",
+            "has_vector": true
+        },
+        {
+            "skill": "mod_booking.diagnose_cancellation_issue",
+            "anchor_index": "4",
+            "anchor_kind": "utterance",
+            "anchor_text": "I cancelled but wasn't removed from the option",
+            "embedding_model": "text-embedding-3-small",
+            "embedding_dimensions": "1536",
+            "content_hash": "69c510eb12e8ccb17a0917dd17d7a9e26312e685cbcb2b3f439d9ded1d9b64d2",
+            "has_vector": true
+        },
+        {
+            "skill": "mod_booking.diagnose_cancellation_issue",
+            "anchor_index": "5",
+            "anchor_kind": "utterance",
+            "anchor_text": "Why is the cancellation deadline blocking me?",
+            "embedding_model": "text-embedding-3-small",
+            "embedding_dimensions": "1536",
+            "content_hash": "369a9d2b70dab3dc7690f77e6c579e6bf92c450043977ad477b8d526404f2cd2",
+            "has_vector": true
+        },
+        {
+            "skill": "mod_booking.diagnose_user_booking",
+            "anchor_index": "0",
+            "anchor_kind": "description",
+            "anchor_text": "Diagnose a person's booking status and history and return a detailed status report. Use this when the user asks about ONE specific person: whether/when they booked, whether they completed, their waiting-list/cancelled/previous bookings, their submitted booking form data, and which notification messages they received. If a specific booking option is named, the report focuses on that option (including the full received-message history); if no option is named, it returns an instance-wide overview of all the person's bookings (e.g. \"how many options has Billy completed\"). The report also includes the certificates (tool_certificate) issued to the person, including whether the focused option's certificate was actually issued.",
+            "embedding_model": "text-embedding-3-small",
+            "embedding_dimensions": "1536",
+            "content_hash": "a951adb206fa45891bf7d2359e61dee606f04f5a998168532e3db265b65759e8",
+            "has_vector": true
+        },
+        {
+            "skill": "mod_booking.diagnose_user_booking",
+            "anchor_index": "1",
+            "anchor_kind": "utterance",
+            "anchor_text": "what is the booking status of this user",
+            "embedding_model": "text-embedding-3-small",
+            "embedding_dimensions": "1536",
+            "content_hash": "8c3a5274f53eb48408a957bc19bb9b12ea826d07abb0bb775a521e7f2f1e9391",
+            "has_vector": true
+        },
+        {
+            "skill": "mod_booking.diagnose_user_booking",
+            "anchor_index": "2",
+            "anchor_kind": "utterance",
+            "anchor_text": "has Billy booked and completed this option",
+            "embedding_model": "text-embedding-3-small",
+            "embedding_dimensions": "1536",
+            "content_hash": "ce978bab256effa525cd882c0d93084762524fb6cecc3a7fd14c8fb2d090ef1d",
+            "has_vector": true
+        },
+        {
+            "skill": "mod_booking.diagnose_user_booking",
+            "anchor_index": "3",
+            "anchor_kind": "utterance",
+            "anchor_text": "show me this person's booking history and waiting-list entries",
+            "embedding_model": "text-embedding-3-small",
+            "embedding_dimensions": "1536",
+            "content_hash": "bbba0c32ac93c5f150ce68b3b780bf3a22a8654a816696a862cb64598f91db7c",
+            "has_vector": true
+        },
+        {
+            "skill": "mod_booking.diagnose_user_booking",
+            "anchor_index": "4",
+            "anchor_kind": "utterance",
+            "anchor_text": "did this participant receive their certificate",
+            "embedding_model": "text-embedding-3-small",
+            "embedding_dimensions": "1536",
+            "content_hash": "4a908b6c9776f13b302676ec8b969cd52e15db4aa4e22905ebbdfdf8f542cb58",
+            "has_vector": true
+        },
+        {
+            "skill": "mod_booking.diagnose_user_booking",
+            "anchor_index": "5",
+            "anchor_kind": "utterance",
+            "anchor_text": "which notification messages did this user get for this booking",
+            "embedding_model": "text-embedding-3-small",
+            "embedding_dimensions": "1536",
+            "content_hash": "e9386b4218f96c5e32afa5b748831fbc54fdd040ed396b43baa09587b24bc257",
+            "has_vector": true
+        },
+        {
+            "skill": "mod_booking.diagnose_user_booking",
+            "anchor_index": "6",
+            "anchor_kind": "utterance",
+            "anchor_text": "how many options has this person completed",
+            "embedding_model": "text-embedding-3-small",
+            "embedding_dimensions": "1536",
+            "content_hash": "4610bf69e77c1bfc0b8676bf7280f8d98eb659c8efbea1f2285ff127d6e74716",
+            "has_vector": true
+        },
+        {
+            "skill": "mod_booking.get_option_details",
+            "anchor_index": "0",
+            "anchor_kind": "description",
+            "anchor_text": "Get detailed information for one or more booking options via booking option APIs.",
+            "embedding_model": "text-embedding-3-small",
+            "embedding_dimensions": "1536",
+            "content_hash": "910eb2ff9254e67d639e4cf78d104e10ab35b75df24b136140b90334c787b1a3",
+            "has_vector": true
+        },
+        {
+            "skill": "mod_booking.get_option_details",
+            "anchor_index": "1",
+            "anchor_kind": "utterance",
+            "anchor_text": "Show me the full details of the Spring Workshop",
+            "embedding_model": "text-embedding-3-small",
+            "embedding_dimensions": "1536",
+            "content_hash": "1d43e2ea264294529649387b48abc07c99ec3f01a1c9123d6c35aa6caff9df4e",
+            "has_vector": true
+        },
+        {
+            "skill": "mod_booking.get_option_details",
+            "anchor_index": "2",
+            "anchor_kind": "utterance",
+            "anchor_text": "What is the price and teacher for the yoga course?",
+            "embedding_model": "text-embedding-3-small",
+            "embedding_dimensions": "1536",
+            "content_hash": "f846427db20dec8a73721c07ab1110c24abe4d53e885ce50cbbc930a8cd8fb75",
+            "has_vector": true
+        },
+        {
+            "skill": "mod_booking.get_option_details",
+            "anchor_index": "3",
+            "anchor_kind": "utterance",
+            "anchor_text": "Give me all the information about option 1422",
+            "embedding_model": "text-embedding-3-small",
+            "embedding_dimensions": "1536",
+            "content_hash": "fa7cc4bc65fd7fd1045091c971aae373de6d8b63bf7dde183451dccd9d2e4051",
+            "has_vector": true
+        },
+        {
+            "skill": "mod_booking.get_option_details",
+            "anchor_index": "4",
+            "anchor_kind": "utterance",
+            "anchor_text": "How many seats are left in the cooking class?",
+            "embedding_model": "text-embedding-3-small",
+            "embedding_dimensions": "1536",
+            "content_hash": "709dd2738b26f9e988c707b385bd7bd361732a375c1d398a523dbef8ba2b6278",
+            "has_vector": true
+        },
+        {
+            "skill": "mod_booking.get_option_details",
+            "anchor_index": "5",
+            "anchor_kind": "utterance",
+            "anchor_text": "Tell me everything about the First Aid Course",
+            "embedding_model": "text-embedding-3-small",
+            "embedding_dimensions": "1536",
+            "content_hash": "2cc2ae5cfa6f28d7bd84d4d0c95aee2fcba9bad5de06c7680430807942741d5e",
+            "has_vector": true
+        },
+        {
+            "skill": "mod_booking.list_option_properties",
+            "anchor_index": "0",
+            "anchor_kind": "description",
+            "anchor_text": "List booking option properties derived from create/update task schemas.",
+            "embedding_model": "text-embedding-3-small",
+            "embedding_dimensions": "1536",
+            "content_hash": "a8f6d1d521b983e28a33e98e18f34eab0f18baa936d814106784727af8ed1349",
+            "has_vector": true
+        },
+        {
+            "skill": "mod_booking.search_options",
+            "anchor_index": "0",
+            "anchor_kind": "description",
+            "anchor_text": "Search and list the bookable OPTIONS (events, workshops, sessions) available in this booking instance. Use this when the user asks what they can book, register for, or attend — e.g. \"show all options\", \"what can I book?\", \"list available bookings\", \"show a list of all options\", \"list all bookings\", \"show all bookings\". This lists bookable offerings, not Moodle course containers (use search_courses for those).",
+            "embedding_model": "text-embedding-3-small",
+            "embedding_dimensions": "1536",
+            "content_hash": "db3e30344ee060caec3d960cbfae4453a513f60aa6e285c75baa8de959d2f10a",
+            "has_vector": true
+        },
+        {
+            "skill": "mod_booking.search_options",
+            "anchor_index": "1",
+            "anchor_kind": "utterance",
+            "anchor_text": "Show me all the options I can book",
+            "embedding_model": "text-embedding-3-small",
+            "embedding_dimensions": "1536",
+            "content_hash": "21cf57c1509b1eeabea85a502ae45ae4654faec58b77850766b82717d2e05cfc",
+            "has_vector": true
+        },
+        {
+            "skill": "mod_booking.search_options",
+            "anchor_index": "2",
+            "anchor_kind": "utterance",
+            "anchor_text": "List the bookable options in this activity",
+            "embedding_model": "text-embedding-3-small",
+            "embedding_dimensions": "1536",
+            "content_hash": "89b5bd74912c8b4e2173c647d4e763c7cbc69bd7aa491e7849b4533d96eabd27",
+            "has_vector": true
+        },
+        {
+            "skill": "mod_booking.search_options",
+            "anchor_index": "3",
+            "anchor_kind": "utterance",
+            "anchor_text": "Which workshops are happening next week?",
+            "embedding_model": "text-embedding-3-small",
+            "embedding_dimensions": "1536",
+            "content_hash": "4e391fbf67c581000f7153483e17d5ea1082fa916cea294d7c88bc978a5ae6a3",
+            "has_vector": true
+        },
+        {
+            "skill": "mod_booking.search_options",
+            "anchor_index": "4",
+            "anchor_kind": "utterance",
+            "anchor_text": "Find all options that contain the word \"yoga\"",
+            "embedding_model": "text-embedding-3-small",
+            "embedding_dimensions": "1536",
+            "content_hash": "b948b97e19dd640fee9597aae27e9a3b7f6801e8e38f327840f2fdee015c26fe",
+            "has_vector": true
+        },
+        {
+            "skill": "mod_booking.search_options",
+            "anchor_index": "5",
+            "anchor_kind": "utterance",
+            "anchor_text": "What can I register for?",
+            "embedding_model": "text-embedding-3-small",
+            "embedding_dimensions": "1536",
+            "content_hash": "8967fccf4a3ef42c9a1a3e8aa122ea0c2f3dd853557c53db6fb77a448a94dacb",
+            "has_vector": true
+        },
+        {
+            "skill": "mod_booking.search_options",
+            "anchor_index": "6",
+            "anchor_kind": "utterance",
+            "anchor_text": "Find the booking option called \"First Aid Basic Course\"",
+            "embedding_model": "text-embedding-3-small",
+            "embedding_dimensions": "1536",
+            "content_hash": "b592064e80b7971d8ac9d87de59c2209ba11dd6f4da996348cbbf978271e35cb",
+            "has_vector": true
+        },
+        {
+            "skill": "mod_booking.search_options",
+            "anchor_index": "7",
+            "anchor_kind": "utterance",
+            "anchor_text": "Look up the booking option for the cooking class",
+            "embedding_model": "text-embedding-3-small",
+            "embedding_dimensions": "1536",
+            "content_hash": "5f68153658d93fca5ed28118819eee689d4f199b8d032395dc03421a34bd6d47",
+            "has_vector": true
+        },
+        {
+            "skill": "mod_booking.search_options",
+            "anchor_index": "8",
+            "anchor_kind": "utterance",
+            "anchor_text": "Identify the option titled \"Spring Workshop\"",
+            "embedding_model": "text-embedding-3-small",
+            "embedding_dimensions": "1536",
+            "content_hash": "4f189d55d9ec534eb865759fbb50ede343380c543930b63667ca5ec3e0e09ebf",
+            "has_vector": true
+        },
+        {
+            "skill": "mod_booking.update_option",
+            "anchor_index": "0",
+            "anchor_kind": "description",
+            "anchor_text": "Update an existing booking option in the current booking instance. Also use this to add, set or replace the option's header/cover image from an uploaded image attachment (pass the attachment token as headerimage_token).",
+            "embedding_model": "text-embedding-3-small",
+            "embedding_dimensions": "1536",
+            "content_hash": "f7872e03d5f0def170edb27b00e48509d1d0b3994b52119ad15e7d22bfad8e44",
+            "has_vector": true
+        },
+        {
+            "skill": "mod_booking.update_option",
+            "anchor_index": "1",
+            "anchor_kind": "utterance",
+            "anchor_text": "Change the price of the yoga course to 50 euros",
+            "embedding_model": "text-embedding-3-small",
+            "embedding_dimensions": "1536",
+            "content_hash": "31f808675df6faef4747a082ce4396bea170e61f3b24ff7f4767e1ef3c776fe0",
+            "has_vector": true
+        },
+        {
+            "skill": "mod_booking.update_option",
+            "anchor_index": "2",
+            "anchor_kind": "utterance",
+            "anchor_text": "Rename the \"Spring Workshop\" option to \"Summer Workshop\"",
+            "embedding_model": "text-embedding-3-small",
+            "embedding_dimensions": "1536",
+            "content_hash": "f789ac305266c2ce4440ed7950c96ab7c8c3271f2eea04523c16c04b658f70fe",
+            "has_vector": true
+        },
+        {
+            "skill": "mod_booking.update_option",
+            "anchor_index": "3",
+            "anchor_kind": "utterance",
+            "anchor_text": "Move the start date of the cooking class to next Friday",
+            "embedding_model": "text-embedding-3-small",
+            "embedding_dimensions": "1536",
+            "content_hash": "de8309899f4ab326550a07e0d11eb6c2232e199285792f90aeed8296c2e923b2",
+            "has_vector": true
+        },
+        {
+            "skill": "mod_booking.update_option",
+            "anchor_index": "4",
+            "anchor_kind": "utterance",
+            "anchor_text": "Set this uploaded picture as the header image of the option",
+            "embedding_model": "text-embedding-3-small",
+            "embedding_dimensions": "1536",
+            "content_hash": "18823976439e9418be89f3da8e2d1aea55f6b5a78eea30e10c7fc3a221ebab5d",
+            "has_vector": true
+        },
+        {
+            "skill": "mod_booking.update_option",
+            "anchor_index": "5",
+            "anchor_kind": "utterance",
+            "anchor_text": "Update the description of the First Aid Course",
+            "embedding_model": "text-embedding-3-small",
+            "embedding_dimensions": "1536",
+            "content_hash": "f1d43206553c2ef85969606f7079fb1c2c37ecc176a3eb3f6ca0cada81dc7b97",
+            "has_vector": true
+        },
+        {
+            "skill": "mod_booking.update_option",
+            "anchor_index": "6",
+            "anchor_kind": "utterance",
+            "anchor_text": "Hide the Tuesday option from the list",
+            "embedding_model": "text-embedding-3-small",
+            "embedding_dimensions": "1536",
+            "content_hash": "4baa6b5568d824ef6fd458a3243d0b225af1f1368b7e39b5b31eb447e2136672",
+            "has_vector": true
+        },
+        {
+            "skill": "mod_booking.update_option_trainer",
+            "anchor_index": "0",
+            "anchor_kind": "description",
+            "anchor_text": "Assign or replace trainer(s) for an existing booking option. This task only updates trainer assignment and does not change other option fields.",
+            "embedding_model": "text-embedding-3-small",
+            "embedding_dimensions": "1536",
+            "content_hash": "9d8b4b6154a1770e344d2218e6301b28e3c18a5a16a85c44d5950bc127bbd0cb",
+            "has_vector": true
+        },
+        {
+            "skill": "mod_booking.update_rule_from_template",
+            "anchor_index": "0",
+            "anchor_kind": "description",
+            "anchor_text": "Update an existing booking rule in the current booking context, optionally by reapplying a template first. Use this for natural-language requests like \"rename this reminder rule\", \"disable that confirmation rule\", or \"change the template for this rule\".",
+            "embedding_model": "text-embedding-3-small",
+            "embedding_dimensions": "1536",
+            "content_hash": "58e805000a192965daedba7f7a0ffb90debfc04b3cecf6c1b129ba782fe8158f",
+            "has_vector": true
+        },
+        {
+            "skill": "mod_booking.update_rule_from_template",
+            "anchor_index": "1",
+            "anchor_kind": "utterance",
+            "anchor_text": "Rename the existing reminder rule",
+            "embedding_model": "text-embedding-3-small",
+            "embedding_dimensions": "1536",
+            "content_hash": "24261f8912fb361c76055c7884ca3ddeac52910d93ed8a4776263d95b9791eca",
+            "has_vector": true
+        },
+        {
+            "skill": "mod_booking.update_rule_from_template",
+            "anchor_index": "2",
+            "anchor_kind": "utterance",
+            "anchor_text": "Turn off the confirmation rule on this booking",
+            "embedding_model": "text-embedding-3-small",
+            "embedding_dimensions": "1536",
+            "content_hash": "189b50305516a4c116f7dafabbe6b716171505c3e5df2161e9d871212701fda1",
+            "has_vector": true
+        },
+        {
+            "skill": "mod_booking.update_rule_from_template",
+            "anchor_index": "3",
+            "anchor_kind": "utterance",
+            "anchor_text": "Change the timing of the reminder that already exists",
+            "embedding_model": "text-embedding-3-small",
+            "embedding_dimensions": "1536",
+            "content_hash": "1872ad16ba57ea286c32dd6bc6362d561bd9a77d6996ff25ba59d54d4e134fdd",
+            "has_vector": true
+        },
+        {
+            "skill": "mod_booking.update_rule_from_template",
+            "anchor_index": "4",
+            "anchor_kind": "utterance",
+            "anchor_text": "Edit the message text of my cancellation rule",
+            "embedding_model": "text-embedding-3-small",
+            "embedding_dimensions": "1536",
+            "content_hash": "29f3852385904a8731fd2cdf8c8a1ec78e96d0bfbcdc8f657a795af566ac5319",
+            "has_vector": true
+        },
+        {
+            "skill": "mod_booking.update_rule_from_template",
+            "anchor_index": "5",
+            "anchor_kind": "utterance",
+            "anchor_text": "Disable that notification rule for now",
+            "embedding_model": "text-embedding-3-small",
+            "embedding_dimensions": "1536",
+            "content_hash": "382748435b5bd47a44d61e957b3c0eddcf6226acef28431f969ce47d24c51362",
+            "has_vector": true
+        },
+        {
+            "skill": "core.diagnose_notifications",
+            "anchor_index": "0",
+            "anchor_kind": "description",
+            "anchor_text": "Explain why a person may NOT be receiving e-mails or notifications from Moodle. Checks user-level blockers (missing/blocked e-mail, unconfirmed or suspended account, \"disable all e-mail\" setting, bounce threshold) and, for admins, the site mail switches and mail task health. Use for \"why does Maria get no e-mails\", \"why does Tom get no notifications\". For booking confirmation/reminder mails about a specific option, mod_booking.diagnose_user_booking is better.",
+            "embedding_model": "text-embedding-3-small",
+            "embedding_dimensions": "1536",
+            "content_hash": "686e85dc81701bb200dfe9c823c923e53a41fdd3f30caa5fbdc16a3fd160f2f9",
+            "has_vector": true
+        },
+        {
+            "skill": "core.diagnose_notifications",
+            "anchor_index": "1",
+            "anchor_kind": "utterance",
+            "anchor_text": "the confirmation email never arrived",
+            "embedding_model": "text-embedding-3-small",
+            "embedding_dimensions": "1536",
+            "content_hash": "6888d50bf36e79fcb1ed045f5ae9772ab5195a1417a44fc5c9bbef7d747fcbd8",
+            "has_vector": true
+        },
+        {
+            "skill": "core.diagnose_notifications",
+            "anchor_index": "2",
+            "anchor_kind": "utterance",
+            "anchor_text": "why does this user get no emails from the system",
+            "embedding_model": "text-embedding-3-small",
+            "embedding_dimensions": "1536",
+            "content_hash": "85e6d54ae5e30cdeacb45fc5ae585a2c4f83b96db8009eb9e87e51a2edac04d8",
+            "has_vector": true
+        },
+        {
+            "skill": "core.diagnose_notifications",
+            "anchor_index": "3",
+            "anchor_kind": "utterance",
+            "anchor_text": "she isn't receiving any notifications",
+            "embedding_model": "text-embedding-3-small",
+            "embedding_dimensions": "1536",
+            "content_hash": "87836757618d539792e8689d370e61aa4cfea66fb7af90bab214ff9c1bee700c",
+            "has_vector": true
+        },
+        {
+            "skill": "core.diagnose_notifications",
+            "anchor_index": "4",
+            "anchor_kind": "utterance",
+            "anchor_text": "no reminder emails are reaching him",
+            "embedding_model": "text-embedding-3-small",
+            "embedding_dimensions": "1536",
+            "content_hash": "f2411ec962a8dc71c998a33db7c309e98db215dd6abcdbc793702c69202fab21",
+            "has_vector": true
+        },
+        {
+            "skill": "core.diagnose_notifications",
+            "anchor_index": "5",
+            "anchor_kind": "utterance",
+            "anchor_text": "why aren't my Moodle emails coming through",
+            "embedding_model": "text-embedding-3-small",
+            "embedding_dimensions": "1536",
+            "content_hash": "8bf35a66607cdb20cec025a31b65f074a1f3cca543002b3e9bea4d197bb6e9a0",
+            "has_vector": true
+        },
+        {
+            "skill": "core.diagnose_notifications",
+            "anchor_index": "6",
+            "anchor_kind": "utterance",
+            "anchor_text": "this account stopped getting email alerts",
+            "embedding_model": "text-embedding-3-small",
+            "embedding_dimensions": "1536",
+            "content_hash": "c453a9db4a326c2b58e6030ba822e60881eae3d8f4fc1e0e9e0290d3dac6ccf0",
+            "has_vector": true
+        },
+        {
+            "skill": "core.diagnose_permissions",
+            "anchor_index": "0",
+            "anchor_kind": "description",
+            "anchor_text": "Inspect a person's ROLES and CAPABILITIES (permissions) across the context chain (system → category → course → activity). Answers \"what roles does X have here\", and \"may X do <capability> at course Y\" including the ALLOW/PREVENT/PROHIBIT overrides on the chain. For a capability question, pass the technical capability name in `capability` (e.g. mod/booking:addoption). NOT for \"who all has right Z\" and not for access/enrolment/grades.",
+            "embedding_model": "text-embedding-3-small",
+            "embedding_dimensions": "1536",
+            "content_hash": "a06a4c10afa1bc28d5ff5aa8a4c8c17699a6af0502b617268bc09f686b976f42",
+            "has_vector": true
+        },
+        {
+            "skill": "core.diagnose_permissions",
+            "anchor_index": "1",
+            "anchor_kind": "utterance",
+            "anchor_text": "why can't this teacher edit the activity",
+            "embedding_model": "text-embedding-3-small",
+            "embedding_dimensions": "1536",
+            "content_hash": "e3ccf0271b112dd94d55821a47cec2994fed28ce5cb5e02155b962fe8e44cafd",
+            "has_vector": true
+        },
+        {
+            "skill": "core.diagnose_permissions",
+            "anchor_index": "2",
+            "anchor_kind": "utterance",
+            "anchor_text": "what roles does this user have in the course",
+            "embedding_model": "text-embedding-3-small",
+            "embedding_dimensions": "1536",
+            "content_hash": "2e24a24e7ab820a1f563b932d0c8d1ae758847347e59a6f6ab1c504fa1eb3902",
+            "has_vector": true
+        },
+        {
+            "skill": "core.diagnose_permissions",
+            "anchor_index": "3",
+            "anchor_kind": "utterance",
+            "anchor_text": "is she allowed to add booking options here",
+            "embedding_model": "text-embedding-3-small",
+            "embedding_dimensions": "1536",
+            "content_hash": "50019ef355e44efd08c64a08030b0c5343b22f0acf7404748a901f7a7e82a118",
+            "has_vector": true
+        },
+        {
+            "skill": "core.diagnose_permissions",
+            "anchor_index": "4",
+            "anchor_kind": "utterance",
+            "anchor_text": "why is this user missing the permission to grade",
+            "embedding_model": "text-embedding-3-small",
+            "embedding_dimensions": "1536",
+            "content_hash": "12a03f6a9d540cd1d6b914a0b33879972f4e61d19860acf627a155ccc0b03377",
+            "has_vector": true
+        },
+        {
+            "skill": "core.diagnose_permissions",
+            "anchor_index": "5",
+            "anchor_kind": "utterance",
+            "anchor_text": "which role is preventing him from doing this",
+            "embedding_model": "text-embedding-3-small",
+            "embedding_dimensions": "1536",
+            "content_hash": "808fe397257f41b5b07c9f8082b5832549d3b66e03c55f33468376d63e224d32",
+            "has_vector": true
+        },
+        {
+            "skill": "core.diagnose_permissions",
+            "anchor_index": "6",
+            "anchor_kind": "utterance",
+            "anchor_text": "does this person have the capability to manage the course",
+            "embedding_model": "text-embedding-3-small",
+            "embedding_dimensions": "1536",
+            "content_hash": "655e142f9903658685251604b9bd261816491bbb87a4f25d8e17b1abb12dc074",
+            "has_vector": true
+        },
+        {
+            "skill": "core.get_current_user",
+            "anchor_index": "0",
+            "anchor_kind": "description",
+            "anchor_text": "Get information about the current executor user.",
+            "embedding_model": "text-embedding-3-small",
+            "embedding_dimensions": "1536",
+            "content_hash": "03c5d37e239d93a874227a2b824ca3ec99a1c52b498203c3df48a530cef4e097",
+            "has_vector": true
+        },
+        {
+            "skill": "core.get_current_user",
+            "anchor_index": "1",
+            "anchor_kind": "utterance",
+            "anchor_text": "who am I",
+            "embedding_model": "text-embedding-3-small",
+            "embedding_dimensions": "1536",
+            "content_hash": "5cedf677ca4763becaced7cc690aaeb23b0493a041603d3921ec7b4f5664ef00",
+            "has_vector": true
+        },
+        {
+            "skill": "core.get_current_user",
+            "anchor_index": "2",
+            "anchor_kind": "utterance",
+            "anchor_text": "what is my email address",
+            "embedding_model": "text-embedding-3-small",
+            "embedding_dimensions": "1536",
+            "content_hash": "e73cf27726f4104cdfc616355f2fcbcab41222c578b67951d66bc20e691dadbc",
+            "has_vector": true
+        },
+        {
+            "skill": "core.get_current_user",
+            "anchor_index": "3",
+            "anchor_kind": "utterance",
+            "anchor_text": "show my own profile",
+            "embedding_model": "text-embedding-3-small",
+            "embedding_dimensions": "1536",
+            "content_hash": "8b5ff1352c58f81173922bf63db4e98d05409fc845854ba152db03825c4dcdca",
+            "has_vector": true
+        },
+        {
+            "skill": "core.get_current_user",
+            "anchor_index": "4",
+            "anchor_kind": "utterance",
+            "anchor_text": "what is my role here",
+            "embedding_model": "text-embedding-3-small",
+            "embedding_dimensions": "1536",
+            "content_hash": "12eef25fdbc1c2023db1e8377245409ad8e84e74b1f8fb457b2c04d2e0083a75",
+            "has_vector": true
+        },
+        {
+            "skill": "core.get_current_user",
+            "anchor_index": "5",
+            "anchor_kind": "utterance",
+            "anchor_text": "what account am I logged in as",
+            "embedding_model": "text-embedding-3-small",
+            "embedding_dimensions": "1536",
+            "content_hash": "a7f1f333254a2e5abeb41b63dadabb91869c9d6f34bb1c5032a6d86ba5f0cda9",
+            "has_vector": true
+        },
+        {
+            "skill": "core.search_users",
+            "anchor_index": "0",
+            "anchor_kind": "description",
+            "anchor_text": "Search users and return resolved candidates with profile data, enrolled courses, roles, and profile URL. Use this first when a follow-up skill needs a concrete user identity.",
+            "embedding_model": "text-embedding-3-small",
+            "embedding_dimensions": "1536",
+            "content_hash": "ab2ff80335842940564fd6044b173f9853e8e82e32c05bd21ab3f8e327074292",
+            "has_vector": true
+        },
+        {
+            "skill": "core.search_users",
+            "anchor_index": "1",
+            "anchor_kind": "utterance",
+            "anchor_text": "find the user named John Smith",
+            "embedding_model": "text-embedding-3-small",
+            "embedding_dimensions": "1536",
+            "content_hash": "e3b918561dd6b93e058b71103e7e9995d3c84b1cbbb3b2289f487cb9f83b7c69",
+            "has_vector": true
+        },
+        {
+            "skill": "core.search_users",
+            "anchor_index": "2",
+            "anchor_kind": "utterance",
+            "anchor_text": "look up a user by their email address",
+            "embedding_model": "text-embedding-3-small",
+            "embedding_dimensions": "1536",
+            "content_hash": "6b8323463c7b8e09fe5275a477ac158e33dd6274950dfaea52c14fd08b0346e4",
+            "has_vector": true
+        },
+        {
+            "skill": "core.search_users",
+            "anchor_index": "3",
+            "anchor_kind": "utterance",
+            "anchor_text": "search for a person in the system",
+            "embedding_model": "text-embedding-3-small",
+            "embedding_dimensions": "1536",
+            "content_hash": "5af342488e0e694c62c435f8d354adebdba4742814a01a63f432cbbd4a21100e",
+            "has_vector": true
+        },
+        {
+            "skill": "core.search_users",
+            "anchor_index": "4",
+            "anchor_kind": "utterance",
+            "anchor_text": "which user has the id 42",
+            "embedding_model": "text-embedding-3-small",
+            "embedding_dimensions": "1536",
+            "content_hash": "f72d625a90c03d114939e430c82728145ec68fb4c9d625884548ceff0e006133",
+            "has_vector": true
+        },
+        {
+            "skill": "core.search_users",
+            "anchor_index": "5",
+            "anchor_kind": "utterance",
+            "anchor_text": "find another teacher account",
+            "embedding_model": "text-embedding-3-small",
+            "embedding_dimensions": "1536",
+            "content_hash": "c0618d3b4d9e4b2090a5d36104a7b19415da3e7c7bbbce0c92ec539fce288e54",
+            "has_vector": true
+        },
+        {
+            "skill": "core.search_users",
+            "anchor_index": "6",
+            "anchor_kind": "utterance",
+            "anchor_text": "which courses is this user enrolled in",
+            "embedding_model": "text-embedding-3-small",
+            "embedding_dimensions": "1536",
+            "content_hash": "4b15dc5a4c974ad7c8196e9c78aa155d14ef4b9bbec0b6c2a31beabe316a13bf",
+            "has_vector": true
+        },
+        {
+            "skill": "core.search_users",
+            "anchor_index": "7",
+            "anchor_kind": "utterance",
+            "anchor_text": "list the courses that person is enrolled in",
+            "embedding_model": "text-embedding-3-small",
+            "embedding_dimensions": "1536",
+            "content_hash": "580e1132c378c38c40fcc01e9be634599f4b8c5ee22516590daafe842a41e672",
+            "has_vector": true
+        },
+        {
+            "skill": "course.add_activity",
+            "anchor_index": "0",
+            "anchor_kind": "description",
+            "anchor_text": "Add (create) an activity or resource in a Moodle course — a Page, URL/link, Text/label, Book, Folder or Forum. Use this whenever the user wants to add, create or insert an activity or resource into a course (e.g. \"add a page\", \"add a URL/link\", \"create a forum\", \"create a label\"). It does NOT create quiz questions (use question.generate_questions for that).",
+            "embedding_model": "text-embedding-3-small",
+            "embedding_dimensions": "1536",
+            "content_hash": "b8cb9e4c26f7c4d88cffa99eb868ebf769458da1064ccee0a7a453171d03c7bf",
+            "has_vector": true
+        },
+        {
+            "skill": "course.add_activity",
+            "anchor_index": "1",
+            "anchor_kind": "utterance",
+            "anchor_text": "add a page to week 2",
+            "embedding_model": "text-embedding-3-small",
+            "embedding_dimensions": "1536",
+            "content_hash": "b0f9f20746676d8e593dadf579e12453c0ac23518a2f0ae9324efea8952c75ff",
+            "has_vector": true
+        },
+        {
+            "skill": "course.add_activity",
+            "anchor_index": "2",
+            "anchor_kind": "utterance",
+            "anchor_text": "put a forum in this course",
+            "embedding_model": "text-embedding-3-small",
+            "embedding_dimensions": "1536",
+            "content_hash": "badf7835f7b47d6567432021e6bbfa309412cd1295b15b10089a6001a5596b9a",
+            "has_vector": true
+        },
+        {
+            "skill": "course.add_activity",
+            "anchor_index": "3",
+            "anchor_kind": "utterance",
+            "anchor_text": "create a label with some intro text",
+            "embedding_model": "text-embedding-3-small",
+            "embedding_dimensions": "1536",
+            "content_hash": "397e6e066b8fe601af77d427003f6896c57893484f71fb335ccd0c461dde1d46",
+            "has_vector": true
+        },
+        {
+            "skill": "course.add_activity",
+            "anchor_index": "4",
+            "anchor_kind": "utterance",
+            "anchor_text": "add a link to our syllabus PDF",
+            "embedding_model": "text-embedding-3-small",
+            "embedding_dimensions": "1536",
+            "content_hash": "4450c8c19fb39af48dae0e76f86f5733848eee7507612b02879e313d54664aeb",
+            "has_vector": true
+        },
+        {
+            "skill": "course.add_activity",
+            "anchor_index": "5",
+            "anchor_kind": "utterance",
+            "anchor_text": "insert a folder into the introduction section",
+            "embedding_model": "text-embedding-3-small",
+            "embedding_dimensions": "1536",
+            "content_hash": "0366f9c5f547fb01a0d92b0c77c6a04a24df8a94996b39fcde80c0702a8f859f",
+            "has_vector": true
+        },
+        {
+            "skill": "course.add_activity",
+            "anchor_index": "6",
+            "anchor_kind": "utterance",
+            "anchor_text": "add a book resource to the course",
+            "embedding_model": "text-embedding-3-small",
+            "embedding_dimensions": "1536",
+            "content_hash": "723a21684737efdfc48cb4d6d8105bd8e6fa567a90bca8b25d8c4422e0737afa",
+            "has_vector": true
+        },
+        {
+            "skill": "course.add_quiz",
+            "anchor_index": "0",
+            "anchor_kind": "description",
+            "anchor_text": "Create a quiz/test in a course and optionally fill it with questions. Use for \"create a quiz\", \"make a quiz from this PDF\". The quiz can be created empty (add questions later) or populated from one of three sources: newly generated questions (from a document/PDF or a topic), specific existing questions, or random questions from a question category. To only add questions to the bank (no quiz) use question.generate_questions.",
+            "embedding_model": "text-embedding-3-small",
+            "embedding_dimensions": "1536",
+            "content_hash": "de4b935045cd7dc3ddd8152bb1f45ed1679d230908cd4369789870f976d36a4e",
+            "has_vector": true
+        },
+        {
+            "skill": "course.add_quiz",
+            "anchor_index": "1",
+            "anchor_kind": "utterance",
+            "anchor_text": "create a quiz for this course",
+            "embedding_model": "text-embedding-3-small",
+            "embedding_dimensions": "1536",
+            "content_hash": "fce76575d773763bb739ea8013398f560135f7722b73f980d8f3bb40a88e9d85",
+            "has_vector": true
+        },
+        {
+            "skill": "course.add_quiz",
+            "anchor_index": "2",
+            "anchor_kind": "utterance",
+            "anchor_text": "add a new test with 10 questions",
+            "embedding_model": "text-embedding-3-small",
+            "embedding_dimensions": "1536",
+            "content_hash": "9127cc95f855d2e3f1ee914bb4c84c876a79cbdd9beb2edd7bdbad52d8dd6557",
+            "has_vector": true
+        },
+        {
+            "skill": "course.add_quiz",
+            "anchor_index": "3",
+            "anchor_kind": "utterance",
+            "anchor_text": "make a quiz from this PDF",
+            "embedding_model": "text-embedding-3-small",
+            "embedding_dimensions": "1536",
+            "content_hash": "471c3abed2eaff4fc0c2fc12f20bc4a9e142401ebb6847a3dc66f28c3ed04e1f",
+            "has_vector": true
+        },
+        {
+            "skill": "course.add_quiz",
+            "anchor_index": "4",
+            "anchor_kind": "utterance",
+            "anchor_text": "set up an empty quiz I can fill later",
+            "embedding_model": "text-embedding-3-small",
+            "embedding_dimensions": "1536",
+            "content_hash": "a4d908d6af1a358a2a376c3b983bab6fd69e9bf7b4f40930b1c21d44996ef16b",
+            "has_vector": true
+        },
+        {
+            "skill": "course.add_quiz",
+            "anchor_index": "5",
+            "anchor_kind": "utterance",
+            "anchor_text": "build a quiz from the photosynthesis topic",
+            "embedding_model": "text-embedding-3-small",
+            "embedding_dimensions": "1536",
+            "content_hash": "62afcc9fd5bddc023c051e3479468d0a37e52e0d80b844e027b6cc7b94745e94",
+            "has_vector": true
+        },
+        {
+            "skill": "course.analyze_course_structure",
+            "anchor_index": "0",
+            "anchor_kind": "description",
+            "anchor_text": "Analyse / list the STRUCTURE of a course: its sections (topics/weeks) and the activities & resources in them — names, types, descriptions, links — plus whether each is hidden, availability-restricted, group-restricted or locked for the viewer. Use for \"what is in this course\", \"show me the structure/sections of course X\", \"which activities/sections does the course have\", \"what is in the Mathematics course\". It is the prerequisite for later placing something into a section. It only READS; it never creates or changes anything.",
+            "embedding_model": "text-embedding-3-small",
+            "embedding_dimensions": "1536",
+            "content_hash": "68fc111a5bb951d5f36b0851577bc20bee43c29099bbcd169af03a1f88af53b4",
+            "has_vector": true
+        },
+        {
+            "skill": "course.analyze_course_structure",
+            "anchor_index": "1",
+            "anchor_kind": "utterance",
+            "anchor_text": "what is in this course",
+            "embedding_model": "text-embedding-3-small",
+            "embedding_dimensions": "1536",
+            "content_hash": "000eea7d64cf779db08e258edeeb8fdd5476088ee2317a171e6d44afbad173c8",
+            "has_vector": true
+        },
+        {
+            "skill": "course.analyze_course_structure",
+            "anchor_index": "2",
+            "anchor_kind": "utterance",
+            "anchor_text": "show me the sections and activities of this course",
+            "embedding_model": "text-embedding-3-small",
+            "embedding_dimensions": "1536",
+            "content_hash": "8846dbbe02748754f50c812cbb93c98ea9433c4a490913bcb3ae9c6513bdeb9e",
+            "has_vector": true
+        },
+        {
+            "skill": "course.analyze_course_structure",
+            "anchor_index": "3",
+            "anchor_kind": "utterance",
+            "anchor_text": "give me an overview of the course structure",
+            "embedding_model": "text-embedding-3-small",
+            "embedding_dimensions": "1536",
+            "content_hash": "74cac34ef0c17aae2a48ae37137ce818d3f2f8a3763a580f1570fa6653f68bba",
+            "has_vector": true
+        },
+        {
+            "skill": "course.analyze_course_structure",
+            "anchor_index": "4",
+            "anchor_kind": "utterance",
+            "anchor_text": "list the topics in the Biology course",
+            "embedding_model": "text-embedding-3-small",
+            "embedding_dimensions": "1536",
+            "content_hash": "0baccd21a02370e52a2bba30d1fd8e99a195fa7ae3e704fcf0e909c8af75f73c",
+            "has_vector": true
+        },
+        {
+            "skill": "course.analyze_course_structure",
+            "anchor_index": "5",
+            "anchor_kind": "utterance",
+            "anchor_text": "which activities does this course contain",
+            "embedding_model": "text-embedding-3-small",
+            "embedding_dimensions": "1536",
+            "content_hash": "ecfce89afab8a27c83922e1cdea39f0377c17e83ac47fa9647b6502d709914cf",
+            "has_vector": true
+        },
+        {
+            "skill": "course.diagnose_user_in_course",
+            "anchor_index": "0",
+            "anchor_kind": "description",
+            "anchor_text": "Diagnose a person's situation in a course (read-only): why they can or cannot ACCESS/see/open the course or an activity (aspect=access); why ENROLMENT did or did not happen — self-enrolment, cohort sync, suspended/expired, OR which/how many courses a person is enrolled in (aspect=enrolment; omit the course to list all of the person's courses); their PROGRESS / activity completion (aspect=progress); or a missing/wrong GRADE (aspect=grades). Set \"aspect\" to the facet asked about. NOT for booking options (that is mod_booking.diagnose_booking_issue).",
+            "embedding_model": "text-embedding-3-small",
+            "embedding_dimensions": "1536",
+            "content_hash": "ae63ed60086510a1b017661138bcc0807bdcf7fa10879b7987bb0ec41b5adf26",
+            "has_vector": true
+        },
+        {
+            "skill": "course.diagnose_user_in_course",
+            "anchor_index": "1",
+            "anchor_kind": "utterance",
+            "anchor_text": "why can't this student open the quiz",
+            "embedding_model": "text-embedding-3-small",
+            "embedding_dimensions": "1536",
+            "content_hash": "29342f8ad91095951ebdebc2aa3791196b1595bcfedd14511804d2118bb80ee6",
+            "has_vector": true
+        },
+        {
+            "skill": "course.diagnose_user_in_course",
+            "anchor_index": "2",
+            "anchor_kind": "utterance",
+            "anchor_text": "why is the activity greyed out for her",
+            "embedding_model": "text-embedding-3-small",
+            "embedding_dimensions": "1536",
+            "content_hash": "6f5176904e6667cb12bf64cf3ecaec514ff9756b1806d6f2929ccd54c57bee44",
+            "has_vector": true
+        },
+        {
+            "skill": "course.diagnose_user_in_course",
+            "anchor_index": "3",
+            "anchor_kind": "utterance",
+            "anchor_text": "why wasn't he auto-enrolled in the course",
+            "embedding_model": "text-embedding-3-small",
+            "embedding_dimensions": "1536",
+            "content_hash": "8a964b45fb14192ea9c038a3311519cba9ee705436d064411be4701dd969a4ea",
+            "has_vector": true
+        },
+        {
+            "skill": "course.diagnose_user_in_course",
+            "anchor_index": "4",
+            "anchor_kind": "utterance",
+            "anchor_text": "his enrolment expired and he's no longer in the course",
+            "embedding_model": "text-embedding-3-small",
+            "embedding_dimensions": "1536",
+            "content_hash": "f2383519c06113d48657f300a3c4f5bb8f9a998542af47eb5b677bfdc0c6f598",
+            "has_vector": true
+        },
+        {
+            "skill": "course.diagnose_user_in_course",
+            "anchor_index": "5",
+            "anchor_kind": "utterance",
+            "anchor_text": "which courses is this user enrolled in",
+            "embedding_model": "text-embedding-3-small",
+            "embedding_dimensions": "1536",
+            "content_hash": "6e4d5ef155782fc8b9f024012fed7c8d0acc0365917ef232f88f888d34e65ee4",
+            "has_vector": true
+        },
+        {
+            "skill": "course.diagnose_user_in_course",
+            "anchor_index": "6",
+            "anchor_kind": "utterance",
+            "anchor_text": "list the courses he is enrolled in",
+            "embedding_model": "text-embedding-3-small",
+            "embedding_dimensions": "1536",
+            "content_hash": "309d44a5336b1068b3b44e028cb085d48df8c5a4511a4154b5fa7c5a25f8e8bc",
+            "has_vector": true
+        },
+        {
+            "skill": "course.diagnose_user_in_course",
+            "anchor_index": "7",
+            "anchor_kind": "utterance",
+            "anchor_text": "how far has this learner progressed in the course",
+            "embedding_model": "text-embedding-3-small",
+            "embedding_dimensions": "1536",
+            "content_hash": "17739150c6c9e390d982ede054e506da410123993602f4caa26c46f2da2d2a6e",
+            "has_vector": true
+        },
+        {
+            "skill": "course.diagnose_user_in_course",
+            "anchor_index": "8",
+            "anchor_kind": "utterance",
+            "anchor_text": "why is the activity not marked complete for her",
+            "embedding_model": "text-embedding-3-small",
+            "embedding_dimensions": "1536",
+            "content_hash": "a8205db64cf46aa35db1e99a91ca5fb36dccb2654233962309059d3cec232537",
+            "has_vector": true
+        },
+        {
+            "skill": "course.diagnose_user_in_course",
+            "anchor_index": "9",
+            "anchor_kind": "utterance",
+            "anchor_text": "he completed the quiz but is not advancing to the next activity",
+            "embedding_model": "text-embedding-3-small",
+            "embedding_dimensions": "1536",
+            "content_hash": "ec38a2dff7d6d32b088eadea23b4d6cde966ed69033e0cb903de34e7bb8f5c61",
+            "has_vector": true
+        },
+        {
+            "skill": "course.diagnose_user_in_course",
+            "anchor_index": "10",
+            "anchor_kind": "utterance",
+            "anchor_text": "why can't the student see their grade",
+            "embedding_model": "text-embedding-3-small",
+            "embedding_dimensions": "1536",
+            "content_hash": "44416bdb0d7863d426c7687fb4662729994e041ea734d0720dbaf2feab8d7b2a",
+            "has_vector": true
+        },
+        {
+            "skill": "course.diagnose_user_in_course",
+            "anchor_index": "11",
+            "anchor_kind": "utterance",
+            "anchor_text": "her grade for the assignment is missing",
+            "embedding_model": "text-embedding-3-small",
+            "embedding_dimensions": "1536",
+            "content_hash": "a41ca50b6ba5e92c40d89107c77277802694b4568a749edf0bfc7447c140e4aa",
+            "has_vector": true
+        },
+        {
+            "skill": "course.search_courses",
+            "anchor_index": "0",
+            "anchor_kind": "description",
+            "anchor_text": "Resolve an existing Moodle COURSE (the platform course container) by name and return its identity: courseid, shortname, fullname, course URL and active enrolment count. Use this only to find WHICH Moodle course is meant — typically to obtain a course id or link for a follow-up step. NOT for listing what a user can book or attend (that is a booking option — use search_options), and NOT for enrolling or booking anyone into anything.",
+            "embedding_model": "text-embedding-3-small",
+            "embedding_dimensions": "1536",
+            "content_hash": "7fcd9067ff6f9e336e194379d90cc5cf47e53bb43b276322ce89ec920cdde18d",
+            "has_vector": true
+        },
+        {
+            "skill": "course.search_courses",
+            "anchor_index": "1",
+            "anchor_kind": "utterance",
+            "anchor_text": "find the Moodle course called Biology 101",
+            "embedding_model": "text-embedding-3-small",
+            "embedding_dimensions": "1536",
+            "content_hash": "a9359075a23e08dbc5c37a4120be5f36ee9535a04d547834b7e8c3393075121b",
+            "has_vector": true
+        },
+        {
+            "skill": "course.search_courses",
+            "anchor_index": "2",
+            "anchor_kind": "utterance",
+            "anchor_text": "what is the course id of Intro to Programming",
+            "embedding_model": "text-embedding-3-small",
+            "embedding_dimensions": "1536",
+            "content_hash": "16fa65f960072e6593acb7424a7fcc8cdea59339cf85f019d144be39b7130f79",
+            "has_vector": true
+        },
+        {
+            "skill": "course.search_courses",
+            "anchor_index": "3",
+            "anchor_kind": "utterance",
+            "anchor_text": "get the link to the Mathematics course",
+            "embedding_model": "text-embedding-3-small",
+            "embedding_dimensions": "1536",
+            "content_hash": "dd2593de24d346f617e5c24589a0fa7fbef952ae7c5592bc2f446e194267f7fe",
+            "has_vector": true
+        },
+        {
+            "skill": "course.search_courses",
+            "anchor_index": "4",
+            "anchor_kind": "utterance",
+            "anchor_text": "which Moodle course matches the name Data Science",
+            "embedding_model": "text-embedding-3-small",
+            "embedding_dimensions": "1536",
+            "content_hash": "05d58a936a1e7e38d522cda09f23f8858d43e0a5b4b2ec7724a0492f3fb270bc",
+            "has_vector": true
+        },
+        {
+            "skill": "course.update_activity",
+            "anchor_index": "0",
+            "anchor_kind": "description",
+            "anchor_text": "Edit / change an existing activity or resource in a course — rename it, change its description, show or hide it, or change a module-specific setting (e.g. a URL's link). Use for \"rename the page to X\", \"hide the forum\", \"change the activity's URL\", \"hide the quiz\". Only the fields you give are changed. To CREATE a new activity use course.add_activity instead.",
+            "embedding_model": "text-embedding-3-small",
+            "embedding_dimensions": "1536",
+            "content_hash": "d9a5c976635e9c7a755a28618541f4044a9f3244b2b27da30a7f685b6342426c",
+            "has_vector": true
+        },
+        {
+            "skill": "course.update_activity",
+            "anchor_index": "1",
+            "anchor_kind": "utterance",
+            "anchor_text": "rename the Welcome page to Course intro",
+            "embedding_model": "text-embedding-3-small",
+            "embedding_dimensions": "1536",
+            "content_hash": "e14fc68bff56d4a24e89850c5d7206251cfe3bb99cc5d6e1971b80e904b62c59",
+            "has_vector": true
+        },
+        {
+            "skill": "course.update_activity",
+            "anchor_index": "2",
+            "anchor_kind": "utterance",
+            "anchor_text": "hide the forum from students",
+            "embedding_model": "text-embedding-3-small",
+            "embedding_dimensions": "1536",
+            "content_hash": "cbf27e3a5de86afb50b06f1e1f49776ad20b441dc64b169c6ffab74093049404",
+            "has_vector": true
+        },
+        {
+            "skill": "course.update_activity",
+            "anchor_index": "3",
+            "anchor_kind": "utterance",
+            "anchor_text": "change the description of the folder",
+            "embedding_model": "text-embedding-3-small",
+            "embedding_dimensions": "1536",
+            "content_hash": "08983fbfbe04bec533d97c468abd896baf1fddccff8c2e01f44f1e4137c18ad9",
+            "has_vector": true
+        },
+        {
+            "skill": "course.update_activity",
+            "anchor_index": "4",
+            "anchor_kind": "utterance",
+            "anchor_text": "make the link point to a new URL",
+            "embedding_model": "text-embedding-3-small",
+            "embedding_dimensions": "1536",
+            "content_hash": "d08d7753738a02e1cb9a3956475d74fe72603fd76251bfeb516966a2a44d05a6",
+            "has_vector": true
+        },
+        {
+            "skill": "course.update_activity",
+            "anchor_index": "5",
+            "anchor_kind": "utterance",
+            "anchor_text": "show the page that is currently hidden",
+            "embedding_model": "text-embedding-3-small",
+            "embedding_dimensions": "1536",
+            "content_hash": "7b166a8f82602de67413f0ce028a3c06000a47cad05878161b999db572c4f0bb",
+            "has_vector": true
+        },
+        {
+            "skill": "course.update_quiz",
+            "anchor_index": "0",
+            "anchor_kind": "description",
+            "anchor_text": "Edit an existing quiz and/or add questions to it. Rename it, change its description, show/hide it, and/or add questions (newly generated, specific existing ones, or random from a category). Use for \"add 5 questions to Quiz 3\", \"rename the quiz\", \"add questions to the quiz\", \"hide the quiz\". To CREATE a new quiz use course.add_quiz.",
+            "embedding_model": "text-embedding-3-small",
+            "embedding_dimensions": "1536",
+            "content_hash": "c532480aeec011c9d065f13b0adc038457c241e63e65e6dccaf4ab6035261297",
+            "has_vector": true
+        },
+        {
+            "skill": "course.update_quiz",
+            "anchor_index": "1",
+            "anchor_kind": "utterance",
+            "anchor_text": "add 5 questions to the existing quiz",
+            "embedding_model": "text-embedding-3-small",
+            "embedding_dimensions": "1536",
+            "content_hash": "8bce64f0d33275cbe3bd8b0e3b4c682419a12780c74f0b2b55d4e04385a62114",
+            "has_vector": true
+        },
+        {
+            "skill": "course.update_quiz",
+            "anchor_index": "2",
+            "anchor_kind": "utterance",
+            "anchor_text": "put more questions into Chapter 1 quiz",
+            "embedding_model": "text-embedding-3-small",
+            "embedding_dimensions": "1536",
+            "content_hash": "913705276970781849adee8cfc224a9db0fb9b2f23000b3ab3e952e5828bc0af",
+            "has_vector": true
+        },
+        {
+            "skill": "course.update_quiz",
+            "anchor_index": "3",
+            "anchor_kind": "utterance",
+            "anchor_text": "rename Quiz 3 to Final exam",
+            "embedding_model": "text-embedding-3-small",
+            "embedding_dimensions": "1536",
+            "content_hash": "20f3d3253e82c0dae064716e9fff3448862ee6fcb5f6bdf21dd5fc5a14fdb17c",
+            "has_vector": true
+        },
+        {
+            "skill": "course.update_quiz",
+            "anchor_index": "4",
+            "anchor_kind": "utterance",
+            "anchor_text": "hide the quiz from students",
+            "embedding_model": "text-embedding-3-small",
+            "embedding_dimensions": "1536",
+            "content_hash": "e767acf634f8623bd995fdc614dbe9149df1f6ba487358ab00158a4c8cdee6f4",
+            "has_vector": true
+        },
+        {
+            "skill": "course.update_quiz",
+            "anchor_index": "5",
+            "anchor_kind": "utterance",
+            "anchor_text": "add questions from the algebra category to the quiz",
+            "embedding_model": "text-embedding-3-small",
+            "embedding_dimensions": "1536",
+            "content_hash": "be776036d83259aeea3960ca72e9aaaeb2bfba27d1ab8b83d5f42335a41dfadc",
+            "has_vector": true
+        },
+        {
+            "skill": "question.generate_questions",
+            "anchor_index": "0",
+            "anchor_kind": "description",
+            "anchor_text": "Generate Moodle quiz/test questions (multiple choice, true/false, short answer) and save them into the course question bank. The questions can be based EITHER on a document/PDF the user uploaded OR on a topic, facts, or an explicit question and answer the user provides directly in the chat — an upload is NOT required. Use this whenever the user wants a question, quiz or test created or inserted into Moodle (e.g. \"make me a question\", \"create a question\", \"create a quiz\", \"create questions from the document\", \"insert a question in Moodle\").",
+            "embedding_model": "text-embedding-3-small",
+            "embedding_dimensions": "1536",
+            "content_hash": "09ab63aa2a1b7af9d3007fa47602820bff0a7d743d6a010c00185ea4494e8067",
+            "has_vector": true
+        },
+        {
+            "skill": "question.generate_questions",
+            "anchor_index": "1",
+            "anchor_kind": "utterance",
+            "anchor_text": "create quiz questions from this PDF",
+            "embedding_model": "text-embedding-3-small",
+            "embedding_dimensions": "1536",
+            "content_hash": "d2ee54a39354d77e533dcbc4353411b57b90c00afb62841a019f2162fa463daf",
+            "has_vector": true
+        },
+        {
+            "skill": "question.generate_questions",
+            "anchor_index": "2",
+            "anchor_kind": "utterance",
+            "anchor_text": "make me a multiple choice question about photosynthesis",
+            "embedding_model": "text-embedding-3-small",
+            "embedding_dimensions": "1536",
+            "content_hash": "f4f2cd2022572c5069930e9c82c0757bb577de3a2375602177646c03e7d85bd8",
+            "has_vector": true
+        },
+        {
+            "skill": "question.generate_questions",
+            "anchor_index": "3",
+            "anchor_kind": "utterance",
+            "anchor_text": "generate 10 test questions from the document",
+            "embedding_model": "text-embedding-3-small",
+            "embedding_dimensions": "1536",
+            "content_hash": "30cf284bf875f59315f8df831e9ad83a32679ae13ed3d200929ddb82784669b1",
+            "has_vector": true
+        },
+        {
+            "skill": "question.generate_questions",
+            "anchor_index": "4",
+            "anchor_kind": "utterance",
+            "anchor_text": "add some questions to the question bank",
+            "embedding_model": "text-embedding-3-small",
+            "embedding_dimensions": "1536",
+            "content_hash": "94dbdfb2c17bbb4469ed66ec6031519ce500011c309490378b0d7f41ea6dfa46",
+            "has_vector": true
+        },
+        {
+            "skill": "question.generate_questions",
+            "anchor_index": "5",
+            "anchor_kind": "utterance",
+            "anchor_text": "turn this material into a quiz",
+            "embedding_model": "text-embedding-3-small",
+            "embedding_dimensions": "1536",
+            "content_hash": "f5f103ca1baa222d95a65e0be83119455d9677f471ca145fbf49cfdc5aa10e75",
+            "has_vector": true
+        },
+        {
+            "skill": "wizard.explain_docs",
+            "anchor_index": "0",
+            "anchor_kind": "description",
+            "anchor_text": "Search the plugin documentation and return a relevant excerpt that answers the user's question. Works in any language — queries are matched against the documentation corpus language-agnostically. Use this skill whenever the user asks how something works, how to configure a feature, or what a term means in the context of this plugin. Documentation answers are strictly grounded: only the returned excerpt counts — never answer such questions from general knowledge.",
+            "embedding_model": "text-embedding-3-small",
+            "embedding_dimensions": "1536",
+            "content_hash": "d643eee77846c06867fd12a1edbb050859ec1e89c29d7252ee36f911498a2b20",
+            "has_vector": true
+        },
+        {
+            "skill": "wizard.explain_docs",
+            "anchor_index": "1",
+            "anchor_kind": "utterance",
+            "anchor_text": "how do I set up a booking rule",
+            "embedding_model": "text-embedding-3-small",
+            "embedding_dimensions": "1536",
+            "content_hash": "ce5a04ebecca330f927649168cbe5589c193ebc1653e90a98ff2753a2f03d95c",
+            "has_vector": true
+        },
+        {
+            "skill": "wizard.explain_docs",
+            "anchor_index": "2",
+            "anchor_kind": "utterance",
+            "anchor_text": "how does the waiting list work",
+            "embedding_model": "text-embedding-3-small",
+            "embedding_dimensions": "1536",
+            "content_hash": "1319789811cf8b2e70794cd8bda1785ec66ec10523e007837a866781a9d52a2d",
+            "has_vector": true
+        },
+        {
+            "skill": "wizard.explain_docs",
+            "anchor_index": "3",
+            "anchor_kind": "utterance",
+            "anchor_text": "what does the placeholder feature mean",
+            "embedding_model": "text-embedding-3-small",
+            "embedding_dimensions": "1536",
+            "content_hash": "d3b4396f822f27e42be54f899ea907257e6cda8bdda32ed93a4be9a835125dae",
+            "has_vector": true
+        },
+        {
+            "skill": "wizard.explain_docs",
+            "anchor_index": "4",
+            "anchor_kind": "utterance",
+            "anchor_text": "where do I configure booking conditions",
+            "embedding_model": "text-embedding-3-small",
+            "embedding_dimensions": "1536",
+            "content_hash": "19d024762866664397d61dc07f3af929fca59dc55655a3e9f6b2d7d1d022566c",
+            "has_vector": true
+        },
+        {
+            "skill": "wizard.explain_docs",
+            "anchor_index": "5",
+            "anchor_kind": "utterance",
+            "anchor_text": "explain how option dates work",
+            "embedding_model": "text-embedding-3-small",
+            "embedding_dimensions": "1536",
+            "content_hash": "b00b1d9e865510a1d359d5da88f4a1063062b7ec2764f251ca5e8015a90513af",
+            "has_vector": true
+        },
+        {
+            "skill": "wizard.forget",
+            "anchor_index": "0",
+            "anchor_kind": "description",
+            "anchor_text": "Delete a previously stored user-stated memory/preference (e.g. \"forget that I prefer morning bookings\"). Resolves by query or explicit id and always asks for confirmation before deleting. This manages stored facts the user told the agent — it is NOT for previous conversation. User isolation is strict; userid is never taken from input.",
+            "embedding_model": "text-embedding-3-small",
+            "embedding_dimensions": "1536",
+            "content_hash": "d05c33cdbed6e6558ce18af205578fe7d1b08e045d54e330ddd7d54703d5d2c5",
+            "has_vector": true
+        },
+        {
+            "skill": "wizard.forget",
+            "anchor_index": "1",
+            "anchor_kind": "utterance",
+            "anchor_text": "forget that I prefer morning bookings",
+            "embedding_model": "text-embedding-3-small",
+            "embedding_dimensions": "1536",
+            "content_hash": "5847f0464a47f9af2893dbd911c90250f927006b69e4d0a5e52839c746a97005",
+            "has_vector": true
+        },
+        {
+            "skill": "wizard.forget",
+            "anchor_index": "2",
+            "anchor_kind": "utterance",
+            "anchor_text": "delete the preference about room B",
+            "embedding_model": "text-embedding-3-small",
+            "embedding_dimensions": "1536",
+            "content_hash": "381ae4151605145e9d6b5f72af807269591909cf54f43d03651c810b81ed24ba",
+            "has_vector": true
+        },
+        {
+            "skill": "wizard.forget",
+            "anchor_index": "3",
+            "anchor_kind": "utterance",
+            "anchor_text": "stop remembering my employee id",
+            "embedding_model": "text-embedding-3-small",
+            "embedding_dimensions": "1536",
+            "content_hash": "81381a45e885b7a23b98b5350495d67f53e72dc64e7dc77ba79ccbb88eb7907c",
+            "has_vector": true
+        },
+        {
+            "skill": "wizard.forget",
+            "anchor_index": "4",
+            "anchor_kind": "utterance",
+            "anchor_text": "forget everything you know about me",
+            "embedding_model": "text-embedding-3-small",
+            "embedding_dimensions": "1536",
+            "content_hash": "7978fdc825adce6effa824fbd8ac36df2e9510d36ce397b09ff2c5407b1cbf3f",
+            "has_vector": true
+        },
+        {
+            "skill": "wizard.forget",
+            "anchor_index": "5",
+            "anchor_kind": "utterance",
+            "anchor_text": "remove that saved fact",
+            "embedding_model": "text-embedding-3-small",
+            "embedding_dimensions": "1536",
+            "content_hash": "4643109c69ae89498a5d1077428fd4a52f3fa339a680f10832a2397e3ecf13ab",
+            "has_vector": true
+        },
+        {
+            "skill": "wizard.list_memories",
+            "anchor_index": "0",
+            "anchor_kind": "description",
+            "anchor_text": "List the stored facts/preferences the user previously asked the agent to remember (e.g. \"what do you know about me?\"). These are stored user-stated facts, NOT previous conversation (use wizard.recall_memory for past conversation). User isolation is strict; userid is never taken from input.",
+            "embedding_model": "text-embedding-3-small",
+            "embedding_dimensions": "1536",
+            "content_hash": "cdc41503193883d2b619028e9a2d38f98324508998fd8733247284dab858bd08",
+            "has_vector": true
+        },
+        {
+            "skill": "wizard.list_memories",
+            "anchor_index": "1",
+            "anchor_kind": "utterance",
+            "anchor_text": "what do you know about me",
+            "embedding_model": "text-embedding-3-small",
+            "embedding_dimensions": "1536",
+            "content_hash": "3e3a7eed53da39ee1bf0cbeb5182d3cb773fb2050ad231991cbd17a059870ab4",
+            "has_vector": true
+        },
+        {
+            "skill": "wizard.list_memories",
+            "anchor_index": "2",
+            "anchor_kind": "utterance",
+            "anchor_text": "what have you remembered about me",
+            "embedding_model": "text-embedding-3-small",
+            "embedding_dimensions": "1536",
+            "content_hash": "3c613bbd1f0f14b5f6745e813f6e5b924958c495a5588758a8bc5ee6c0b8dab6",
+            "has_vector": true
+        },
+        {
+            "skill": "wizard.list_memories",
+            "anchor_index": "3",
+            "anchor_kind": "utterance",
+            "anchor_text": "list everything you have stored about me",
+            "embedding_model": "text-embedding-3-small",
+            "embedding_dimensions": "1536",
+            "content_hash": "1f9e8b6d5ab4e8d97f0023a9643be477a6ef984ceaadd994401b8e6361e72fc6",
+            "has_vector": true
+        },
+        {
+            "skill": "wizard.list_memories",
+            "anchor_index": "4",
+            "anchor_kind": "utterance",
+            "anchor_text": "show me my saved preferences",
+            "embedding_model": "text-embedding-3-small",
+            "embedding_dimensions": "1536",
+            "content_hash": "6e16ae82faa816815deac2fc8728d15f242381f6e36c33777af23351ba2851aa",
+            "has_vector": true
+        },
+        {
+            "skill": "wizard.list_memories",
+            "anchor_index": "5",
+            "anchor_kind": "utterance",
+            "anchor_text": "what facts have I asked you to keep",
+            "embedding_model": "text-embedding-3-small",
+            "embedding_dimensions": "1536",
+            "content_hash": "cbf154e0dd88c80230a68e930bba1d99e88233fc9cd5da110406055edbe60dfb",
+            "has_vector": true
+        },
+        {
+            "skill": "wizard.list_skills",
+            "anchor_index": "0",
+            "anchor_kind": "description",
+            "anchor_text": "List the AI agent capabilities and skill names that this booking agent supports. Use this ONLY when the user asks what the agent CAN DO or which agent skills/commands exist. Do NOT use for regular entity listing requests; use the appropriate search/list skill instead.",
+            "embedding_model": "text-embedding-3-small",
+            "embedding_dimensions": "1536",
+            "content_hash": "26430334c0fdb241ea5ca4db1a6a411e3370fca7933fac3dc33dd03e78ba9f7f",
+            "has_vector": true
+        },
+        {
+            "skill": "wizard.list_skills",
+            "anchor_index": "1",
+            "anchor_kind": "utterance",
+            "anchor_text": "what can you do",
+            "embedding_model": "text-embedding-3-small",
+            "embedding_dimensions": "1536",
+            "content_hash": "88e8fadb63a42f80d7a4eada8a7515b9d17c27a8c56f9c0d8a6235493a61b670",
+            "has_vector": true
+        },
+        {
+            "skill": "wizard.list_skills",
+            "anchor_index": "2",
+            "anchor_kind": "utterance",
+            "anchor_text": "what are you capable of",
+            "embedding_model": "text-embedding-3-small",
+            "embedding_dimensions": "1536",
+            "content_hash": "0235c579831bceedaad9dc11b410d71e4647b1a0fb05302652868d455ebcd154",
+            "has_vector": true
+        },
+        {
+            "skill": "wizard.list_skills",
+            "anchor_index": "3",
+            "anchor_kind": "utterance",
+            "anchor_text": "list the actions this agent supports",
+            "embedding_model": "text-embedding-3-small",
+            "embedding_dimensions": "1536",
+            "content_hash": "b1219790995686a291f9286c5f5ea2139b74fc920ff558329d89ccf07bb36852",
+            "has_vector": true
+        },
+        {
+            "skill": "wizard.list_skills",
+            "anchor_index": "4",
+            "anchor_kind": "utterance",
+            "anchor_text": "which commands do you understand",
+            "embedding_model": "text-embedding-3-small",
+            "embedding_dimensions": "1536",
+            "content_hash": "4f44dfd055a3531302fb3c5b38fb4fd3e852789d67c4bb4db87317c805d4b181",
+            "has_vector": true
+        },
+        {
+            "skill": "wizard.list_skills",
+            "anchor_index": "5",
+            "anchor_kind": "utterance",
+            "anchor_text": "show me everything you can help with",
+            "embedding_model": "text-embedding-3-small",
+            "embedding_dimensions": "1536",
+            "content_hash": "e4b0d87a5e5e5e4bb0938bed0be5b6bc1aff015b278f13691df732562212e6c5",
+            "has_vector": true
+        },
+        {
+            "skill": "wizard.recall_memory",
+            "anchor_index": "0",
+            "anchor_kind": "description",
+            "anchor_text": "Recall previous user-only conversation memory. Use mode=\"last_thread\" for requests like \"last time/yesterday\" and mode=\"date_window\" only for date-specific requests. When mode=\"date_window\", date_hint is mandatory. User isolation is strict and userid is never accepted from input.",
+            "embedding_model": "text-embedding-3-small",
+            "embedding_dimensions": "1536",
+            "content_hash": "56817eea42cfca567f0fa13a4b6c7c16369dfc29bac7d82bf2152359d8032bba",
+            "has_vector": true
+        },
+        {
+            "skill": "wizard.recall_memory",
+            "anchor_index": "1",
+            "anchor_kind": "utterance",
+            "anchor_text": "what did we talk about last time",
+            "embedding_model": "text-embedding-3-small",
+            "embedding_dimensions": "1536",
+            "content_hash": "9a453f2cf76531410a76707915c8f46863845b57f96f33217ebbdd032b7db6b5",
+            "has_vector": true
+        },
+        {
+            "skill": "wizard.recall_memory",
+            "anchor_index": "2",
+            "anchor_kind": "utterance",
+            "anchor_text": "what did we discuss yesterday",
+            "embedding_model": "text-embedding-3-small",
+            "embedding_dimensions": "1536",
+            "content_hash": "1aed8e8f5119d38019af761e0bc13018c26c9a1e62af578b9b4dad15c1c1d9d4",
+            "has_vector": true
+        },
+        {
+            "skill": "wizard.recall_memory",
+            "anchor_index": "3",
+            "anchor_kind": "utterance",
+            "anchor_text": "remind me what we covered last Friday",
+            "embedding_model": "text-embedding-3-small",
+            "embedding_dimensions": "1536",
+            "content_hash": "b0287babe31196430716cbc27123262342d20e0b7e5c859c7bc9a09514fc9c72",
+            "has_vector": true
+        },
+        {
+            "skill": "wizard.recall_memory",
+            "anchor_index": "4",
+            "anchor_kind": "utterance",
+            "anchor_text": "show me that document we looked at earlier",
+            "embedding_model": "text-embedding-3-small",
+            "embedding_dimensions": "1536",
+            "content_hash": "dcb7926b38125aa0cd54b611b8904766e0394badd6d55c98084a1f20e9ef96f4",
+            "has_vector": true
+        },
+        {
+            "skill": "wizard.recall_memory",
+            "anchor_index": "5",
+            "anchor_kind": "utterance",
+            "anchor_text": "did we discuss user X before",
+            "embedding_model": "text-embedding-3-small",
+            "embedding_dimensions": "1536",
+            "content_hash": "a85d4852c85dfcf056e3b3ae068641538fddf66c9b84aa28a5fce26317165fa4",
+            "has_vector": true
+        },
+        {
+            "skill": "wizard.recreate_skill_catalog",
+            "anchor_index": "0",
+            "anchor_kind": "description",
+            "anchor_text": "Recreate the embeddings skill catalog CSV used for vector skill retrieval. Queues an adhoc rebuild job and can be used when the catalog is stale or missing.",
+            "embedding_model": "text-embedding-3-small",
+            "embedding_dimensions": "1536",
+            "content_hash": "63f5b2b12ca3b44366bafaa88400157416cddf0b95427db4ffe79826920bfb1f",
+            "has_vector": true
+        },
+        {
+            "skill": "wizard.remember",
+            "anchor_index": "0",
+            "anchor_kind": "description",
+            "anchor_text": "Store a fact, preference or standing instruction the user explicitly asks the agent to remember for future planning (e.g. \"remember that I prefer morning bookings\"). This stores user-stated facts — it is NOT for recalling previous conversation (use wizard.recall_memory for that). User isolation is strict; userid is never taken from input.",
+            "embedding_model": "text-embedding-3-small",
+            "embedding_dimensions": "1536",
+            "content_hash": "d4190c3724e16474ad6e514f114abc1b62a06b1729d9842e90e960638e23d3c7",
+            "has_vector": true
+        },
+        {
+            "skill": "wizard.remember",
+            "anchor_index": "1",
+            "anchor_kind": "utterance",
+            "anchor_text": "remember that I prefer morning bookings",
+            "embedding_model": "text-embedding-3-small",
+            "embedding_dimensions": "1536",
+            "content_hash": "9fbc69d70c71f5a3da034643def1cfecce09599cd65d4a6798aa415fae29b5ce",
+            "has_vector": true
+        },
+        {
+            "skill": "wizard.remember",
+            "anchor_index": "2",
+            "anchor_kind": "utterance",
+            "anchor_text": "keep in mind that my employee id is 12345",
+            "embedding_model": "text-embedding-3-small",
+            "embedding_dimensions": "1536",
+            "content_hash": "d2baa039604ec983d94c70b7ca63f2faf5dad3523790c001f6bdb82c661d4800",
+            "has_vector": true
+        },
+        {
+            "skill": "wizard.remember",
+            "anchor_index": "3",
+            "anchor_kind": "utterance",
+            "anchor_text": "always address me as Dr. Smith",
+            "embedding_model": "text-embedding-3-small",
+            "embedding_dimensions": "1536",
+            "content_hash": "5d0d554626921731c95bafea569a30209221ba916766d831232c493f9bfc4091",
+            "has_vector": true
+        },
+        {
+            "skill": "wizard.remember",
+            "anchor_index": "4",
+            "anchor_kind": "utterance",
+            "anchor_text": "note that I always need room B",
+            "embedding_model": "text-embedding-3-small",
+            "embedding_dimensions": "1536",
+            "content_hash": "f10dbfbb68c33948ee053e6118f11f12e79a611b940513342940f2f2980fb807",
+            "has_vector": true
+        },
+        {
+            "skill": "wizard.remember",
+            "anchor_index": "5",
+            "anchor_kind": "utterance",
+            "anchor_text": "save this preference for next time",
+            "embedding_model": "text-embedding-3-small",
+            "embedding_dimensions": "1536",
+            "content_hash": "a4a01e8989432791cd22c83e01ca0ed161d35df3830d9a21d316def7cc5d37d3",
+            "has_vector": true
+        },
+        {
+            "skill": "wizard.scaffold_skill",
+            "anchor_index": "0",
+            "anchor_kind": "description",
+            "anchor_text": "Create / scaffold a NEW custom agent skill: generate a downloadable starter template for a new AI agent skill (action/command) in a third-party plugin. Use this when the user wants to BUILD or ADD their own skill, capability, command or action to the agent (e.g. \"I want to create my own skill that ...\"). Fills the skill contract (name, schema, risk class, capability, triggers) with guided comments; it does not implement the behaviour and does not run the new skill. NOT for using an existing skill — only for authoring a new one.",
+            "embedding_model": "text-embedding-3-small",
+            "embedding_dimensions": "1536",
+            "content_hash": "69cc2874b8288a608b7777029f5afcdb13d90d5e951f7785a8aa9e6cc3c553b1",
+            "has_vector": true
+        },
+        {
+            "skill": "wizard.scaffold_skill",
+            "anchor_index": "1",
+            "anchor_kind": "utterance",
+            "anchor_text": "I want to create my own skill to see all users in a course",
+            "embedding_model": "text-embedding-3-small",
+            "embedding_dimensions": "1536",
+            "content_hash": "e7753cfc5e845c736f7c7e1f26a849ad14a292fd36e6610392916c4f6bfe4210",
+            "has_vector": true
+        },
+        {
+            "skill": "wizard.scaffold_skill",
+            "anchor_index": "2",
+            "anchor_kind": "utterance",
+            "anchor_text": "How do I build a custom agent skill for my plugin?",
+            "embedding_model": "text-embedding-3-small",
+            "embedding_dimensions": "1536",
+            "content_hash": "df7dd2aa741070dd462cc05ecb6c1817267f3a173a5907c1ed43477afe2d8de6",
+            "has_vector": true
+        },
+        {
+            "skill": "wizard.scaffold_skill",
+            "anchor_index": "3",
+            "anchor_kind": "utterance",
+            "anchor_text": "Scaffold a new skill that exports bookings to CSV",
+            "embedding_model": "text-embedding-3-small",
+            "embedding_dimensions": "1536",
+            "content_hash": "2735e591de89e06ce737ac11ec80b690b6b100fdc0a44d9cf6e09dfcd7f4342e",
+            "has_vector": true
+        },
+        {
+            "skill": "wizard.scaffold_skill",
+            "anchor_index": "4",
+            "anchor_kind": "utterance",
+            "anchor_text": "Add a new command / action to the agent",
+            "embedding_model": "text-embedding-3-small",
+            "embedding_dimensions": "1536",
+            "content_hash": "b11a4f28a40d1a632e2652cef5e8ab7cabfeee18b9bc397082e633ca105fd35e",
+            "has_vector": true
+        },
+        {
+            "skill": "wizard.scaffold_skill",
+            "anchor_index": "5",
+            "anchor_kind": "utterance",
+            "anchor_text": "Generate a starter template for a new agent skill",
+            "embedding_model": "text-embedding-3-small",
+            "embedding_dimensions": "1536",
+            "content_hash": "4c4efeeba19271530973c55fe51b20020cfe932602b78cde36ecea384eddc0bc",
+            "has_vector": true
+        },
+        {
+            "skill": "wizard.scaffold_skill",
+            "anchor_index": "6",
+            "anchor_kind": "utterance",
+            "anchor_text": "Create my own skill",
+            "embedding_model": "text-embedding-3-small",
+            "embedding_dimensions": "1536",
+            "content_hash": "b04acfbb159af9591e694a32b00f82b0b68dfdcec26501817f5ecf0c37ae63a6",
+            "has_vector": true
+        },
+        {
+            "skill": "wizard.search_skills",
+            "anchor_index": "0",
+            "anchor_kind": "description",
+            "anchor_text": "Last-resort capability discovery. Use this ONLY when none of the other listed skills can fulfil the request — i.e. the user wants an action or capability that no available skill represents (for example: downloading or issuing a certificate, exporting or importing data, a feature with no matching skill in the list). Pass a descriptive query of the wanted capability; it searches the full tool registry for skills not currently shown. Always prefer a concrete matching skill when one exists — pick this only as the fallback, never for a request another listed skill already covers.",
+            "embedding_model": "text-embedding-3-small",
+            "embedding_dimensions": "1536",
+            "content_hash": "6bd5fb0418dc174790505e8a07897c70ab837ae7726b592a75acda87b5bdc4a7",
+            "has_vector": true
+        }
+    ]
+}

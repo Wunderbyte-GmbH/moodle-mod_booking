@@ -52,12 +52,14 @@ use mod_booking\event\bookinganswer_presencechanged;
 use mod_booking\event\bookinganswer_notesedited;
 use mod_booking\event\bookinganswer_waitingforconfirmation;
 use mod_booking\event\bookingoption_bookedviaautoenrol;
+use mod_booking\local\calendar\calendar_helper;
 use mod_booking\local\certificateclass;
 use mod_booking\local\confirmationworkflow\confirmation;
 use mod_booking\option\dates_handler;
 use mod_booking\bo_actions\actions_info;
 use mod_booking\bo_availability\bo_info;
 use mod_booking\booking_rules\rules_info;
+use mod_booking\option\fields\canceluntil;
 use mod_booking\option\fields\certificate;
 use mod_booking\option\fields\sharedplaces;
 use mod_booking\option\fields\competencies;
@@ -4027,6 +4029,13 @@ class booking_option {
             $usersonlist = $answers->get_usersonlist();
             if (!empty($usersonlist) && $messageparam !== MOD_BOOKING_MSGPARAM_REMINDER_TEACHER) {
                 foreach ($usersonlist as $currentuser) {
+                    // Session slot options: the message about a session only goes to users who booked it.
+                    if (
+                        !empty($optiondateid)
+                        && !slot_answer::user_booked_session($this->optionid, $optiondateid, (int)$currentuser->userid)
+                    ) {
+                        continue;
+                    }
                     $tmpuser = new stdClass();
                     $tmpuser->id = $currentuser->userid;
                     $allusers[] = $tmpuser;
@@ -4308,7 +4317,7 @@ class booking_option {
         bool $forbookeduser = false
     ): array {
 
-        global $CFG;
+        global $CFG, $USER;
 
         $baseurl = $CFG->wwwroot;
 
@@ -4316,7 +4325,10 @@ class booking_option {
             case MOD_BOOKING_DESCRIPTION_WEBSITE:
             case MOD_BOOKING_DESCRIPTION_OPTIONVIEW:
                 // We don't want to show these Buttons at all if the user is not booked.
-                if (!$forbookeduser) {
+                if (
+                    !$forbookeduser
+                    || !slot_answer::user_booked_session($this->optionid, $sessionid, (int)$USER->id)
+                ) {
                     return [
                         'name' => null,
                         'value' => get_string('onlineoptiondate', 'mod_booking'),
@@ -4426,6 +4438,11 @@ class booking_option {
 
         if ($bookinganswers->user_status($USER->id) != MOD_BOOKING_STATUSPARAM_BOOKED) {
                 return false;
+        }
+
+        // For session slot options, the user must have booked this very session (slot).
+        if ($sessionid && !slot_answer::user_booked_session($this->optionid, $sessionid, (int)$USER->id)) {
+            return false;
         }
 
         $now = time();
@@ -4721,7 +4738,14 @@ class booking_option {
             }
             $event = \mod_booking\event\bookingoption_cancelled::create($eventdata);
             $event->trigger();
-            // Deletion of booking answers and user events needs to happen in event observer.
+            // Deletion of booking answers and calendar events needs to happen in event observer.
+        } else {
+            // The option takes place again, so it gets back the calendar events that were deleted when it was
+            // cancelled: the course or site events and the events of the teachers. The bookings were deleted with
+            // the cancellation, so there are no events of booked users to restore.
+            // The settings singleton has to know that the option is no longer cancelled before the events are created.
+            self::purge_cache_for_option($optionid);
+            calendar_helper::option_create_instance_and_teacher_calendar_events($optionid);
         }
 
         // At the end, we have to invalidate caches!
@@ -4966,8 +4990,20 @@ class booking_option {
             return (int)$optionsettings->canceluntil;
         }
 
+        // A fixed cancellation date of the booking instance does not depend on any date of the booking option.
+        // So it is applied before the start time is looked at: booking options without dates (e.g. subscriptions)
+        // have no start time and would get no cancellation date otherwise.
+        if (
+            isset($bookingsettings->cancelrelativedate)
+            && $bookingsettings->cancelrelativedate == MOD_BOOKING_CANCANCELBOOK_ABSOLUTE
+            && !empty($bookingsettings->allowupdatetimestamp)
+        ) {
+            return (int)$bookingsettings->allowupdatetimestamp;
+        }
+
         $canceluntil = 0;
 
+        // From here on the cancellation date is relative to a date of the booking option (or of the semester).
         // Default: We use the booking option coursestarttime field.
         $starttime = $optionsettings->coursestarttime;
 
@@ -5027,15 +5063,6 @@ class booking_option {
                 $datestring = "midnight + $allowupdatedays days"; // Midnight reduces the time to 00:00 of same day.
             }
             $canceluntil = strtotime($datestring, $starttime);
-        } else if (
-            isset($bookingsettings->cancelrelativedate) &&
-            empty($bookingsettings->cancelrelativedate) &&
-            isset($bookingsettings->allowupdatetimestamp) &&
-            !empty($bookingsettings->allowupdatetimestamp)
-        ) {
-            $canceluntil = $bookingsettings->allowupdatetimestamp;
-        } else {
-            $canceluntil = 0;
         }
 
         return $canceluntil;
@@ -5093,6 +5120,62 @@ class booking_option {
         }
         // By default, overbooking is never allowed.
         return false;
+    }
+
+    /**
+     * Date range of a booking option for the suggestions of the booking option autocomplete:
+     * start of the first date until end of the last date (coursestarttime - courseendtime).
+     *
+     * Formatted in the language and timezone of the current user. The date is shown only once
+     * when start and end are on the same day. Options without dates return an empty string,
+     * so the template can leave the line out.
+     *
+     * @param int $coursestarttime Start of the first date (0 if the option has no dates).
+     * @param int $courseendtime End of the last date (0 if the option has no dates).
+     * @return string
+     */
+    public static function get_suggestion_dates(int $coursestarttime, int $courseendtime): string {
+        if (empty($coursestarttime)) {
+            return '';
+        }
+        return dates_handler::prettify_optiondates_start_end(
+            $coursestarttime,
+            $courseendtime,
+            current_language(),
+            false
+        );
+    }
+
+    /**
+     * HTML of one booking option as shown in the booking option autocomplete (title with prefix, id,
+     * booking instance and date range), for the 'valuehtmlcallback' of the form elements.
+     *
+     * It renders the same template with the same fields as the ajax suggestions built from
+     * {@see self::load_booking_options_filtered()}, so a chosen option looks like its suggestion.
+     *
+     * @param int $optionid Id of the booking option, 0 if nothing is selected.
+     * @return string
+     */
+    public static function get_suggestion_html(int $optionid): string {
+        global $OUTPUT;
+
+        if (empty($optionid)) {
+            return get_string('choose...', 'mod_booking');
+        }
+
+        $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
+        $instancename = '';
+        if (!empty($settings->cmid)) {
+            $instancename = singleton_service::get_instance_of_booking_settings_by_cmid($settings->cmid)->name ?? '';
+        }
+
+        return $OUTPUT->render_from_template('mod_booking/form_booking_options_selector_suggestion', [
+            'id' => $settings->id,
+            'titleprefix' => $settings->titleprefix,
+            'text' => $settings->text,
+            'instancename' => $instancename,
+            'dates' => self::get_suggestion_dates((int)$settings->coursestarttime, (int)$settings->courseendtime),
+        ]);
     }
 
     /**
@@ -5159,7 +5242,7 @@ class booking_option {
         );
 
         $sql = "SELECT * FROM (
-                    SELECT bo.id, bo.titleprefix, bo.text, bo.courseendtime, b.name instancename,
+                    SELECT bo.id, bo.titleprefix, bo.text, bo.coursestarttime, bo.courseendtime, b.name instancename,
                            $fullsql AS fulltextstring
                     FROM {booking_options} bo
                     LEFT JOIN {booking} b
@@ -5210,6 +5293,7 @@ class booking_option {
                 'titleprefix' => $record->titleprefix,
                 'text' => $record->text,
                 'instancename' => $record->instancename,
+                'dates' => self::get_suggestion_dates((int)$record->coursestarttime, (int)$record->courseendtime),
             ];
 
             $count++;
@@ -5541,6 +5625,9 @@ class booking_option {
 
         // Only now, we can purge.
         self::purge_cache_for_option($newoption->id);
+
+        // The deadline in effect is known only now. Does nothing unless a cashier asked for it in the form.
+        canceluntil::apply_to_existing_purchases($data, (int)$newoption->id);
 
         $option = singleton_service::get_instance_of_booking_option($data->cmid, $optionid);
 

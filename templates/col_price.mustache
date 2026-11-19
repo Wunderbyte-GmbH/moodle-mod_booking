@@ -47,9 +47,6 @@
 {{/priceitems}}
 {{/price}}
 {{^price}}
-    {{#showbutton}}
-        <a href="/login/index.php" class="btn btn-{{buttonstyle}}">{{#str}}bocondisloggedinnotavailable, mod_booking{{/str}}</a>
-    {{/showbutton}}
     <div class="allprices ms-5 mt-3">
     {{#priceitems}}
         <div class="pricecurrency"> {{price}} {{currency}} <i>{{pricecategoryname}}</i></div>

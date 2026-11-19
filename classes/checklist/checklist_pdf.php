@@ -28,6 +28,7 @@
 
 namespace mod_booking\checklist;
 
+use mod_booking\local\file_content;
 use pdf;
 
 defined('MOODLE_INTERNAL') || die();
@@ -57,17 +58,13 @@ class checklist_pdf extends pdf {
         $this->SetY(-20);
 
         // Add footer image if available.
-        if ($this->file) {
-            $filepath = $this->file->get_filepath() . $this->file->get_filename();
-            $imageinfo = $this->file->get_imageinfo();
-            $footerlogo = $this->file->get_content();
+        // Null when the content of the logo is missing in the file storage: the footer stays empty then.
+        $footerlogo = $this->file ? file_content::read($this->file) : null;
+        if ($footerlogo !== null) {
             $filetype = str_replace('image/', '', $this->file->get_mimetype());
+            // The logo is always scaled to a height of 15 mm, the width follows.
             $w = 0;
             $h = 15;
-
-            if ($imageinfo['height'] > 15) {
-                $h = 15;
-            }
 
             $this->Image(
                 '@' . $footerlogo,

@@ -272,6 +272,13 @@ class execution_feedback_service {
                 $entry['observation_engine_static'] = true;
             }
 
+            // The persons the skill declared for its observation (Wunderbyte-GmbH#2614) travel with the entry: the
+            // step observation, the ledger and the synchronizer input mask such an entry for exactly these persons.
+            $declaredpersons = \bookingextension_agent\local\wizard\privacy_anonymizer::declared_persons_of($result);
+            if ($declaredpersons !== null) {
+                $entry[\bookingextension_agent\local\wizard\privacy_anonymizer::RESULT_OBSERVATION_PERSONS] = $declaredpersons;
+            }
+
             $sanitized[] = $entry;
         }
 

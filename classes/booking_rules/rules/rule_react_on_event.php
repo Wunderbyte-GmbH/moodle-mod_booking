@@ -22,6 +22,7 @@ use mod_booking\booking_rules\actions_info;
 use mod_booking\booking_rules\booking_rule;
 use mod_booking\booking_rules\booking_rules;
 use mod_booking\booking_rules\conditions_info;
+use mod_booking\booking_rules\local\userprofilefield_change;
 use mod_booking\booking_rules\optionfield_filter;
 use mod_booking\booking_rules\rules_info;
 use mod_booking\option\fields\applybookingrules;
@@ -81,6 +82,16 @@ class rule_react_on_event implements booking_rule {
 
     /** Const state of booking option */
     public const NOTFULLWAITINGLIST = 4;
+
+    /**
+     * Events which are typically triggered after the end of the booking option. Rules reacting on them
+     * ignore "Number of days after end of booking option, where rule still applies".
+     *
+     * @var string[]
+     */
+    public const EVENTS_WITHOUT_TIME_WINDOW = [
+        '\\mod_booking\\event\\certificate_issued',
+    ];
 
     /**
      * Load json data from DB into the object.
@@ -146,6 +157,7 @@ class rule_react_on_event implements booking_rule {
             'ticket_created',
             'ticket_scanned',
             'ticket_rejected',
+            'userprofilefield_changed',
         ];
 
         // Get a list of all booking events.
@@ -217,6 +229,9 @@ class rule_react_on_event implements booking_rule {
             $allowedevents
         );
 
+        // The event for the change of a custom user profile field needs to know which field and which value.
+        userprofilefield_change::add_to_mform($mform);
+
         // Add info about settings concerning bookingoption_updated event.
         $url = new moodle_url('/admin/category.php', ['category' => 'modbookingfolder']);
         $linktosettings = $url->out();
@@ -258,7 +273,13 @@ class rule_react_on_event implements booking_rule {
             '\mod_booking\event\rest_script_success',
         ];
 
-        $mform->hideIf('rule_react_on_event_after_completion', 'rule_react_on_event_event', 'in', $notborelatedevents);
+        // The setting is also hidden for the events which ignore the time window.
+        $mform->hideIf(
+            'rule_react_on_event_after_completion',
+            'rule_react_on_event_event',
+            'in',
+            array_merge($notborelatedevents, self::EVENTS_WITHOUT_TIME_WINDOW)
+        );
 
         $rules = booking_rules::get_list_of_saved_rules_by_context($ajaxformdata['contextid'] ?? 1);
 
@@ -323,6 +344,7 @@ class rule_react_on_event implements booking_rule {
         $jsonobject->ruledata->aftercompletion = $data->rule_react_on_event_after_completion ?? '';
         $jsonobject->ruledata->cancelrules = $data->rule_react_on_event_cancelrules ?? [];
         optionfield_filter::save_filter($data, $jsonobject);
+        userprofilefield_change::save($data, $jsonobject);
 
         $record->rulejson = json_encode($jsonobject);
         $record->rulename = $this->rulename;
@@ -365,6 +387,7 @@ class rule_react_on_event implements booking_rule {
         $data->rule_react_on_event_after_completion = $ruledata->aftercompletion;
         $data->rule_react_on_event_cancelrules = $ruledata->cancelrules;
         optionfield_filter::set_defaults($data, $ruledata);
+        userprofilefield_change::set_defaults($data, $ruledata);
     }
 
     /**
@@ -444,6 +467,15 @@ class rule_react_on_event implements booking_rule {
             }
         }
 
+        // The change of a custom user profile field only concerns the rules waiting for this field and value.
+        $priceforuser = null;
+        if (userprofilefield_change::is_event($datafromevent)) {
+            $priceforuser = userprofilefield_change::matches($jsonobject->ruledata ?? null, $datafromevent, $optionid);
+            if ($priceforuser === null) {
+                return;
+            }
+        }
+
         // We reuse this code when we check for validity, therefore we use a separate function.
         $records = $this->get_records_for_execution($optionid, $userid);
 
@@ -462,6 +494,10 @@ class rule_react_on_event implements booking_rule {
             $nextruntime = time();
             $record->rulename = $this->rulename;
             $record->nextruntime = $nextruntime;
+            if ($priceforuser !== null) {
+                // The price placeholder shows the price the user with the changed profile field has to pay.
+                $record->price = $priceforuser;
+            }
             $action->execute($record);
         }
     }
@@ -495,6 +531,16 @@ class rule_react_on_event implements booking_rule {
         }
 
         if (!self::rule_still_in_time($jsonobject, $settings)) {
+            return false;
+        }
+
+        // For the change of a custom user profile field, the user affected has to be booked still, and so on.
+        // Mind that $userid is the recipient here, the user affected is found in the data of the event.
+        $datafromevent = $jsonobject->datafromevent ?? null;
+        if (
+            userprofilefield_change::is_event($datafromevent)
+            && userprofilefield_change::matches($ruledata, $datafromevent, $optionid) === null
+        ) {
             return false;
         }
 
@@ -556,6 +602,11 @@ class rule_react_on_event implements booking_rule {
     public static function get_time_window_end(object $ruledata, object $bookingoption): ?int {
         // Self-learning courses only use sorting date, so we cannot do this check.
         if (!empty($bookingoption->selflearningcourse)) {
+            return null;
+        }
+
+        // Certificates are issued after the end of the booking option, often days later.
+        if (in_array($ruledata->ruledata->boevent ?? '', self::EVENTS_WITHOUT_TIME_WINDOW, true)) {
             return null;
         }
 

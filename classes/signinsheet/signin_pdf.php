@@ -27,6 +27,7 @@
 
 namespace mod_booking\signinsheet;
 
+use mod_booking\local\file_content;
 use pdf;
 
 defined('MOODLE_INTERNAL') || die();
@@ -74,17 +75,13 @@ class signin_pdf extends pdf {
         // Position at 15 mm from bottom.
         $this->SetY(-20);
 
-        if ($this->file) {
-            $filepath = $this->file->get_filepath() . $this->file->get_filename();
-            $imageinfo = $this->file->get_imageinfo();
-            $signinsheetlogofooter = $this->file->get_content();
+        // Null when the content of the logo is missing in the file storage: the footer stays empty then.
+        $signinsheetlogofooter = $this->file ? file_content::read($this->file) : null;
+        if ($signinsheetlogofooter !== null) {
             $filetype = str_replace('image/', '', $this->file->get_mimetype());
+            // The logo is always scaled to a height of 15 mm, the width follows.
             $w = 0;
             $h = 15;
-
-            if ($imageinfo['height'] > 15) {
-                $h = 15;
-            }
 
             $this->Image(
                 '@' . $signinsheetlogofooter,

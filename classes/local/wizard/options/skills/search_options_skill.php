@@ -19,6 +19,7 @@ namespace mod_booking\local\wizard\options\skills;
 use mod_booking\local\wizard\engine\skill_risk_class;
 use core_text;
 use mod_booking\local\wizard\booking\booking_skill_support;
+use bookingextension_agent\local\wizard\services\target_query_normalizer;
 use mod_booking\local\wizard\engine\module_targeted_skill;
 use mod_booking\local\wizard\engine\skill_trigger_provider_interface;
 
@@ -79,9 +80,13 @@ class search_options_skill extends booking_skill_base implements skill_trigger_p
                 . 'instance. Use this when the user asks what they can book, register for, or attend — e.g. "show all options", '
                 . '"what can I book?", "list available bookings", "show a list of all options", "list all bookings", "show all '
                 . 'bookings".',
-            'when' => 'The user asks what they can book, register for or attend, or wants booking options listed or found.',
-            'is' => 'Bookable offerings inside a booking activity.',
-            'not' => 'Moodle courses (course.search_courses); full details of one named option (get_option_details).',
+            // Ticket 2617: "utilization / fill level of the Leadership courses" went to report.create_report because no card
+            // spoke of seats; the seat figures travel in the observation as DB facts.
+            'when' => 'The user asks what they can book, register for or attend, wants options listed or found, or asks '
+                . 'how full options are (seats taken and free).',
+            'is' => 'Bookable offerings inside a booking activity, with their seats taken and free.',
+            'not' => 'Moodle courses (course.search_courses); full details of one named option (get_option_details); '
+                . 'building a report (report.create_report).',
             'readonly' => $this->is_read_only(),
             'fallback_confirm_string_key' => 'ai_status_confirm_booking_search_options',
             'fallback_taskcall_string_key' => 'ai_status_taskcall_booking_search_options',
@@ -319,6 +324,12 @@ class search_options_skill extends booking_skill_base implements skill_trigger_p
             }));
         }
 
+        // A family named in the plural or as a compound ("Kochkurse", "Yoga-Kurse") matches no title as a whole
+        // (Wunderbyte-GmbH#2730): the words of the query decide, as a person query falls back to its name tokens.
+        if (empty($rows) && $effectivequery !== '' && $exacttitlequery === '') {
+            $rows = self::search_rows_by_query_words($cmid, $effectivequery, $limit, $when, $whenuntil, $meta);
+        }
+
         if (empty($rows)) {
             $usermessage = get_string('searchoptionsnotfound', 'booking');
             return [
@@ -352,6 +363,9 @@ class search_options_skill extends booking_skill_base implements skill_trigger_p
             if ($invisible !== 0) {
                 $option['visibility'] = $invisible === MOD_BOOKING_OPTION_VISIBLEWITHLINK ? 'link_only' : 'hidden';
             }
+            // Seats as facts, so a question about fill level or utilization is answered from the list
+            // (Wunderbyte-GmbH#2617); 'maxanswers' 0 means no seat limit.
+            $option += self::seat_figures($optionid);
             $structuredoptions[] = $option;
         }
 
@@ -389,6 +403,89 @@ class search_options_skill extends booking_skill_base implements skill_trigger_p
     }
 
     /**
+     * The options whose titles carry the words of a query that found nothing as a whole (Wunderbyte-GmbH#2730).
+     *
+     * First every token on its own, the tokens that match must agree ("Yoga-Kurse": "Yoga" matches, "Kurse"
+     * matches nothing and carries no meaning); then a word that begins with a title word and goes on
+     * ("Kochkurse" meets "Kochkurs"). Both rules live in the engine's target_query_normalizer and compare
+     * against the stored titles only: no word list, no stemming. Nothing matches → nothing found, as before.
+     *
+     * @param int $cmid
+     * @param string $query The query as the constructor sent it.
+     * @param int $limit
+     * @param string $when
+     * @param string $whenuntil
+     * @param array|null $meta Filled like search_option_candidates_for_preview() fills it.
+     * @return array The candidate rows, at most $limit.
+     */
+    private static function search_rows_by_query_words(
+        int $cmid,
+        string $query,
+        int $limit,
+        string $when,
+        string $whenuntil,
+        ?array &$meta
+    ): array {
+        $lookup = static function (string $word, int $wordlimit) use ($cmid, $limit, $when, $whenuntil): array {
+            $candidates = [];
+            $found = booking_skill_support::search_option_candidates_for_preview(
+                $cmid,
+                $word,
+                max($limit, $wordlimit),
+                $when,
+                false,
+                $whenuntil
+            );
+            foreach ($found as $row) {
+                $optionid = (int)($row['optionid'] ?? 0);
+                if ($optionid > 0) {
+                    $candidates[] = ['id' => $optionid, 'name' => (string)($row['text'] ?? ''), 'row' => $row];
+                }
+            }
+            return $candidates;
+        };
+        $candidates = target_query_normalizer::narrow_by_tokens($query, $lookup);
+        if (empty($candidates)) {
+            $candidates = target_query_normalizer::narrow_by_stems($query, $lookup);
+        }
+        $meta = [
+            'total' => count($candidates),
+            'pastonly' => false,
+            'totalhidden' => 0,
+            'windowfull' => false,
+        ];
+        return array_values(array_map(
+            static fn(array $candidate): array => (array)$candidate['row'],
+            array_slice($candidates, 0, $limit)
+        ));
+    }
+
+    /**
+     * Booked, waiting and free seats of an option, from the booking answers.
+     *
+     * @param int $optionid
+     * @return array{booked:int,waiting:int,maxanswers:int,free:int|null}
+     */
+    private static function seat_figures(int $optionid): array {
+        try {
+            $settings = \mod_booking\singleton_service::get_instance_of_booking_option_settings($optionid);
+            // The figures come keyed by the asking user's status ("notbooked" for nobody); one entry either way.
+            $all = \mod_booking\singleton_service::get_instance_of_booking_answers($settings)
+                ->return_all_booking_information(0);
+            $info = is_array($all) && !empty($all) ? (array)reset($all) : [];
+        } catch (\Throwable $e) {
+            return [];
+        }
+        $maxanswers = (int)($info['maxanswers'] ?? 0);
+        return [
+            'booked' => (int)($info['booked'] ?? 0),
+            'waiting' => (int)($info['waiting'] ?? 0),
+            'maxanswers' => $maxanswers,
+            'free' => $maxanswers > 0 ? max(0, (int)($info['freeonlist'] ?? ($maxanswers - (int)($info['booked'] ?? 0)))) : null,
+        ];
+    }
+
+    /**
      * Build verbose observation payload for follow-up reasoning steps.
      *
      * @param string $usermessage
@@ -403,7 +500,7 @@ class search_options_skill extends booking_skill_base implements skill_trigger_p
                 'name' => (string)($option['name'] ?? ''),
                 'link' => (string)($option['link'] ?? ''),
             ];
-            foreach (['start', 'nofixeddate', 'visibility'] as $key) {
+            foreach (['start', 'nofixeddate', 'visibility', 'booked', 'waiting', 'maxanswers', 'free'] as $key) {
                 if (isset($option[$key])) {
                     $normalized[$key] = $option[$key];
                 }

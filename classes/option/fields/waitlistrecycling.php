@@ -140,6 +140,9 @@ class waitlistrecycling extends field_base {
             $mform->setType('waitlistrecycling', PARAM_INT);
             $mform->setDefault('waitlistrecycling', 0);
             $mform->addHelpButton('waitlistrecycling', 'waitlistrecycling', 'mod_booking');
+            // Only relevant when notified waiting-list users get a booking offer.
+            $mform->hideIf('waitlistrecycling', 'waitforconfirmation', 'eq', 0);
+            $mform->hideIf('waitlistrecycling', 'confirmationonnotification', 'eq', 0);
         }
     }
 

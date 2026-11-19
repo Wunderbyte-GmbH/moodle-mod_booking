@@ -182,9 +182,11 @@ final class messaging_gateway_test extends \advanced_testcase {
     }
 
     /**
-     * K3: notify_autobooked() must send a status-changed notification to the candidate.
+     * K3: notify_autobooked() must send a status-changed notification to the candidate, as long
+     * as the legacy mail templates are still in use.
      */
     public function test_notify_autobooked_sends_status_changed_message(): void {
+        set_config('uselegacymailtemplates', 1, 'booking');
         $optionid = $this->create_option();
         $user = $this->getDataGenerator()->create_user();
         $candidate = new booking_waitlist_candidate($optionid, (int) $user->id, 0, (object) ['id' => $user->id]);
@@ -196,5 +198,25 @@ final class messaging_gateway_test extends \advanced_testcase {
 
         $matching = array_filter($messages, fn($m) => (int) $m->useridto === (int) $user->id);
         $this->assertNotEmpty($matching, 'notify_autobooked() must send a message to the candidate.');
+    }
+
+    /**
+     * The status-changed mail is a legacy mail template. With uselegacymailtemplates turned off,
+     * notify_autobooked() must not send it - otherwise the autobooked person gets the unwanted
+     * default text with unreplaced {$a->status}/{$a->startdate} placeholders.
+     */
+    public function test_notify_autobooked_sends_nothing_when_legacy_mail_templates_are_off(): void {
+        set_config('uselegacymailtemplates', 0, 'booking');
+        $optionid = $this->create_option();
+        $user = $this->getDataGenerator()->create_user();
+        $candidate = new booking_waitlist_candidate($optionid, (int) $user->id, 0, (object) ['id' => $user->id]);
+
+        $sink = $this->redirectMessages();
+        (new moodle_messaging_gateway())->notify_autobooked($candidate, 0);
+        $messages = $sink->get_messages();
+        $sink->close();
+
+        $matching = array_filter($messages, fn($m) => (int) $m->useridto === (int) $user->id);
+        $this->assertEmpty($matching, 'Without legacy mail templates, notify_autobooked() must not send the status mail.');
     }
 }

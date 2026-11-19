@@ -22,6 +22,7 @@ use bookingextension_agent\local\wizard\conversation_store;
 use bookingextension_agent\local\wizard\dto\skill_risk_class;
 use bookingextension_agent\local\wizard\dto\target_selector;
 use bookingextension_agent\local\wizard\interfaces\skill_trigger_provider_interface;
+use bookingextension_agent\local\wizard\privacy_anonymizer;
 use bookingextension_agent\local\wizard\services\questions\course_pdf_source;
 use bookingextension_agent\local\wizard\services\questions\question_bank_target_resolver;
 use bookingextension_agent\local\wizard\services\questions\question_generation_service;
@@ -133,6 +134,13 @@ class generate_questions_skill extends core_skill_base implements skill_trigger_
             preview_support::str('previewlabel_number', $lang),
             preview_support::posint($input['count'] ?? null)
         );
+        if (\bookingextension_agent\local\wizard\services\llm\llm_call_service::content_model_enabled()) {
+            preview_support::push(
+                $rows,
+                preview_support::str('previewlabel_contentmodel', $lang),
+                preview_support::str('previewvalue_contentmodel', $lang)
+            );
+        }
         preview_support::push(
             $rows,
             preview_support::str('previewlabel_types', $lang),
@@ -748,7 +756,7 @@ class generate_questions_skill extends core_skill_base implements skill_trigger_
             );
             if (!empty($imported['success'])) {
                 // Moodle 4.5 course-context target: cm is null, the bank label is the course name.
-                return $this->build_success_result(
+                $result = $this->build_success_result(
                     (int)$imported['imported'],
                     array_map('intval', (array)$imported['questionids']),
                     $target['cm'] !== null ? (int)$target['cm']->id : 0,
@@ -761,6 +769,12 @@ class generate_questions_skill extends core_skill_base implements skill_trigger_
                     !empty($preparedinput['sourcetruncated']),
                     (int)$target['course']->id
                 );
+                if (!empty($generated['fallback'])) {
+                    $note = ' ' . get_string('agent_contentmodel_fallback', 'bookingextension_agent');
+                    $result['detail'] = (string)($result['detail'] ?? '') . $note;
+                    $result['usermessage'] = (string)($result['usermessage'] ?? '') . $note;
+                }
+                return $result;
             }
 
             $lasterror = (string)$imported['errors'];
@@ -855,7 +869,12 @@ class generate_questions_skill extends core_skill_base implements skill_trigger_
             }
             $document = self::parse_document_block((string)($message->content ?? ''));
             if ($document !== null) {
-                return $document;
+                // The stored message carries the document with the tokens of the thread. The command is
+                // prepared with the original text, as with a course PDF: the executor resolves tokens in the
+                // input, so a text that still carried them would no longer match its execution guard. The
+                // generation masks the text again before it calls the model.
+                $resolved = (new privacy_anonymizer($store))->deanonymize_command_input($threadid, ['text' => $document]);
+                return (string)($resolved['text'] ?? $document);
             }
         }
 

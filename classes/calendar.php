@@ -27,6 +27,7 @@ namespace mod_booking;
 
 use calendar_event;
 use Exception;
+use mod_booking\local\calendar\calendar_helper;
 use mod_booking\option\fields\description;
 use mod_booking\output\description\description_calendarevent;
 use stdClass;
@@ -309,6 +310,10 @@ class calendar {
         if ($settings->courseendtime == 0 || $settings->coursestarttime == 0) {
             return 0;
         }
+        // A cancelled option has no calendar events.
+        if (calendar_helper::option_is_cancelled($optionid)) {
+            return 0;
+        }
         // Do not add booking option to calendar, if there are multiple sessions.
         if (count($settings->sessions) > 1) {
             return 0;
@@ -412,6 +417,13 @@ class calendar {
         $fulldescription = '';
 
         if ($optiondate->courseendtime == 0 || $optiondate->coursestarttime == 0) {
+            return 0;
+        }
+
+        // A cancelled option has no calendar events (they are deleted when it is cancelled). Every event of a
+        // date is created here, so this is the one place that keeps them from coming back when the cancelled
+        // option is saved, gets a new date or a new teacher.
+        if (calendar_helper::option_is_cancelled($optionid)) {
             return 0;
         }
 

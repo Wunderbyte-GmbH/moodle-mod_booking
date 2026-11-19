@@ -62,6 +62,7 @@ class deleteanswer {
     public static function perform_action(stdClass $answer) {
         $settings = singleton_service::get_instance_of_booking_option_settings($answer->optionid);
         $option = singleton_service::get_instance_of_booking_option($settings->cmid, $answer->optionid);
-        return $option->user_delete_response($answer->userid, false, false, false, false);
+        // No sync of the waiting list here: checkanswers::process_booking_option() syncs once after all deletions.
+        return $option->user_delete_response($answer->userid, syncwaitinglist: false);
     }
 }
