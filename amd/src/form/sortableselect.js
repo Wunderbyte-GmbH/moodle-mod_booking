@@ -42,6 +42,7 @@ const SELECTORS = {
     STATUS: '[data-region="sortableselect-status"]',
     ADD: '[data-action="sortableselect-add"]',
     ACTION: 'button[data-action]',
+    HANDLE: '[data-drag-type="move"]',
 };
 
 const ITEMTEMPLATE = 'mod_booking/form/sortableselect_item';
@@ -55,19 +56,44 @@ const ITEMTEMPLATE = 'mod_booking/form/sortableselect_item';
 const getItems = (root) => [...root.querySelectorAll(SELECTORS.ITEM)];
 
 /**
+ * The hidden input that is always submitted. The form dependencies (disabledIf) disable the inputs with the
+ * name of the element, so this input tells whether the element is disabled.
+ *
+ * @param {HTMLElement} root
+ * @returns {HTMLInputElement}
+ */
+const getStateInput = (root) => root.querySelector(':scope > input[type="hidden"]');
+
+/**
+ * Whether the element is disabled.
+ *
+ * @param {HTMLElement} root
+ * @returns {boolean}
+ */
+const isDisabled = (root) => getStateInput(root).disabled;
+
+/**
  * Brings everything that depends on the order of the list up to date: the position numbers, the buttons
- * that make no sense for the first and the last entry, the text for an empty list and the options that
+ * that make no sense for the first and the last entry
+ * or while the element is disabled, the text for an empty list and the options that
  * are already chosen.
  *
  * @param {HTMLElement} root
  */
 const refresh = (root) => {
     const items = getItems(root);
+    const disabled = isDisabled(root);
     items.forEach((item, index) => {
         item.querySelector(SELECTORS.POSITION).textContent = String(index + 1);
-        item.querySelector('[data-action="up"]').disabled = index === 0;
-        item.querySelector('[data-action="down"]').disabled = index === items.length - 1;
+        item.querySelector('[data-action="up"]').disabled = disabled || index === 0;
+        item.querySelector('[data-action="down"]').disabled = disabled || index === items.length - 1;
+        item.querySelector('[data-action="remove"]').disabled = disabled;
+        item.querySelector(SELECTORS.HANDLE).disabled = disabled;
+        // An entry that was added later is not known to the form dependencies: it follows the element.
+        item.querySelector('input[type="hidden"]').disabled = disabled;
     });
+    root.querySelector(SELECTORS.SELECT).disabled = disabled;
+    root.querySelector(SELECTORS.ADD).disabled = disabled;
 
     root.querySelector(SELECTORS.LIST).classList.toggle('d-none', items.length === 0);
     root.querySelector(SELECTORS.EMPTY).classList.toggle('d-none', items.length > 0);
@@ -196,7 +222,7 @@ const handleAction = (root, item, action) => {
 /**
  * Makes a sortable select element interactive.
  *
- * @param {string} elementId id of the element
+ * @param {string} elementId id of the container of the element
  */
 export const init = (elementId) => {
     const root = document.getElementById(elementId);
@@ -229,6 +255,9 @@ export const init = (elementId) => {
             announcePosition(root, info.element[0]);
         }
     });
+
+    // Disabling an input fires no event, so the buttons and the select follow by an observer.
+    new MutationObserver(() => refresh(root)).observe(getStateInput(root), {attributeFilter: ['disabled']});
 
     refresh(root);
 };

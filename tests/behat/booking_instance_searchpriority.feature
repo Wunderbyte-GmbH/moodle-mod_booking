@@ -38,12 +38,12 @@ Feature: As admin - configure the priority of the search results of a booking in
     And I wait until ".collapsing" "css_element" does not exist
     And I should see "No priority: the search results keep the sorting of the table."
     ## Teachers can be chosen, the unique identifier cannot.
-    And the "Choose column..." select box should contain "Teachers"
-    And the "Choose column..." select box should not contain "Unique identifier"
+    And the "Priority of the search results" select box should contain "Teachers"
+    And the "Priority of the search results" select box should not contain "Unique identifier"
     ## Add the columns in the wrong order and move the prefix up.
-    And I set the field "Choose column..." to "Booking option name"
+    And I set the field "Priority of the search results" to "Booking option name"
     And I press "Add column"
-    And I set the field "Choose column..." to "Prefix"
+    And I set the field "Priority of the search results" to "Prefix"
     And I press "Add column"
     And "Booking option name" "text" should appear before "Prefix" "text" in the "[data-region='sortableselect-list']" "css_element"
     When I click on "Move up: Prefix" "button"

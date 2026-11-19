@@ -120,7 +120,6 @@ final class sortableselect_test extends advanced_testcase {
         $this->assertSame(['b', 'a'], sortableselect::clean_values('b, a,,b'));
         $this->assertSame([], sortableselect::clean_values(null));
         $this->assertSame([], sortableselect::clean_values(''));
-        $this->assertSame([], sortableselect::clean_values(sortableselect::EMPTYVALUE));
         $this->assertSame(['1', '2'], sortableselect::clean_values([1, 2, ['nested']]));
     }
 
@@ -244,5 +243,30 @@ final class sortableselect_test extends advanced_testcase {
 
         $form = $this->submit(['columns' => ['b', 'a']], ['defaults' => ['b', 'a'], 'freeze' => true]);
         $this->assertSame(['b', 'a'], $form->get_data()->columns);
+    }
+
+    /**
+     * The rule "required" fails for an empty list and passes as soon as one entry is chosen.
+     */
+    public function test_required_rule(): void {
+        $this->resetAfterTest();
+
+        $form = $this->submit(['columns' => sortableselect::EMPTYVALUE], ['required' => true]);
+        $this->assertFalse($form->is_validated());
+
+        $form = $this->submit(['columns' => ['b']], ['required' => true]);
+        $this->assertTrue($form->is_validated());
+        $this->assertSame(['b'], $form->get_data()->columns);
+    }
+
+    /**
+     * The label of the form row belongs to the select that offers the options.
+     */
+    public function test_label_belongs_to_the_select(): void {
+        $this->resetAfterTest();
+
+        $html = $this->render([]);
+        $this->assertMatchesRegularExpression('/<label[^>]*for="id_columns"/', $html);
+        $this->assertMatchesRegularExpression('/<select[^>]*id="id_columns"/', $html);
     }
 }

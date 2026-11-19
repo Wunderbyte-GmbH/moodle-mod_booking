@@ -62,7 +62,7 @@ require_once($CFG->libdir . '/form/templatable_form_element.php');
  *
  * $options is an array [value => label]. The attributes may hold these texts of the element:
  * - noselectionstring: shown while nothing is chosen
- * - choosestring: label and first entry of the select that offers the options
+ * - choosestring: first entry of the select that offers the options
  * - addstring: text of the button that adds the chosen option
  *
  * Only values of $options are accepted. A default value that is not (or no longer) part of $options is
@@ -83,12 +83,13 @@ class sortableselect extends HTML_QuickForm_element implements templatable {
     public const TYPE = 'sortableselect';
 
     /**
-     * Value of a hidden input that is always submitted, like in a multiple select of core: without it
-     * an empty list would submit nothing and could not be told apart from an element that is not in the form.
+     * Value of a hidden input that is always submitted: without it an empty list would submit nothing and
+     * could not be told apart from an element that is not in the form. It is an empty string, so the rule
+     * "required" fails for an empty list.
      *
      * @var string
      */
-    public const EMPTYVALUE = '_qf__force_multiselect_submission';
+    public const EMPTYVALUE = '';
 
     /** @var string[] Attributes that are texts of the element and no HTML attributes. */
     protected const TEXTATTRIBUTES = ['noselectionstring', 'choosestring', 'addstring'];
@@ -200,7 +201,7 @@ class sortableselect extends HTML_QuickForm_element implements templatable {
      * @return string[]
      */
     public static function clean_values($value): array {
-        if ($value === null || $value === self::EMPTYVALUE) {
+        if ($value === null) {
             return [];
         }
         if (!is_array($value)) {
@@ -212,12 +213,12 @@ class sortableselect extends HTML_QuickForm_element implements templatable {
                 continue;
             }
             $onevalue = trim((string)$onevalue);
-            if ($onevalue !== '' && $onevalue !== self::EMPTYVALUE) {
+            if ($onevalue !== '') {
                 // The key removes duplicates and keeps the first position of a value.
                 $values[$onevalue] = $onevalue;
             }
         }
-        return array_values($values);
+        return array_map('strval', array_values($values));
     }
 
     /**
@@ -324,12 +325,11 @@ class sortableselect extends HTML_QuickForm_element implements templatable {
         }
         $options = [];
         foreach ($this->options as $value => $label) {
-            $options[] = ['value' => $value, 'label' => $label, 'chosen' => in_array($value, $values, true)];
+            $options[] = ['value' => $value, 'label' => $label, 'chosen' => in_array((string)$value, $values, true)];
         }
 
         $context['name'] = $name;
         $context['plainlabel'] = trim(html_to_text((string)$this->getLabel(), 0, false));
-        $context['emptyvalue'] = self::EMPTYVALUE;
         $context['items'] = $items;
         $context['hasitems'] = !empty($items);
         $context['options'] = $options;
@@ -351,7 +351,7 @@ class sortableselect extends HTML_QuickForm_element implements templatable {
             return $this->getFrozenHtml();
         }
         $context = $this->export_for_template($OUTPUT);
-        $PAGE->requires->js_call_amd('mod_booking/form/sortableselect', 'init', [$context['id']]);
+        $PAGE->requires->js_call_amd('mod_booking/form/sortableselect', 'init', [$context['id'] . '_sortableselect']);
         return $OUTPUT->render_from_template('mod_booking/form/sortableselect', $context);
     }
 

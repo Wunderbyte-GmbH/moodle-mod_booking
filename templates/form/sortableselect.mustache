@@ -26,12 +26,11 @@
     * id - id of the element
     * name - name of the element
     * plainlabel - label of the element without HTML
-    * emptyvalue - value that is submitted for an empty list
     * hasitems - whether entries are chosen
     * items - the chosen entries, see mod_booking/form/sortableselect_item
     * options - the entries that can be chosen: value, label, chosen
     * noselectionstring - text shown while nothing is chosen
-    * choosestring - label and first entry of the select
+    * choosestring - first entry of the select
     * addstring - text of the button to add an entry
 
     Example context (json):
@@ -39,7 +38,6 @@
         "id": "id_searchprioritycolumns",
         "name": "searchprioritycolumns",
         "plainlabel": "Priority of the search results",
-        "emptyvalue": "_qf__force_multiselect_submission",
         "hasitems": true,
         "items": [
             {"name": "searchprioritycolumns", "value": "titleprefix", "label": "Prefix", "position": 1, "first": true, "last": false},
@@ -55,9 +53,9 @@
         "addstring": "Add"
     }
 }}
-<div class="mod-booking-sortableselect w-100" id="{{id}}" tabindex="-1" role="group" aria-label="{{plainlabel}}"
+<div class="mod-booking-sortableselect w-100" id="{{id}}_sortableselect" role="group" aria-label="{{plainlabel}}"
     data-region="sortableselect" data-name="{{name}}">
-    <input type="hidden" name="{{name}}" value="{{emptyvalue}}">
+    <input type="hidden" name="{{name}}" value="">
     <ol class="list-group mb-2 {{^hasitems}}d-none{{/hasitems}}" data-region="sortableselect-list" style="max-width: 32rem;">
         {{#items}}
             {{> mod_booking/form/sortableselect_item }}
@@ -67,9 +65,9 @@
         {{noselectionstring}}
     </p>
     <div class="d-flex align-items-center">
-        <label class="sr-only visually-hidden" for="{{id}}_add">{{choosestring}}</label>
+        {{! The select has the id of the element: the label of the form row belongs to it. }}
         {{! data-fieldtype: the select is inside of the form row of this element, Behat would not treat it as a select. }}
-        <select class="custom-select form-select w-auto" id="{{id}}_add" data-region="sortableselect-select" data-fieldtype="select">
+        <select class="custom-select form-select w-auto" id="{{id}}" data-region="sortableselect-select" data-fieldtype="select">
             <option value="">{{choosestring}}</option>
             {{#options}}
                 <option value="{{value}}" {{#chosen}}disabled hidden{{/chosen}}>{{label}}</option>

@@ -23,7 +23,6 @@
     Context variables required for this template:
     * id - id of the element
     * name - name of the element
-    * emptyvalue - value that is submitted for an empty list
     * hasitems - whether entries are chosen
     * items - the chosen entries: value, label
     * noselectionstring - text shown while nothing is chosen
@@ -33,7 +32,6 @@
     {
         "id": "id_searchprioritycolumns",
         "name": "searchprioritycolumns",
-        "emptyvalue": "_qf__force_multiselect_submission",
         "hasitems": true,
         "items": [
             {"value": "titleprefix", "label": "Prefix"},
@@ -44,7 +42,7 @@
     }
 }}
 <div class="mod-booking-sortableselect w-100" id="{{id}}" data-region="sortableselect-frozen">
-    {{#persistent}}<input type="hidden" name="{{name}}" value="{{emptyvalue}}">{{/persistent}}
+    {{#persistent}}<input type="hidden" name="{{name}}" value="">{{/persistent}}
     {{#hasitems}}
         <ol class="mb-0 ps-3 pl-3">
             {{#items}}
