@@ -4584,6 +4584,7 @@ $string['taskpurgecampaigncaches'] = 'Booking: Caches für Buchungskampagne leer
 $string['taskrecalculateprices'] = 'Preise einer Buchungsaktivität werden mit der Preisformel neu berechnet';
 $string['taskremoveactivitycompletion'] = 'Booking: Activitätsabschluss entfernen';
 $string['taskremoveresponsesonunenrol'] = 'Booking: Buchungsantworten nach Kurs-Abmeldung entfernen (Adhoc-Task)';
+$string['taskrequeuerulemailsadhoc'] = 'Booking: Geplante Mails einer Buchungsregel erneut einreihen (Adhoc-Task)';
 $string['tasksendcompletionmails'] = 'Booking: Abschluss-Mails versenden';
 $string['tasksendconfirmationmails'] = 'Booking: Bestätigungs-Mails versenden';
 $string['tasksendmailbyruleadhoc'] = 'Booking: Mail via Regel versenden (Adhoc-Task)';

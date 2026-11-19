@@ -6056,6 +6056,17 @@ function xmldb_booking_upgrade($oldversion) {
         upgrade_mod_savepoint(true, 2026110501, 'booking');
     }
 
+    if ($oldversion < 2026111900) {
+        // The waiting list migration (step 2026090304) deleted all pending send_mail_by_rule_adhoc tasks,
+        // also the reminders of rules that have nothing to do with the waiting list.
+        // One adhoc task per active date based rule executes the rule again, like saving it in the rules form does.
+        // Mails whose time has passed are not queued again and mails that are still queued are reused.
+        \mod_booking\task\requeue_rule_mails_adhoc::queue_for_all_rules();
+
+        // Booking savepoint reached.
+        upgrade_mod_savepoint(true, 2026111900, 'booking');
+    }
+
     if ($oldversion < 2026111800) {
         // A fixed cancellation date of the booking instance was not stored with the purchases of booking
         // options without dates (and of self-learning courses), so they could be cancelled forever.

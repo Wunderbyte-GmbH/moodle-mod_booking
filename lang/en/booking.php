@@ -4572,6 +4572,7 @@ $string['taskpurgecampaigncaches'] = 'Booking: Clean caches for booking campaign
 $string['taskrecalculateprices'] = 'Prices of a booking instance are recalculated using the price formula';
 $string['taskremoveactivitycompletion'] = 'Booking: Remove activity completion';
 $string['taskremoveresponsesonunenrol'] = 'Booking: Remove booking answers after course unenrolment (adhoc task)';
+$string['taskrequeuerulemailsadhoc'] = 'Booking: Queue the scheduled mails of a booking rule again (adhoc task)';
 $string['tasksendcompletionmails'] = 'Booking: Send completion mails';
 $string['tasksendconfirmationmails'] = 'Booking: Send confirmation mails';
 $string['tasksendmailbyruleadhoc'] = 'Booking: Send mail by rule (adhoc task)';
