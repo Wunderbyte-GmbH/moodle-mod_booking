@@ -25,9 +25,11 @@
 
 namespace mod_booking\local;
 
+use context_module;
 use core_competency\competency;
 use mod_booking\booking_option;
 use mod_booking\booking_option_settings;
+use mod_booking\event\certificate_issued;
 use mod_booking\option\dates_handler;
 use mod_booking\placeholders\placeholders\customfields;
 use mod_booking\singleton_service;
@@ -184,20 +186,45 @@ class certificateclass {
         // Get required options data for the event.
         $requiredoptionsdata = self::get_required_options_data($settings, $userid);
 
-        // Trigger certificate issued event.
-        $event = \mod_booking\event\certificate_issued::create([
-            'context' => \context_module::instance($settings->cmid),
-            'objectid' => $id,
+        self::trigger_certificate_issued($settings, (int)$id, $userid, $requiredoptionsdata);
+
+        return $id;
+    }
+
+    /**
+     * Trigger the event certificate_issued for a certificate issued for a booking option.
+     *
+     * The id of the booking option is passed as other['optionid']: the object of the event is the
+     * issue (tool_certificate_issues), and booking rules take the booking option of an event from
+     * other['optionid'] before they fall back to the objectid
+     * (see {@see \mod_booking\booking_rules\rules_info::collect_rules_for_execution()}).
+     * Without it, rules reacting on this event look for a booking option with the id of the issue.
+     *
+     * @param booking_option_settings $settings settings of the booking option the certificate belongs to
+     * @param int $issueid id of the issue in tool_certificate_issues
+     * @param int $userid the user who received the certificate
+     * @param array $requiredoptionsdata see {@see self::get_required_options_data()}
+     * @return void
+     */
+    public static function trigger_certificate_issued(
+        booking_option_settings $settings,
+        int $issueid,
+        int $userid,
+        array $requiredoptionsdata = []
+    ): void {
+        $event = certificate_issued::create([
+            'context' => context_module::instance($settings->cmid),
+            'objectid' => $issueid,
             'relateduserid' => $userid,
             'other' => [
+                'optionid' => (int)$settings->id,
+                // Kept for everything that reads the event from the log.
                 'bookingoption_id' => $settings->id,
                 'bookingoption_name' => $settings->get_title_with_prefix(),
                 'required_options' => $requiredoptionsdata,
             ],
         ]);
         $event->trigger();
-
-        return $id;
     }
 
     /**

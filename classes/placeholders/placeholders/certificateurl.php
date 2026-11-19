@@ -71,18 +71,30 @@ class certificateurl extends \mod_booking\placeholders\placeholder_base {
             !empty($rulejson)
             && !empty($rulejson->datafromevent)
         ) {
-            $class = $rulejson->datafromevent->eventname;
             $event = $rulejson->datafromevent;
-            if ($class != '\mod_booking\event\bookingoption_completed' || !class_exists('tool_certificate\certificate')) {
+            if (!class_exists('tool_certificate\\certificate')) {
                 return '';
             }
-            $other = $event->other;
-            if (empty($other->certid)) {
-                return "";
+            // The id of the issue depends on the event the rule reacts on.
+            switch ($event->eventname ?? '') {
+                case '\\mod_booking\\event\\bookingoption_completed':
+                    $issueid = (int)($event->other->certid ?? 0);
+                    break;
+                case '\\mod_booking\\event\\certificate_issued':
+                    // The issue is the object of this event.
+                    $issueid = (int)($event->objectid ?? 0);
+                    break;
+                default:
+                    $issueid = 0;
             }
-            $record = $DB->get_record('tool_certificate_issues', ['id' => $other->certid]);
-            $templateid = $record->templateid;
-            $template = template::instance($templateid);
+            if (empty($issueid)) {
+                return '';
+            }
+            $record = $DB->get_record('tool_certificate_issues', ['id' => $issueid]);
+            if (empty($record)) {
+                return '';
+            }
+            $template = template::instance($record->templateid);
             $url = $template->get_issue_file_url($record);
         }
         return $url;
