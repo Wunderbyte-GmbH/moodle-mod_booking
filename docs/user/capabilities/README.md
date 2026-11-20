@@ -48,7 +48,7 @@ Moodle capabilities define what each role is allowed to do inside **mod_booking*
 | **Guest** | `view` only |
 | **Student / Authenticated user** | `view`, `choose` (book), `comment`, `viewrating`, `conditionforms` |
 | **Non-editing teacher** | All student caps + `readresponses`, `deleteresponses`, `downloadresponses`, `communicate`, `subscribeusers`, `readallinstitutionusers`, `canoverbook`, `manageoptiondates`, `downloadchecklist`, `updatenotes` |
-| **Editing teacher** | All non-editing teacher caps + `addeditownoption`, `limitededitownoption`, `expertoptionform`, `bookforothers`, `managebookedusers`, `cansendmessages`, `canreviewsubstitutions` |
+| **Editing teacher** | All non-editing teacher caps + `addoption`, `editownoption`, `managebookingsownoption`, `sendmailownoption`, `editteachersownoption`, `viewteacherreports`, `limitededitownoption`, `expertoptionform`, `bookforothers`, `managebookedusers`, `cansendmessages`, `canreviewsubstitutions` |
 | **Manager** | Effectively all capabilities except site-admin-only ones |
 | **Admin** | All capabilities |
 
@@ -73,10 +73,15 @@ Moodle capabilities define what each role is allowed to do inside **mod_booking*
 
 | Capability | What it allows | Default roles |
 |------------|---------------|---------------|
-| `mod/booking:addoption` | Create new booking options (via CSV import or form) | *(No default — typically granted to editingteacher + manager via `addeditownoption`)* |
-| `mod/booking:addeditownoption` | Create and edit booking options the user created themselves | editingteacher, manager |
+| `mod/booking:addoption` | Create new booking options. Creating is separate from editing: a role with only this capability can add options but not change existing ones. | editingteacher, manager |
+| `mod/booking:editownoption` | Edit **own** booking options | editingteacher, manager |
+| `mod/booking:duplicateownoption` | Duplicate **own** booking options | manager |
+| `mod/booking:cancelownoption` | Cancel (not delete) **own** booking options | manager |
+| `mod/booking:managebookingsownoption` | Manage the bookings of **own** booking options (booked users, presence, notes) | editingteacher, manager |
+| `mod/booking:sendmailownoption` | Send e-mails to the booked users of **own** booking options | editingteacher, manager |
+| `mod/booking:editteachersownoption` | Change the teachers of **own** booking options, e.g. substitutions | editingteacher, manager |
 | `mod/booking:limitededitownoption` | Edit a subset of fields on options the user owns (restricted form) | editingteacher, manager |
-| `mod/booking:updatebooking` | Edit all settings of any booking option (full edit) | coursecreator, manager |
+| `mod/booking:updatebooking` | Edit all settings of **any** booking option (full edit) and administer the booking instance | coursecreator, manager |
 | `mod/booking:manageoptiontemplates` | Create and manage booking option templates | manager |
 | `mod/booking:manageoptiondates` | Add, edit, and delete session dates on any booking option | manager, editingteacher |
 | `mod/booking:createcalendarsiteevents` | Set "Add as site event" for a booking option — its sessions are then shown in the Moodle calendar of **every user of the site** (no enrolment needed). Without it the option form offers only course events; a value submitted without the capability (form, bulk editing, web service, CSV import) is rejected. Site administrators always have it. See [Dates › Add to calendar](../booking-option/02-dates.md#3-add-to-calendar). | manager |
@@ -88,6 +93,10 @@ Moodle capabilities define what each role is allowed to do inside **mod_booking*
 | `mod/booking:reducedoptionform4` | Access reduced form variant 4 | *(No default)* |
 | `mod/booking:reducedoptionform5` | Access reduced form variant 5 | *(No default)* |
 | `mod/booking:importoptions` | Import booking options from CSV | coursecreator, manager |
+
+> **Own vs. any booking option:** the `...ownoption` capabilities only apply to a user's **own** booking options. These are the options where the user is teacher, responsible contact or creator. `mod/booking:updatebooking` applies to **every** option of the booking instance and includes all of these actions.
+
+> **Replaced capability `addeditownoption`:** `mod/booking:addeditownoption` no longer exists. Despite its name it never allowed creating options. It was split into `editownoption`, `managebookingsownoption`, `sendmailownoption`, `editteachersownoption` and `viewteacherreports` (see [Administration and reporting](#12-administration-and-reporting)). On upgrade, every role that held `addeditownoption` received these five capabilities, so it can do what it could do before. `duplicateownoption` and `cancelownoption` are new actions that `addeditownoption` never covered: they are **not** assigned on upgrade and have to be granted explicitly, e.g. to a trainer role. Creating options needs `addoption`.
 
 > **Reduced forms:** `reducedoptionform1–5` are five configurable "light" versions of the option form. Each can be mapped to a specific set of fields via the *Option form configuration* admin setting. Assigning a teacher `reducedoptionform2` (for example) means they see only the fields defined for form variant 2.
 
@@ -194,6 +203,7 @@ Moodle capabilities define what each role is allowed to do inside **mod_booking*
 |------------|---------------|---------------|
 | `mod/booking:addinstance` | Add a new Booking activity to a course | editingteacher, manager |
 | `mod/booking:viewreports` | Access the booking reports page | manager |
+| `mod/booking:viewteacherreports` | View the teacher reports of a booking instance | editingteacher, manager |
 | `mod/booking:viewscheduledmails` | View the queue of scheduled/pending rule emails | *(see note)* |
 | `mod/booking:editscheduledmails` | Edit or cancel scheduled rule emails | manager |
 
