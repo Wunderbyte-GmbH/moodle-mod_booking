@@ -26,7 +26,7 @@
     * advanced - whether the element is an advanced element
     * helpbutton - HTML of the help button
     * error - error message
-    * element - id, wrapperid, name, type and html (HTML of the element, see mod_booking/form/sortableselect)
+    * element - id, iderror, wrapperid, name, type and html (HTML of the element, see mod_booking/form/sortableselect)
 
     Example context (json):
     {
@@ -37,10 +37,11 @@
         "error": null,
         "element": {
             "id": "id_searchprioritycolumns",
+            "iderror": "id_error_searchprioritycolumns",
             "wrapperid": "fitem_id_searchprioritycolumns",
             "name": "searchprioritycolumns",
             "type": "sortableselect",
-            "html": "<div id=\"id_searchprioritycolumns\">...</div>"
+            "html": "<select id=\"id_searchprioritycolumns\"><option value=\"\">Choose...</option></select>"
         }
     }
 }}
