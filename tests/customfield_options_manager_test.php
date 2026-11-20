@@ -136,6 +136,131 @@ final class customfield_options_manager_test extends advanced_testcase {
     }
 
     /**
+     * Labels with multilang tags of both language filters are rendered translated in the options.
+     *
+     * @param string $filter the filter plugin to enable
+     * @param string $label the label as entered by the admin
+     * @dataProvider multilang_label_provider
+     */
+    public function test_multilang_labels_survive_generated_sql(string $filter, string $label): void {
+        global $CFG;
+        require_once($CFG->libdir . '/filterlib.php');
+
+        if (!array_key_exists($filter, \core_component::get_plugin_list('filter'))) {
+            $this->markTestSkipped("filter_$filter is not installed.");
+        }
+
+        $this->resetAfterTest();
+        $this->setAdminUser();
+
+        filter_set_global_state($filter, TEXTFILTER_ON);
+        filter_set_applies_to_strings($filter, true);
+
+        $fieldid = hierarchy_manager::create_field('Groups', 'groups');
+        hierarchy_manager::save($fieldid, [
+            ['id' => 0, 'label' => $label, 'parentid' => 0],
+            ['id' => 0, 'label' => 'Plain child', 'parentid' => 1],
+        ]);
+        $id = hierarchy_manager::load_rows($fieldid)[0]['id'];
+        $field = \core_customfield\field_controller::create($fieldid);
+
+        // The stored label reaches the readers of the generated SQL unchanged.
+        $records = $this->get_wbt_values($fieldid);
+        $this->assertSame($label, $records[$id]->data);
+
+        // The language pack 'de' is not installed in PHPUnit, so the filters are checked with 'en' only
+        // plus the raw value above. An intact tag pair is all a filter needs for any other language.
+        $options = \customfield_dynamicformat\field_controller::get_options_array($field);
+        $this->assertSame('Test group', $options[$id]);
+
+        $filteroptions = hierarchy_manager::get_filter_options($fieldid);
+        $this->assertSame('Test group', $filteroptions[(string) $id]['localizedname']);
+    }
+
+    /**
+     * Data provider for test_multilang_labels_survive_generated_sql.
+     *
+     * @return array
+     */
+    public static function multilang_label_provider(): array {
+        return [
+            'filter_multilang2' => [
+                'multilang2',
+                '{mlang de}Testgruppe{mlang}{mlang en}Test group{mlang}',
+            ],
+            'filter_multilang' => [
+                'multilang',
+                '<span lang="de" class="multilang">Testgruppe</span><span lang="en" class="multilang">Test group</span>',
+            ],
+        ];
+    }
+
+    /**
+     * Characters with a special meaning for the DML layer or the database do not alter the label or the query.
+     *
+     * @param string $label the label as entered by the admin
+     * @param string $expected the label returned by the generated SQL
+     * @dataProvider special_label_provider
+     */
+    public function test_special_characters_in_labels(string $label, string $expected): void {
+        $this->resetAfterTest();
+        $this->setAdminUser();
+
+        $fieldid = hierarchy_manager::create_field('Groups', 'groups');
+        hierarchy_manager::save($fieldid, [
+            ['id' => 0, 'label' => $label, 'parentid' => 0],
+            ['id' => 0, 'label' => 'Second', 'parentid' => 0],
+        ]);
+
+        $records = $this->get_wbt_values($fieldid);
+        $this->assertCount(2, $records);
+        $this->assertSame($expected, $records[1]->data);
+        $this->assertSame('Second', $records[2]->data);
+    }
+
+    /**
+     * Data provider for test_special_characters_in_labels.
+     *
+     * @return array
+     */
+    public static function special_label_provider(): array {
+        return [
+            'table name syntax' => ['Kurs {intern} {user}', 'Kurs {intern} {user}'],
+            'named placeholder' => ['Level:basic and a:b', 'Level:basic and a:b'],
+            'dollar placeholder' => ['Costs $1 or $25', 'Costs $1 or $25'],
+            'single quotes' => ["It's ''quoted''", "It's ''quoted''"],
+            'quote breakout attempt' => [
+                "x' UNION ALL SELECT 9 AS sortorder, 9 AS id, 'injected",
+                "x' UNION ALL SELECT 9 AS sortorder, 9 AS id, 'injected",
+            ],
+            'trailing backslash is dropped' => ['Escape\\', 'Escape'],
+            'backslash before quote is dropped' => ["a\\' UNION ALL SELECT 9, 9, 'b", "a' UNION ALL SELECT 9, 9, 'b"],
+            'semicolon is dropped' => ['One; two', 'One two'],
+            'non ascii' => ['Gebäude {größe} – 日本', 'Gebäude {größe} – 日本'],
+        ];
+    }
+
+    /**
+     * Reads the options of a field the way mod_form.php does, through the wunderbyte_table controller.
+     *
+     * Falls back to running the stored query directly when local_wunderbyte_table is not available.
+     *
+     * @param int $fieldid
+     * @return array records keyed by option id
+     */
+    private function get_wbt_values(int $fieldid): array {
+        global $DB;
+
+        $record = $DB->get_record('customfield_field', ['id' => $fieldid], '*', MUST_EXIST);
+        $infoclass = '\local_wunderbyte_table\local\customfield\wbt_field_controller_info';
+        if (class_exists($infoclass)) {
+            return $infoclass::create($record)->get_values_array();
+        }
+        $configdata = json_decode($record->configdata, true);
+        return $DB->get_records_sql($configdata['dynamicsql']);
+    }
+
+    /**
      * Saving a non mod_booking field is rejected.
      */
     public function test_save_rejects_non_booking_field(): void {

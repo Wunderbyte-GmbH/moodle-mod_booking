@@ -402,7 +402,7 @@ class hierarchy_manager {
 
         $selects = [];
         foreach (array_values($rows) as $sortorder => $row) {
-            $label = self::quote_sql_string($row['label']);
+            $label = self::label_sql_expression($row['label']);
             $selects[] = sprintf('SELECT %d AS sortorder, %d AS id, %s AS data', $sortorder, $row['id'], $label);
         }
 
@@ -410,14 +410,46 @@ class hierarchy_manager {
     }
 
     /**
-     * Escapes a string for safe inclusion as a single-quoted SQL literal.
+     * Builds the SQL expression that returns a label unchanged when the dynamicsql is executed.
+     *
+     * The stored query is run without parameters, so the label has to be an SQL literal. Moodle's
+     * DML layer scans the whole query text, literals included, and
+     * - rewrites every {word} into a prefixed table name (moodle_database::fix_table_names()),
+     *   which destroys e.g. the closing {mlang} tag of filter_multilang2,
+     * - counts every :word and $1 as a query placeholder (moodle_database::fix_sql_params()).
+     * The literal is therefore split right after '{', ':' and '$' and joined again with the
+     * database specific concatenation, so none of these sequences is left in the query text.
+     *
+     * Control characters, semicolons and backslashes are dropped. A backslash is the string escape
+     * character on MySQL/MariaDB, so a label ending in one would escape the closing quote of the
+     * literal and let the following label be executed as SQL.
+     *
+     * @param string $label
+     * @return string a quoted literal, or a concatenation of quoted literals
+     */
+    private static function label_sql_expression(string $label): string {
+        global $DB;
+
+        $label = preg_replace('/[\x00-\x1F\x7F;\\\\]/', '', $label);
+
+        $parts = preg_split('/(?<=\{)(?=[a-z])|(?<=:)(?=[a-z])|(?<=\$)(?=[0-9])/i', $label);
+        $parts = array_map([self::class, 'quote_sql_string'], $parts);
+
+        if (count($parts) === 1) {
+            return $parts[0];
+        }
+        return trim($DB->sql_concat(...$parts));
+    }
+
+    /**
+     * Wraps a string in single quotes for use as an SQL literal, doubling contained single quotes.
+     *
+     * Only safe for values that went through label_sql_expression(), which removes backslashes.
      *
      * @param string $value
      * @return string the quoted literal, including the surrounding quotes
      */
     private static function quote_sql_string(string $value): string {
-        // Drop control characters and semicolons, then double single quotes.
-        $value = preg_replace('/[\x00-\x1F;]/', '', $value);
         return "'" . str_replace("'", "''", $value) . "'";
     }
 
