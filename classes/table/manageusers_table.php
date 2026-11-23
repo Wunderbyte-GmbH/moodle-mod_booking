@@ -538,7 +538,7 @@ class manageusers_table extends wunderbyte_table {
         $user = singleton_service::get_instance_of_user($userid);
 
         // Inserting into History Table.
-        booking_option::booking_history_insert(
+        $historyid = booking_option::booking_history_insert(
             MOD_BOOKING_STATUSPARAM_WAITINGLIST_CONFIRMED,
             $baid,
             $optionid,
@@ -564,7 +564,7 @@ class manageusers_table extends wunderbyte_table {
                 || enrollink::is_initial_answer($record) === true
             ) // Only the initial answer of enrollink needs to be bought.
         ) {
-            $option->user_submit_response(
+            $submitted = $option->user_submit_response(
                 $user,
                 0,
                 0,
@@ -594,7 +594,28 @@ class manageusers_table extends wunderbyte_table {
             } else {
                 $status = MOD_BOOKING_BO_SUBMIT_STATUS_DEFAULT;
             }
-            $option->user_submit_response($user, 0, 0, $status, MOD_BOOKING_VERIFIED);
+            $submitted = $option->user_submit_response($user, 0, 0, $status, MOD_BOOKING_VERIFIED);
+        }
+
+        // The confirmation could not be saved resp. the user could not be booked, eg. because the last
+        // place was taken while the request was pending and there is no place on the waiting list.
+        // The request stays pending: we must not report a success and must not trigger the event,
+        // as rules react on it (eg. with the mail that the booking was confirmed).
+        if ($submitted === false) {
+            // The confirmation did not happen, so it must not stay in the history either.
+            if (!empty($historyid)) {
+                $DB->delete_records('booking_history', ['id' => $historyid]);
+            }
+
+            singleton_service::destroy_booking_answers($optionid);
+            $answers = singleton_service::get_instance_of_booking_answers($settings);
+            $stringid = $answers->is_fully_booked() ? 'confirmbookingfailedfullybooked' : 'confirmbookingfailed';
+
+            return [
+                'success' => 0,
+                'message' => get_string($stringid, 'mod_booking'),
+                'reload' => 0,
+            ];
         }
 
         // Event is triggered no matter if a bookinganswer with or without price was confirmed.
