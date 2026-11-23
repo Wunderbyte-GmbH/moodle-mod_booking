@@ -19,9 +19,15 @@ namespace mod_booking;
 use advanced_testcase;
 use mod_booking\event\bookingoption_updated;
 use mod_booking\event\selectusers_user_added;
+use mod_booking\bo_availability\bo_info;
 use mod_booking\option\fields\availability;
+use mod_booking\tests\availability_condition_cases_trait;
 use mod_booking_generator;
 use stdClass;
+
+defined('MOODLE_INTERNAL') || die();
+
+require_once(__DIR__ . '/../classes/availability_condition_cases_trait.php');
 
 /**
  * Tests that changes of availability conditions are tracked per condition.
@@ -40,6 +46,8 @@ use stdClass;
  * @covers \mod_booking\event\selectusers_user_added
  */
 final class availability_changes_tracking_test extends advanced_testcase {
+    use availability_condition_cases_trait;
+
     /**
      * Tests set up.
      */
@@ -294,6 +302,119 @@ final class availability_changes_tracking_test extends advanced_testcase {
         $this->assertSame([(int) $users[1]->id], $added);
         $this->assertCount(1, $events);
         $this->assertSame((int) $users[1]->id, (int) reset($events)->relateduserid);
+    }
+
+    /**
+     * The conditions covered by the tests are the ones an option stores in its availability JSON.
+     *
+     * A condition added later has to be added to the covered ones as well.
+     *
+     * @return void
+     */
+    public function test_all_json_conditions_are_covered(): void {
+        $names = [];
+        foreach (bo_info::get_conditions(MOD_BOOKING_CONDPARAM_JSON_ONLY) as $condition) {
+            $classparts = explode('\\', get_class($condition));
+            $names[] = end($classparts);
+        }
+        $this->assertEqualsCanonicalizing($names, self::condition_names());
+    }
+
+    /**
+     * Adding, changing and removing a condition is each recorded as one availability change of the option.
+     *
+     * @param string $condition
+     * @return void
+     *
+     * @covers \mod_booking\booking_option::update
+     * @covers \mod_booking\event\bookingoption_updated
+     *
+     * @dataProvider condition_provider
+     */
+    public function test_every_configured_condition_is_tracked(string $condition): void {
+        $this->setAdminUser();
+        [$option, $update] = $this->create_option_restricted_to([]);
+        $steps = $this->condition_steps($condition, (int) $update->bookingid, (int) $update->courseid);
+        $label = get_string('availability', 'mod_booking');
+
+        // Added.
+        [$changes, $description] = $this->availability_changes_of_update($update, $steps['add'], (int) $option->id);
+        $this->assertCount(1, $changes, "Adding $condition is one availability change.");
+        $this->assertEquals($steps['id'], $changes[0]['conditionid']);
+        $this->assertSame($condition, $changes[0]['conditionname']);
+        $this->assertEmpty($changes[0]['oldvalue']);
+        $this->assertNotEmpty($changes[0]['newvalue']);
+        $this->assertStringContainsString($label, $description);
+
+        // Changed.
+        [$changes, $description] = $this->availability_changes_of_update($update, $steps['change'], (int) $option->id);
+        $this->assertCount(1, $changes, "Changing $condition is one availability change.");
+        $this->assertEquals($steps['id'], $changes[0]['conditionid']);
+        $this->assertSame($condition, $changes[0]['conditionname']);
+        $this->assertNotEmpty($changes[0]['oldvalue']);
+        $this->assertNotEmpty($changes[0]['newvalue']);
+        $this->assertNotEquals($changes[0]['oldvalue'], $changes[0]['newvalue']);
+        $this->assertStringContainsString($label, $description);
+
+        // Saved again without a change.
+        [$changes] = $this->availability_changes_of_update($update, [], (int) $option->id);
+        $this->assertSame([], $changes, "Saving $condition unchanged is no availability change.");
+
+        // Removed.
+        [$changes, $description] = $this->availability_changes_of_update($update, $steps['remove'], (int) $option->id);
+        $this->assertCount(1, $changes, "Removing $condition is one availability change.");
+        $this->assertEquals($steps['id'], $changes[0]['conditionid']);
+        $this->assertSame($condition, $changes[0]['conditionname']);
+        $this->assertNotEmpty($changes[0]['oldvalue']);
+        $this->assertEmpty($changes[0]['newvalue']);
+        $this->assertStringContainsString($label, $description);
+    }
+
+    /**
+     * Data provider with one case per condition.
+     *
+     * @return array
+     */
+    public static function condition_provider(): array {
+        $cases = [];
+        foreach (self::condition_names() as $condition) {
+            $cases[$condition] = [$condition];
+        }
+        return $cases;
+    }
+
+    /**
+     * Saves the option with the given form values on top and returns what the update recorded on the availability.
+     *
+     * @param stdClass $update the update record of the option, the form values are added to it
+     * @param array $formvalues
+     * @param int $optionid
+     * @return array the availability changes of the update and the description of its event(s)
+     */
+    private function availability_changes_of_update(stdClass $update, array $formvalues, int $optionid): array {
+        foreach ($formvalues as $key => $value) {
+            $update->{$key} = $value;
+        }
+
+        $sink = $this->redirectEvents();
+        booking_option::update($update);
+        $events = $sink->get_events();
+        $sink->close();
+
+        $changes = [];
+        $description = '';
+        foreach ($events as $event) {
+            if (!($event instanceof bookingoption_updated) || (int) $event->objectid !== $optionid) {
+                continue;
+            }
+            foreach ($event->get_data()['other']['changes'] as $change) {
+                if (($change['fieldname'] ?? '') === 'availability') {
+                    $changes[] = $change;
+                }
+            }
+            $description .= $event->get_description();
+        }
+        return [$changes, $description];
     }
 
     /**
