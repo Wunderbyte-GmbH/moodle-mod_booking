@@ -1781,6 +1781,7 @@ $string['confirmationticketqralt'] = 'QR-Code Ihres Eintrittstickets für {$a}';
 $string['confirmbooking'] = 'Bestätigen der Buchung';
 $string['confirmbookinganswer'] = 'Buchungsantwort bestätigen, wenn die Benachrichtigung für Benutzer:innen aktiviert ist.';
 $string['confirmbookinglong'] = 'Wollen Sie diese Buchung wirklich bestätigen?';
+$string['confirmbookingnotsaved'] = 'Die Bestätigung konnte nicht gespeichert werden. Die Buchung wartet weiterhin auf Bestätigung.';
 $string['confirmbookingoffollowing'] = 'Bitte bestätigen Sie folgende Buchung';
 $string['confirmbookingtitle'] = "Buchung bestätigen";
 $string['confirmcanceloption'] = "Bestätige die Stornierung der Buchungsoption";

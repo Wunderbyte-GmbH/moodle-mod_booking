@@ -1780,6 +1780,7 @@ $string['confirmationticketqralt'] = 'QR code of your entry ticket for {$a}';
 $string['confirmbooking'] = 'Confirmation of this booking';
 $string['confirmbookinganswer'] = 'Confirm booking answer when user notification is enabled.';
 $string['confirmbookinglong'] = 'Do you really want to confirm this booking?';
+$string['confirmbookingnotsaved'] = 'The confirmation could not be saved. The booking is still waiting for confirmation.';
 $string['confirmbookingoffollowing'] = 'Please confirm the booking of following course';
 $string['confirmbookingtitle'] = "Confirm booking";
 $string['confirmcanceloption'] = "Confirm cancelation of booking option";

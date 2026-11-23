@@ -538,7 +538,7 @@ class manageusers_table extends wunderbyte_table {
         $user = singleton_service::get_instance_of_user($userid);
 
         // Inserting into History Table.
-        booking_option::booking_history_insert(
+        $historyid = booking_option::booking_history_insert(
             MOD_BOOKING_STATUSPARAM_WAITINGLIST_CONFIRMED,
             $baid,
             $optionid,
@@ -613,6 +613,10 @@ class manageusers_table extends wunderbyte_table {
 
         if ($saved === false) {
             // Nothing was written to the booking answer, so we must not report a success.
+            // The confirmation did not happen, so it must not stay in the booking history either.
+            if (!empty($historyid)) {
+                $DB->delete_records('booking_history', ['id' => $historyid]);
+            }
             return [
                 'success' => 0,
                 'message' => get_string('confirmbookingnotsaved', 'mod_booking'),
