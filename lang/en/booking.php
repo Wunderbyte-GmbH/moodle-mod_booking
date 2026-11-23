@@ -444,6 +444,7 @@ $string['agent_booking_waitinglist_reason_nowaitinglist'] = 'This option has no 
 $string['agent_booking_waitinglist_reason_optionstarted'] = 'The option has already started and the booking instance does not allow booking after the course start ("Allow booking after start"). This stops the whole waiting list sync, including any demotion when you reduce the seats.';
 $string['agent_booking_waitinglist_reason_paidoption'] = 'This is a paid option. Users who bought a seat are never moved automatically - they are neither promoted onto a paid option nor demoted or removed when you reduce the seats.';
 $string['agent_booking_waitinglist_reason_turnoffglobal'] = 'The site setting "Turn off waiting list globally" (turnoffwaitinglist) is on, so the waiting list does not sync at all.';
+$string['agent_booking_waitinglist_reason_turnoffglobalconfirmedonly'] = 'The site setting "Turn off waiting list globally" (turnoffwaitinglist) is on. As this option books only after confirmation, users whose booking was already confirmed still move up as soon as a place is available. Nobody else moves up, and nobody is demoted or removed.';
 $string['agent_booking_waitinglist_reason_waitforconfirmation'] = 'This option uses demand confirmation (waitforconfirmation), so it is never reduced automatically and users need manual confirmation before they move up.';
 $string['agent_ticket_feature_disabled'] = 'Entry tickets are not enabled on this site. An administrator has to switch on "Enable entry tickets" in the Booking site settings first.';
 $string['agent_ticket_no_design'] = 'The ticket settings need a ticket design. Please provide ticketdesign with the name of the certificate template to use as the entry ticket.';
@@ -4795,7 +4796,7 @@ $string['turnoffmodals_desc'] = "Some steps during the booking process will open
 <b>Please note:</b> If you use the Booking <b>cards view</b>, then modals will still be used. You can <b>only turn them off for list view</b>.";
 $string['turnoffwaitinglist'] = 'Turn off waiting list globally';
 $string['turnoffwaitinglist_desc'] = 'Activate this setting, if you do not want to use the waiting list
- feature on this site (e.g. because you only want to use the notification list).';
+ feature on this site (e.g. because you only want to use the notification list). Booking options with "Book only after confirmation" are an exception: a booking that was confirmed while the booking option was fully booked is still booked as soon as a place is available.';
 $string['turnoffwaitinglistaftercoursestart'] = 'Turn off automatic moving up from waiting list after a booking option has started.';
 $string['turnoffwunderbytelogo'] = 'Do not show Wunderbyte logo and link';
 $string['turnoffwunderbytelogo_desc'] = 'If you activate this setting, the Wunderbyte logo and the link to the Wunderbyte website won\'t be shown.';

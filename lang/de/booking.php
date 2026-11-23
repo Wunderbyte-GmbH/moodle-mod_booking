@@ -445,6 +445,7 @@ $string['agent_booking_waitinglist_reason_nowaitinglist'] = 'Diese Option hat ke
 $string['agent_booking_waitinglist_reason_optionstarted'] = 'Die Option hat bereits begonnen und die Buchungsinstanz erlaubt keine Buchung nach Kursbeginn ("Buchung nach Beginn erlauben"). Das stoppt die gesamte Wartelisten-Synchronisation, inklusive jeder Herabstufung beim Verringern der Plätze.';
 $string['agent_booking_waitinglist_reason_paidoption'] = 'Dies ist eine kostenpflichtige Option. Benutzer, die einen Platz gekauft haben, werden nie automatisch bewegt - sie werden weder auf eine kostenpflichtige Option nachgerückt noch beim Verringern der Plätze herabgestuft oder entfernt.';
 $string['agent_booking_waitinglist_reason_turnoffglobal'] = 'Die Einstellung "Warteliste global deaktivieren" (turnoffwaitinglist) ist aktiv, daher synchronisiert die Warteliste überhaupt nicht.';
+$string['agent_booking_waitinglist_reason_turnoffglobalconfirmedonly'] = 'Die Einstellung "Warteliste global deaktivieren" (turnoffwaitinglist) ist aktiv. Da diese Option nur nach Bestätigung bucht, rücken bereits bestätigte Buchungen weiterhin nach, sobald ein Platz frei ist. Sonst rückt niemand nach, und niemand wird zurückgestuft oder entfernt.';
 $string['agent_booking_waitinglist_reason_waitforconfirmation'] = 'Diese Option verwendet Bestätigungspflicht (waitforconfirmation), wird daher nie automatisch reduziert und Benutzer benötigen eine manuelle Bestätigung, bevor sie nachrücken.';
 $string['agent_ticket_feature_disabled'] = 'Eintrittstickets sind auf dieser Website nicht aktiviert. Eine administrierende Person muss zuerst „Eintrittstickets aktivieren“ in den Booking-Website-Einstellungen einschalten.';
 $string['agent_ticket_no_design'] = 'Für die Ticket-Einstellungen wird ein Ticket-Design benötigt. Bitte geben Sie mit ticketdesign den Namen der Zertifikatsvorlage an, die als Eintrittsticket verwendet werden soll.';
@@ -4808,7 +4809,7 @@ $string['turnoffmodals_desc'] = "Für manche Schritte vor dem Buchen werden aktu
 <b>Bitte beachten:</b> Wenn Sie die <b>Karten-Ansicht</b> von Booking verwenden, werden weiterhin Modale verwendet, Modale können <b>nur bei der Listen-Ansicht</b> ausgeschaltet werden.";
 $string['turnoffwaitinglist'] = 'Warteliste global deaktivieren';
 $string['turnoffwaitinglist_desc'] = 'Aktivieren Sie diese Einstellung, um die Warteliste auf der gesamten
- Plattform auszuschalten (z.B. weil Sie nur die Benachrichtigungsliste verwenden möchten).';
+ Plattform auszuschalten (z.B. weil Sie nur die Benachrichtigungsliste verwenden möchten). Eine Ausnahme sind Buchungsoptionen mit "Nur nach Bestätigung buchen": Eine Buchung, die bestätigt wurde, während die Buchungsoption ausgebucht war, wird weiterhin gebucht, sobald ein Platz frei ist.';
 $string['turnoffwaitinglistaftercoursestart'] = 'Automatisches Nachrücken von der Warteliste ab Beginn der Buchungsoption deaktivieren.';
 $string['turnoffwunderbytelogo'] = 'Wunderbyte Logo und Link nicht anzeigen';
 $string['turnoffwunderbytelogo_desc'] = 'Wenn diese Einstellung aktiviert ist, werden das Wunderbyte Logo und der Link zur Wunderbyte-Website nicht angezeigt.';

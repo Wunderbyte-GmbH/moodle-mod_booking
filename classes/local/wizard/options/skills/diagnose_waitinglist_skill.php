@@ -40,6 +40,7 @@ class diagnose_waitinglist_skill extends booking_skill_base implements skill_tri
     /** Map from an explain() issue code to its localized reason string identifier. */
     private const ISSUE_STRING_MAP = [
         waitinglist_sync_status::GATE_TURNOFF_GLOBAL => 'agent_booking_waitinglist_reason_turnoffglobal',
+        waitinglist_sync_status::ISSUE_CONFIRMED_ONLY => 'agent_booking_waitinglist_reason_turnoffglobalconfirmedonly',
         waitinglist_sync_status::GATE_TURNOFF_AFTERSTART => 'agent_booking_waitinglist_reason_aftercoursestart',
         waitinglist_sync_status::GATE_OPTION_STARTED => 'agent_booking_waitinglist_reason_optionstarted',
         'nowaitinglist' => 'agent_booking_waitinglist_reason_nowaitinglist',

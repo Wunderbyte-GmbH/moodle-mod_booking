@@ -146,6 +146,32 @@ final class waitinglist_sync_status_test extends \advanced_testcase {
     }
 
     /**
+     * On an option that books only after confirmation, the global off-switch does not block the
+     * sync: it is reduced to moving up confirmed users, and explain reports exactly that.
+     *
+     * @covers \mod_booking\local\waitinglist\waitinglist_sync_status::only_confirmed_users_move_up
+     * @covers \mod_booking\local\waitinglist\waitinglist_sync_status::first_blocking_global_gate
+     * @covers \mod_booking\local\waitinglist\waitinglist_sync_status::explain
+     */
+    public function test_turnoffwaitinglist_with_confirmation_only_moves_up_confirmed_users(): void {
+        [$cmid, $optionid] = $this->seed(['waitforconfirmation' => 1]);
+        $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
+
+        // Without the global off-switch there is nothing to reduce.
+        $this->assertFalse(waitinglist_sync_status::only_confirmed_users_move_up($settings));
+
+        set_config('turnoffwaitinglist', 1, 'booking');
+
+        $this->assertTrue(waitinglist_sync_status::only_confirmed_users_move_up($settings));
+        $this->assertNull(waitinglist_sync_status::first_blocking_global_gate($settings));
+
+        $report = waitinglist_sync_status::explain($optionid);
+        $this->assertNull($report['blockinggate']);
+        $this->assertContains(waitinglist_sync_status::ISSUE_CONFIRMED_ONLY, $report['issues']);
+        $this->assertNotContains(waitinglist_sync_status::GATE_TURNOFF_GLOBAL, $report['issues']);
+    }
+
+    /**
      * The predicate the sync uses for its early exit agrees with explain's gate.
      */
     public function test_predicate_matches_report(): void {

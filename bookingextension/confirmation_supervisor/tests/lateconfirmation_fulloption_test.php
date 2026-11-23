@@ -76,7 +76,8 @@ final class lateconfirmation_fulloption_test extends advanced_testcase {
     }
 
     /**
-     * One place, two pending requests: the second confirmation comes too late, but is saved.
+     * One place, three pending requests: the second confirmation comes too late, but is saved,
+     * and the confirmed user moves up when the place is available again. The third request is never confirmed.
      *
      * @covers \mod_booking\table\manageusers_table::action_confirmbooking
      * @covers \mod_booking\booking_option::user_submit_response
@@ -88,12 +89,12 @@ final class lateconfirmation_fulloption_test extends advanced_testcase {
         global $DB;
 
         set_config('turnoffwaitinglist', $turnoffwaitinglist, 'booking');
-        [$max, $other, $anna, $booking] = $this->create_team_and_instance();
+        [$max, $other, $anna, $booking, $third] = $this->create_team_and_instance();
         $option = $this->create_option_with_one_place((int)$booking->id, 'One place only');
         $settings = singleton_service::get_instance_of_booking_option_settings($option->id);
 
         // Both users request the only place. A pending request does not hold the place.
-        $this->request_booking($settings->id, [$max, $other]);
+        $this->request_booking($settings->id, [$max, $other, $third]);
 
         $pending = $this->get_fresh_answers($option->id)->get_usersonwaitinglist();
         $maxbaid = $pending[$max->id]->baid;
@@ -139,17 +140,57 @@ final class lateconfirmation_fulloption_test extends advanced_testcase {
         $this->assertCount(1, $confirmedevents, 'the event "booking answer confirmed" is triggered once');
 
         // When the place becomes available again, the confirmed user moves up without a second confirmation.
-        // With the waiting list turned off globally nobody moves up automatically, so this is not asserted there.
-        if (empty($turnoffwaitinglist)) {
-            $this->setAdminUser();
-            $bookingoption = singleton_service::get_instance_of_booking_option($settings->cmid, $option->id);
-            $bookingoption->user_delete_response($other->id);
-            $this->assertArrayHasKey(
-                $max->id,
-                $this->get_fresh_answers($option->id)->get_usersonlist(),
-                'the confirmed user gets the place as soon as it is available'
-            );
-        }
+        // This also holds with the waiting list turned off globally: a confirmed request is no waiting list.
+        $this->setAdminUser();
+        $bookingoption = singleton_service::get_instance_of_booking_option($settings->cmid, $option->id);
+        $bookingoption->user_delete_response($other->id);
+        $answers = $this->get_fresh_answers($option->id);
+        $this->assertArrayHasKey($max->id, $answers->get_usersonlist(), 'the confirmed user gets the free place');
+        $this->assertArrayHasKey(
+            $third->id,
+            $answers->get_usersonwaitinglist(),
+            'a request without confirmation keeps waiting for its confirmation'
+        );
+
+        // A request that was never confirmed does not move up, even when the place is free.
+        $bookingoption = singleton_service::get_instance_of_booking_option($settings->cmid, $option->id);
+        $bookingoption->user_delete_response($max->id);
+        $answers = $this->get_fresh_answers($option->id);
+        $this->assertCount(0, $answers->get_usersonlist(), 'nobody is booked without confirmation');
+        $this->assertArrayHasKey($third->id, $answers->get_usersonwaitinglist(), 'the request is still pending');
+    }
+
+    /**
+     * With the waiting list turned off globally, only confirmed users move up - also when no
+     * workflow requires a confirmation, so that the number of required confirmations is 0.
+     *
+     * @covers \mod_booking\booking_option::sync_waiting_list
+     * @covers \mod_booking\local\waitinglist\waitinglist_sync_status::only_confirmed_users_move_up
+     */
+    public function test_unconfirmed_request_does_not_move_up_without_workflow(): void {
+        set_config('turnoffwaitinglist', 1, 'booking');
+        [$max, $other, , $booking] = $this->create_team_and_instance();
+        // No workflow is active, so no confirmation is required by a workflow.
+        set_config('confirmationsupervisorenabled', 0, 'bookingextension_confirmation_supervisor');
+
+        $option = $this->create_option_with_one_place((int)$booking->id, 'One place only');
+        $settings = singleton_service::get_instance_of_booking_option_settings($option->id);
+        $this->request_booking($settings->id, [$max, $other]);
+
+        // The place is given to the other user directly.
+        $this->setAdminUser();
+        $bookingoption = singleton_service::get_instance_of_booking_option($settings->cmid, $option->id);
+        $bookingoption->user_submit_response($other, 0, 0, MOD_BOOKING_BO_SUBMIT_STATUS_DEFAULT, MOD_BOOKING_VERIFIED);
+        $answers = $this->get_fresh_answers($option->id);
+        $this->assertArrayHasKey($other->id, $answers->get_usersonlist(), 'precondition: the place is taken');
+        $this->assertArrayHasKey($max->id, $answers->get_usersonwaitinglist(), 'precondition: Max is still pending');
+
+        // The place becomes available: the request of Max was never confirmed, so it stays pending.
+        $bookingoption = singleton_service::get_instance_of_booking_option($settings->cmid, $option->id);
+        $bookingoption->user_delete_response($other->id);
+        $answers = $this->get_fresh_answers($option->id);
+        $this->assertCount(0, $answers->get_usersonlist(), 'nobody is booked without confirmation');
+        $this->assertArrayHasKey($max->id, $answers->get_usersonwaitinglist(), 'the request of Max is still pending');
     }
 
     /**
@@ -213,9 +254,9 @@ final class lateconfirmation_fulloption_test extends advanced_testcase {
     }
 
     /**
-     * Creates two users with their supervisor Anna and a booking instance.
+     * Creates three users with their supervisor Anna and a booking instance.
      *
-     * @return array [$max, $other, $anna, $booking]
+     * @return array [$max, $other, $anna, $booking, $third]
      */
     private function create_team_and_instance(): array {
         global $CFG;
@@ -236,15 +277,15 @@ final class lateconfirmation_fulloption_test extends advanced_testcase {
         $course = $this->getDataGenerator()->create_course(['enablecompletion' => 1]);
         $max = $this->getDataGenerator()->create_user();
         $other = $this->getDataGenerator()->create_user();
+        $third = $this->getDataGenerator()->create_user();
         $anna = $this->getDataGenerator()->create_user();
         $bookingmanager = $this->getDataGenerator()->create_user();
 
-        // Anna is the supervisor of both users.
-        profile_save_data((object)['id' => $max->id, 'profile_field_supervisor' => $anna->id]);
-        profile_save_data((object)['id' => $other->id, 'profile_field_supervisor' => $anna->id]);
-
-        $this->getDataGenerator()->enrol_user($max->id, $course->id, 'student');
-        $this->getDataGenerator()->enrol_user($other->id, $course->id, 'student');
+        // Anna is the supervisor of all three users.
+        foreach ([$max, $other, $third] as $user) {
+            profile_save_data((object)['id' => $user->id, 'profile_field_supervisor' => $anna->id]);
+            $this->getDataGenerator()->enrol_user($user->id, $course->id, 'student');
+        }
 
         // A supervisor only needs the restricted "book my team" capability to confirm for the team.
         $roleid = create_role('Supervisor', 'supervisor', 'Supervisor who may confirm for the own team');
@@ -257,7 +298,7 @@ final class lateconfirmation_fulloption_test extends advanced_testcase {
             'cancancelbook' => 1,
         ]);
 
-        return [$max, $other, $anna, $booking];
+        return [$max, $other, $anna, $booking, $third];
     }
 
     /**

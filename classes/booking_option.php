@@ -1288,6 +1288,10 @@ class booking_option {
             return false;
         }
 
+        // With the waiting list turned off globally, an option that books only after confirmation
+        // still moves up the users whose booking was already confirmed - and does nothing else.
+        $confirmedonly = waitinglist_sync_status::only_confirmed_users_move_up($settings);
+
         // Here, we check if we need to sync another option than the present one.
         // It's a feature of the sharedplaces functionality...
         // ... here we count booked places over multiple options.
@@ -1348,6 +1352,11 @@ class booking_option {
                             if ($userconfirmationcount < $confirmationcount) {
                                 continue;
                             }
+                            // Without a workflow that requires confirmations, the count above is 0.
+                            // In the reduced mode we only move up users who really were confirmed.
+                            if ($confirmedonly && $userconfirmationcount < 1) {
+                                continue;
+                            }
                         }
 
                         $user = singleton_service::get_instance_of_user($currentanswer->userid);
@@ -1396,7 +1405,7 @@ class booking_option {
                 sharedplaces::sync_sharedplaces_options($settings->id, false);
             }
 
-            if (waitinglist_sync_status::reduction_gate_open($optionupdated, $context)) {
+            if (!$confirmedonly && waitinglist_sync_status::reduction_gate_open($optionupdated, $context)) {
                 // 2. Update and inform users who have been put on the waiting list because of changed limits.
                 $usersonlist = array_merge($ba->get_usersonlist(), $ba->get_usersreserved());
                 // Same tie-break fix as phase 1 above (O2): compare by baid when tied instead
@@ -1479,7 +1488,7 @@ class booking_option {
                     $messagecontroller->send_or_queue();
                 }
             }
-        } else {
+        } else if (!$confirmedonly) {
             // If option was set to unlimited, we book all users that have been on the waiting list and inform them.
             foreach ($ba->get_usersonwaitinglist() as $currentanswer) {
                 $user = singleton_service::get_instance_of_user($currentanswer->userid);

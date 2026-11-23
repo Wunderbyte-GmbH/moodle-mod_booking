@@ -42,6 +42,9 @@ class waitinglist_sync_status {
     /** @var string Global waiting list off-switch is on. */
     const GATE_TURNOFF_GLOBAL = 'turnoffwaitinglist';
 
+    /** @var string The waiting list is turned off globally, only confirmed users of this option still move up. */
+    const ISSUE_CONFIRMED_ONLY = 'turnoffwaitinglistconfirmedonly';
+
     /** @var string Automatic moving up after the option has started is turned off (and it has started). */
     const GATE_TURNOFF_AFTERSTART = 'turnoffwaitinglistaftercoursestart';
 
@@ -58,7 +61,7 @@ class waitinglist_sync_status {
      * @return string|null one of the GATE_* constants, or null when the sync may proceed
      */
     public static function first_blocking_global_gate(booking_option_settings $settings): ?string {
-        if (get_config('booking', 'turnoffwaitinglist')) {
+        if (get_config('booking', 'turnoffwaitinglist') && !self::only_confirmed_users_move_up($settings)) {
             return self::GATE_TURNOFF_GLOBAL;
         }
         if (get_config('booking', 'turnoffwaitinglistaftercoursestart') && time() > $settings->coursestarttime) {
@@ -68,6 +71,24 @@ class waitinglist_sync_status {
             return self::GATE_OPTION_STARTED;
         }
         return null;
+    }
+
+    /**
+     * Whether the sync is reduced to moving up users whose booking was already confirmed.
+     *
+     * The waiting list is turned off globally, but the option books only after confirmation.
+     * Requests that wait for their confirmation are stored with the status of the waiting list,
+     * although they are no waiting list in the sense of the global setting. A request that was
+     * confirmed while the option was fully booked must therefore still get its place as soon as
+     * one is available - otherwise it is confirmed, but never booked. Everything else the sync
+     * does (demotion and removal on reduced limits, booking everybody on unlimited options)
+     * stays turned off.
+     *
+     * @param booking_option_settings $settings
+     * @return bool
+     */
+    public static function only_confirmed_users_move_up(booking_option_settings $settings): bool {
+        return !empty(get_config('booking', 'turnoffwaitinglist')) && !empty($settings->waitforconfirmation);
     }
 
     /**
@@ -130,6 +151,9 @@ class waitinglist_sync_status {
         $issues = [];
         if ($blockinggate !== null) {
             $issues[] = $blockinggate;
+        }
+        if (self::only_confirmed_users_move_up($settings)) {
+            $issues[] = self::ISSUE_CONFIRMED_ONLY;
         }
         if (!$haswaitinglist) {
             $issues[] = 'nowaitinglist';
