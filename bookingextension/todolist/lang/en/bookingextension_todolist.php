@@ -22,7 +22,6 @@
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-
 $string['bookingextension/todolist:checktodolist'] = 'Mark todo list items as completed';
 $string['bookingextension/todolist:edittodolist'] = 'Edit todo list in booking option form';
 $string['bookingextension/todolist:viewtodolist'] = 'View todo list on booking option view';

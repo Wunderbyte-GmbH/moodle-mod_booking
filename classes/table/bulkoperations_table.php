@@ -23,6 +23,7 @@
  */
 
 namespace mod_booking\table;
+
 use mod_booking\booking;
 use mod_booking\customfield\booking_handler;
 use mod_booking\shortcodes;

@@ -23,6 +23,7 @@
  */
 
 namespace mod_booking\placeholders\placeholders;
+
 use tool_certificate\template;
 
 defined('MOODLE_INTERNAL') || die();

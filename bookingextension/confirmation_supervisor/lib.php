@@ -22,6 +22,7 @@
  * @author      Georg Maißer
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+
 // phpcs:disable
 
 // To add Option fields to the option form, register the ids here.

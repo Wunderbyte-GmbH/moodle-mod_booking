@@ -24,11 +24,11 @@
  */
 
 namespace mod_booking\local\checkanswers\checks;
+
 use context_course;
 use mod_booking\local\checkanswers\checkanswers;
 use mod_booking\singleton_service;
 use stdClass;
-
 
 /**
  * This class will check if booking answers are still valid.

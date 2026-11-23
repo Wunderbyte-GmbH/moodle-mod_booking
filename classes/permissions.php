@@ -21,6 +21,7 @@ use context_module;
 use context_system;
 use core_external\external_api;
 use require_login_exception;
+
 /**
  * Helper functions to check permissions.
  *

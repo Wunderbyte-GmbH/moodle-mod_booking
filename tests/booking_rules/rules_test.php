@@ -40,6 +40,7 @@ use mod_booking\bo_availability\conditions\customform;
 use mod_booking\local\mobile\customformstore;
 use tool_mocktesttime\time_mock;
 use mod_booking_generator;
+
 use function PHPUnit\Framework\assertSame;
 
 defined('MOODLE_INTERNAL') || die();

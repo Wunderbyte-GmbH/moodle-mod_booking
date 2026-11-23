@@ -15,6 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 namespace mod_booking\form\actions;
+
 use context_module;
 use mod_booking\booking_option;
 

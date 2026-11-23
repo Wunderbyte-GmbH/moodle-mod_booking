@@ -248,7 +248,8 @@ class applybookingrules extends field_base {
         // If there is no entry or rulemode is 0, we apply all rules, except the ones specified (opt out).
         if (empty($rulemode)) {
             $applyrule = !in_array($ruleid, $rulesarray);
-        } else { // Else we only apply those specified (opt in).
+        } else {
+            // Else we only apply those specified (opt in).
             $applyrule = in_array($ruleid, $rulesarray);
         }
 

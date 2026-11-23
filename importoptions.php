@@ -24,6 +24,7 @@
  */
 
 namespace mod_booking;
+
 require_once(__DIR__ . '/../../config.php');
 require_once("lib.php");
 require_once($CFG->libdir . '/completionlib.php');

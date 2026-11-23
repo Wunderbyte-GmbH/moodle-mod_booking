@@ -24,6 +24,7 @@
  * @author      Bernhard Fischer
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+
 namespace mod_booking\booking_campaigns;
 
 use mod_booking\booking_option_settings;

@@ -23,6 +23,7 @@
  */
 
 namespace mod_booking\placeholders\placeholders;
+
 use mod_booking\singleton_service;
 use stdClass;
 

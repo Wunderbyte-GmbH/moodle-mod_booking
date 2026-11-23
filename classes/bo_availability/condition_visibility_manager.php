@@ -28,7 +28,6 @@ use context_system;
 use moodle_url;
 use MoodleQuickForm;
 
-
 /**
  * Class for managing visibility of condition settings and fields for skippable conditions.
  *

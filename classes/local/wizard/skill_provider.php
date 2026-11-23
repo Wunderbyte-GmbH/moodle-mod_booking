@@ -16,7 +16,6 @@
 
 namespace mod_booking\local\wizard;
 
-
 use mod_booking\local\wizard\engine\skill_input_normalizer_interface;
 use mod_booking\local\wizard\engine\skill_input_normalizer_provider_interface;
 use mod_booking\local\wizard\engine\skill_interface;

@@ -1663,8 +1663,8 @@ class bo_info {
 
         if (
             $pagenumber == 0 // If we are on the first page.
-            || $conditions[$pagenumber]['id'] === MOD_BOOKING_BO_COND_CONFIRMATION
-        ) { // If we are on the confirmation page.
+            || $conditions[$pagenumber]['id'] === MOD_BOOKING_BO_COND_CONFIRMATION // If we are on the confirmation page.
+        ) {
             $backbutton = false;
         }
 

@@ -22,6 +22,7 @@
  * @author      Bernhard Fischer
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+
 namespace mod_booking\booking_campaigns;
 
 use cache_helper;
@@ -563,7 +564,8 @@ class campaigns_info {
             } else if (
                 empty($fieldvalue) &&
                 empty($fieldname)
-            ) { // No fieldname given in option, and fieldname required in campaign with "does not contain".
+            ) {
+                // No fieldname given in option, and fieldname required in campaign with "does not contain".
                 $isactive = true;
             } else {
                 $isactive = false; // No fieldname given in option but fieldname required in campaign.

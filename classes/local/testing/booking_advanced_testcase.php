@@ -24,7 +24,6 @@
 
 namespace mod_booking\local\testing;
 
-
 /**
  * Compatibility wrapper for older test imports.
  */

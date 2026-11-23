@@ -1456,11 +1456,13 @@ function booking_update_instance($booking) {
                 $option->maxanswers = $booking->limit[$key];
             }
             $option->timemodified = time();
-            if (isset($booking->optionid[$key]) && !empty($booking->optionid[$key])) { // Existing booking record.
+            if (isset($booking->optionid[$key]) && !empty($booking->optionid[$key])) {
+                // Existing booking record.
                 $option->id = $booking->optionid[$key];
                 if (!empty($value)) {
                     $DB->update_record("booking_options", $option);
-                } else { // Empty old option - needs to be deleted.
+                } else {
+                    // Empty old option - needs to be deleted.
                     $DB->delete_records("booking_options", ["id" => $option->id]);
                 }
             } else {
@@ -2586,7 +2588,8 @@ function booking_update_grades($booking, $userid = 0, $nullifnone = true) {
  */
 function booking_grade_item_update($booking, $grades = null) {
     global $CFG;
-    if (!function_exists('grade_update')) { // Workaround for buggy PHP versions.
+    if (!function_exists('grade_update')) {
+        // Workaround for buggy PHP versions.
         require_once($CFG->libdir . '/gradelib.php');
     }
 
@@ -2863,7 +2866,8 @@ function booking_rate($ratings, $params) {
 
                 $newrating = new rating($ratingoptions);
                 $newrating->update_rating($rating->rating);
-            } else { // Delete the rating if the user set to "Rate...".
+            } else {
+                // Delete the rating if the user set to "Rate...".
                 $options = new stdClass();
                 $options->contextid = $context->id;
                 $options->component = $component;

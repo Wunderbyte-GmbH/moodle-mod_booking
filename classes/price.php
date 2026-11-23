@@ -813,7 +813,8 @@ class price {
                     $priceupdated = true;
                 }
             }
-        } else if ($price !== "") { // If there is a price but no price entry, we insert a new one.
+        } else if ($price !== "") {
+            // If there is a price but no price entry, we insert a new one.
             $data = new stdClass();
             $data->area = $area;
             $data->itemid = $itemid;
@@ -1176,12 +1177,14 @@ class price {
         // If not, we look for the price for all.
         if ($cacheduserprices === true && !defined('BEHAT_SITE_RUNNING')) {
             return [];
-        } else if ($cacheduserprices && !defined('BEHAT_SITE_RUNNING')) { // No price found.
+        } else if ($cacheduserprices && !defined('BEHAT_SITE_RUNNING')) {
+            // No price found.
             $prices = $cacheduserprices;
         } else {
             // Here, we haven't found a user price. We still might have a general price.
             $cachedprices = $cache->get($cachekey);
-            if ($cachedprices === true && !defined('BEHAT_SITE_RUNNING')) { // No price found.
+            if ($cachedprices === true && !defined('BEHAT_SITE_RUNNING')) {
+                // No price found.
                 // We set the user price, to know the next time.
                 $cache->set($usercachekey, true);
                 return [];

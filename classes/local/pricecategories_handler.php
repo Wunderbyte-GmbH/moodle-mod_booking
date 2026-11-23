@@ -20,6 +20,7 @@ use cache_helper;
 use mod_booking\event\pricecategory_changed;
 use mod_booking\form\pricecategories_form;
 use stdClass;
+
 /**
  * Handles price category operations.
  *

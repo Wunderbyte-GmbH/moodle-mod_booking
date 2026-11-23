@@ -24,6 +24,7 @@
  */
 
 namespace mod_booking\form;
+
 use context_user;
 
 defined('MOODLE_INTERNAL') || die();

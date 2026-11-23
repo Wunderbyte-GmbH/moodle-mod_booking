@@ -433,7 +433,8 @@ if (!$tableallbookings->is_downloading()) {
             }
 
             redirect($url, get_string('delnotification', 'booking', $data), 5);
-        } else if ($subscribetocourse !== '') { // Subscription submitted.
+        } else if ($subscribetocourse !== '') {
+            // Subscription submitted.
             if ($bookingoption->option->courseid != 0) {
                 foreach ($allselectedusers as $selecteduserid) {
                     $bookingoption->enrol_user($selecteduserid, true);

@@ -27,7 +27,6 @@ namespace mod_booking\local\optiondates;
 
 use stdClass;
 
-
 /**
  * Class to handle booking answers for specific optiondates, e.g. for presence status.
  */

@@ -86,6 +86,7 @@ use mod_booking\task\send_completion_mails;
 use mod_booking\booking_answers\booking_answers;
 use moodle_exception;
 use Throwable;
+
 use function get_config;
 
 defined('MOODLE_INTERNAL') || die();
@@ -2141,10 +2142,12 @@ class booking_option {
 
             // Prepare value for the key (confirmwaitinglist_modifieduserid).
             $muid = self::get_data_from_json($answer, 'confirmwaitinglist_modifieduserid');
-            if (is_array($muid)) { // If it is an array, we just add new suer to it.
+            if (is_array($muid)) {
+                // If it is an array, we just add new suer to it.
                 $modifieduserid = $muid;
                 $modifieduserid[] = $USER->id;
-            } else if (is_numeric($muid)) { // If it is a number we chnaged it to array of number and then we add new value.
+            } else if (is_numeric($muid)) {
+                // If it is a number we chnaged it to array of number and then we add new value.
                 $modifieduserid = [(int) $muid];
                 $modifieduserid[] = $USER->id;
             } else {
@@ -2154,10 +2157,12 @@ class booking_option {
 
             // Prepare value for the key (confirmwaitinglist_timemodified).
             $tm = self::get_data_from_json($answer, 'confirmwaitinglist_timemodified');
-            if (is_array($tm)) { // If it is an array, we just add new time to it.
+            if (is_array($tm)) {
+                // If it is an array, we just add new time to it.
                 $timemodified = $tm;
                 $timemodified[] = time();
-            } else if (is_numeric($tm)) { // If it is a number we chnaged it to array of number and then we add new value.
+            } else if (is_numeric($tm)) {
+                // If it is a number we chnaged it to array of number and then we add new value.
                 $timemodified = [(int) $tm];
                 $timemodified[] = time();
             } else {

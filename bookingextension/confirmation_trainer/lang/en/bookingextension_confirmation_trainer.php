@@ -22,6 +22,7 @@
  * @author      Georg Maißer
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+
 $string['bookingextensionconfirmationtrainer:confirmationtrainerenabled'] = "Activate confirmation by trainer";
 $string['bookingextensionconfirmationtrainer:confirmationtrainerenabled_desc'] = "Should the possiblity to confirm by a trainer be activated?";
 $string['bookingextensionconfirmationtrainer:confirmationtrainerenabledinbookingoption'] = 'Display in booking option settings';

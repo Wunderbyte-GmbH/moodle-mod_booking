@@ -23,6 +23,7 @@
  */
 
 namespace mod_booking\placeholders\placeholders;
+
 use mod_booking\singleton_service;
 
 defined('MOODLE_INTERNAL') || die();

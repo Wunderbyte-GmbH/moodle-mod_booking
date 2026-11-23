@@ -233,9 +233,11 @@ class recurringoptions extends field_base {
             if (
                 !empty($isparentofcurrent)
                 || (!empty(get_config('booking', 'recurringmultiparenting')) && !empty($ischildofcurrent))
-            ) { // For children we don't support creating of further recurrings.
+            ) {
+                // For children we don't support creating of further recurrings.
                 $mform->addElement('html', get_string('recurringnotpossibleinfo', 'mod_booking'));
-            } else { // Add possibility to create further recurrings.
+            } else {
+                // Add possibility to create further recurrings.
                 $mform->addElement(
                     'checkbox',
                     'repeatthisbooking',
@@ -278,7 +280,8 @@ class recurringoptions extends field_base {
                 $mform->addElement('static', 'recurringsaveinfo', '', get_string('recurringsaveinfo', 'mod_booking'));
                 $mform->hideIf('recurringsaveinfo', 'repeatthisbooking', 'notchecked');
             }
-            if (!empty($ischildofcurrent)) { // Mothers contain additional options to unlink or delete children.
+            if (!empty($ischildofcurrent)) {
+                // Mothers contain additional options to unlink or delete children.
                 $applyselectoptions = [
                     MOD_BOOKING_RECURRING_DONTUPDATE => get_string('dontapply', 'mod_booking'),
                     MOD_BOOKING_RECURRING_APPLY_TO_CHILDREN => get_string('confirmrecurringoptionapplychanges', 'mod_booking'),
@@ -308,7 +311,8 @@ class recurringoptions extends field_base {
                 );
                 $mform->addElement('static', 'allchildrenactioninfo2', '', get_string('recurringactioninfo', 'mod_booking'));
                 $mform->hideIf('allchildrenactioninfo2', 'deleteallchildren', 'notchecked');
-            } else if (!empty($isparentofcurrent)) { // Child can be unlinked.
+            } else if (!empty($isparentofcurrent)) {
+                // Child can be unlinked.
                 $mform->addElement(
                     'checkbox',
                     'unlinkchild',

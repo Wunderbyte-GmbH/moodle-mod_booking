@@ -22,6 +22,7 @@
  * @author Andraž Prinčič
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+
 namespace mod_booking;
 
 use mod_booking\local\bookingstracker\responses_url;
@@ -35,6 +36,7 @@ use moodle_url;
 use stdClass;
 use user_picture;
 use context_module;
+
 defined('MOODLE_INTERNAL') || die();
 global $CFG;
 require_once($CFG->libdir . '/tablelib.php');

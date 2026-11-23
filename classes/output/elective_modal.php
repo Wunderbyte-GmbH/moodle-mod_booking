@@ -32,7 +32,6 @@ use renderer_base;
 use renderable;
 use templatable;
 
-
 /**
  * This class prepares data for displaying a booking instance
  *

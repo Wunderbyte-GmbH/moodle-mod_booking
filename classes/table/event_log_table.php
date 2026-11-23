@@ -23,6 +23,7 @@
  */
 
 namespace mod_booking\table;
+
 use mod_booking\singleton_service;
 use Throwable;
 

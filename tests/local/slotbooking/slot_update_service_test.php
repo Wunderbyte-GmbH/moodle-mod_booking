@@ -154,7 +154,7 @@ final class slot_update_service_test extends booking_advanced_testcase {
         $this->assertCount(1, $slotdata['slots']);
         $this->assertSame((int)$ninealt['start'], (int)$slotdata['slots'][0]['start']);
 
-        // Upgrading mixed shrink: [09(0), 09alt(0)] -> [10(+5)] = net +5 -> cart (held, not committed).
+        // Upgrading mixed shrink from 09 (0) and 09alt (0) to 10 (+5): the net of +5 goes to the cart (held, not committed).
         $baid2 = $this->book($optionid, $bookingid, $userid, [$nine, $ninealt]);
         $outcome = slot_update_service::apply($optionid, $baid2, $userid, [$ten['key']]);
         $this->assertSame('cart', $outcome['mode']);

@@ -23,6 +23,7 @@
  */
 
 namespace mod_booking\event;
+
 use mod_booking\output\bookingoption_changes;
 use mod_booking\singleton_service;
 

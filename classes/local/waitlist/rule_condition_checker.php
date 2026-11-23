@@ -33,7 +33,6 @@ use mod_booking\singleton_service;
 use mod_booking\booking_answers\booking_answers;
 use mod_booking\booking_rules\booking_rules;
 
-
 /**
  * K11: resolves which send_mail_interval rules on an option's booking instance currently satisfy
  * their "Execute when..." condition.

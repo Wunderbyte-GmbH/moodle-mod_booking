@@ -25,7 +25,6 @@ use core_reportbuilder\local\helpers\audience as audience_helper;
 use core_reportbuilder\local\models\audience as audience_model;
 use core_text;
 
-
 /**
  * Report audiences: the registered audience types and how to build their configuration.
  *

@@ -24,6 +24,7 @@
  */
 
 namespace mod_booking\table;
+
 use html_writer;
 use mod_booking\bo_availability\conditions\customform;
 use mod_booking\local\certificateclass;

@@ -246,12 +246,14 @@ class fileparser {
                 }
                 $this->records['callbackresponse'] = $callbackresponse;
 
-                if (isset($this->uniquekey)) { // With unique key set, we build an associative array.
+                if (isset($this->uniquekey)) {
+                    // With unique key set, we build an associative array.
                     if (!isset($this->records[$firstcolumn])) {
                         $this->records[$firstcolumn] = [];
                     }
                     $this->records[$firstcolumn][$csvrecord[$firstcolumn]] = $data;
-                } else { // Without unique key, we build a sequential array.
+                } else {
+                    // Without unique key, we build a sequential array.
                     array_push($this->records, $data);
                 }
             }
@@ -533,10 +535,12 @@ class fileparser {
         if ($this->errors !== []) {
             $this->records['errors']['generalerrors'] = $this->errors;
         }
-        if ($this->csverrors !== []) { // Lines with error will not be imported.
+        if ($this->csverrors !== []) {
+            // Lines with error will not be imported.
             $this->records['errors']['lineerrors'] = $this->csverrors;
         }
-        if ($this->csvwarnings !== []) { // Lines with warning are imported.
+        if ($this->csvwarnings !== []) {
+            // Lines with warning are imported.
             $this->records['errors']['warnings'] = $this->csvwarnings;
         }
     }

@@ -22,6 +22,7 @@
  * @author      Georg Maißer
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+
 $string['alreadyconfirmed'] = 'Sie haben bereits bestätigt';
 $string['alreadyconfirmedbyhr'] = 'Personalabteilung hat bereits bestätigt';
 $string['alreadyconfirmedbysupervisor'] = 'Vorgesetzte:n hat bereits bestätigt';

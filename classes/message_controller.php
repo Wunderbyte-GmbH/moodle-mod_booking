@@ -18,6 +18,7 @@ namespace mod_booking;
 
 use mod_booking\event\booking_debug;
 use Throwable;
+
 defined('MOODLE_INTERNAL') || die();
 
 use cache_helper;
@@ -381,7 +382,8 @@ class message_controller {
         // NOTE: The only param that has not yet been migrated is {changes}.
         // So we  still have to keep this.
         foreach ($this->params as $name => $value) {
-            if (!is_null($value)) { // Since php 8.1.
+            if (!is_null($value)) {
+                // Since php 8.1.
                 $value = strval($value);
                 $text = str_replace('{' . $name . '}', $value, $text);
             }

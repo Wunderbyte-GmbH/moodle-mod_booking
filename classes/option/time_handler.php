@@ -24,7 +24,6 @@
 
 namespace mod_booking\option;
 
-
 /**
  * Prettify time display and set time.
  *

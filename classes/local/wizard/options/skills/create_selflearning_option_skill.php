@@ -16,7 +16,6 @@
 
 namespace mod_booking\local\wizard\options\skills;
 
-
 /**
  * Task definition for self-learning booking options.
  *

@@ -23,6 +23,7 @@
  */
 
 namespace mod_booking\table;
+
 use mod_booking\local\bookingstracker\responses_url;
 use core_completion\progress;
 use mod_booking\bo_availability\conditions\alreadybooked;

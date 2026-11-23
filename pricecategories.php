@@ -22,9 +22,11 @@
  * @author Georg Maißer, Bernhard Fischer
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+
  use mod_booking\form\pricecategories_form;
  use mod_booking\output\pricecategories;
  use mod_booking\local\pricecategories_handler;
+
  require_once(__DIR__ . '/../../config.php');
  require_once($CFG->libdir . '/adminlib.php');
  require_once(__DIR__ . '/classes/local/pricecategories_handler.php');

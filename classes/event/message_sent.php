@@ -24,6 +24,7 @@
  */
 
 namespace mod_booking\event;
+
 use mod_booking\singleton_service;
 
 defined('MOODLE_INTERNAL') || die();

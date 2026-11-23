@@ -278,7 +278,8 @@ abstract class field_base implements fields {
                 } else {
                     $oldvalue = $mockdata->{$key}->text;
                 }
-            } else if (property_exists($mockdata, $key)) { // Default handling.
+            } else if (property_exists($mockdata, $key)) {
+                // Default handling.
                 $oldvalue = $mockdata->{$key};
             } else {
                 $oldvalue = '';
@@ -298,7 +299,8 @@ abstract class field_base implements fields {
                 } else {
                     $newvalue = $value->text;
                 }
-            } else { // Default handling.
+            } else {
+                // Default handling.
                 $newvalue = $value;
             }
 

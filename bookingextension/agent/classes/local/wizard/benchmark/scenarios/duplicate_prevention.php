@@ -23,7 +23,9 @@
  */
 
 declare(strict_types=1);
+
 namespace bookingextension_agent\local\wizard\benchmark\scenarios;
+
 use bookingextension_agent\local\wizard\benchmark\abstract_benchmark_scenario;
 
 /**

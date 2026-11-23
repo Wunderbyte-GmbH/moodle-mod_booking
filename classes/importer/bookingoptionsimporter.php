@@ -20,7 +20,6 @@ use mod_booking\import\csvsettings;
 use mod_booking\import\fileparser;
 use stdClass;
 
-
 /**
  * Renderable class for the catscalemanagers
  *

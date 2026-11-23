@@ -23,9 +23,8 @@
  */
 
 namespace mod_booking\placeholders\placeholders;
+
 use core_plugin_manager;
-
-
 
 defined('MOODLE_INTERNAL') || die();
 

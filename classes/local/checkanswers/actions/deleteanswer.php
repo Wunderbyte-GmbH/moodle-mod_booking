@@ -24,10 +24,10 @@
  */
 
 namespace mod_booking\local\checkanswers\actions;
+
 use mod_booking\local\checkanswers\checkanswers;
 use mod_booking\singleton_service;
 use stdClass;
-
 
 /**
  * This action will delete the given answer of the user.

@@ -23,6 +23,7 @@
  */
 
 namespace mod_booking\event;
+
 use mod_booking\local\bookingstracker\responses_url;
 use Exception;
 use mod_booking\output\bookingoption_changes;

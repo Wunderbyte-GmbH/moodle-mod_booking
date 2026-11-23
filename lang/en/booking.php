@@ -21,6 +21,7 @@
  * @copyright 2023 Wunderbyte GmbH <info@wunderbyte.at>
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+
 $string['aboutmodaloptiondateform'] = 'Create custom dates
 (e.g. for blocked events or for single dates that differ from the date series).';
 $string['accept'] = 'Accept';

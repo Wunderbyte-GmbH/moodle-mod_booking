@@ -23,6 +23,7 @@
  */
 
 namespace mod_booking\task;
+
 use mod_booking\event\bookinganswercustomformconditions_deleted;
 
 defined('MOODLE_INTERNAL') || die();

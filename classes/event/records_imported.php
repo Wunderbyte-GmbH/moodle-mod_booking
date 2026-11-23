@@ -23,6 +23,7 @@
  */
 
 namespace mod_booking\event;
+
 use moodle_url;
 
 /**

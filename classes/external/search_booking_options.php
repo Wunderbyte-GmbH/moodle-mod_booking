@@ -15,6 +15,7 @@
 // along with Moodle.  If not, see <https://www.gnu.org/licenses/>.
 
 namespace mod_booking\external;
+
 use core_external\external_api;
 use core_external\external_function_parameters;
 use core_external\external_multiple_structure;

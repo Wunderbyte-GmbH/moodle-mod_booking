@@ -31,7 +31,6 @@ use renderable;
 use stdClass;
 use templatable;
 
-
 /**
  * This class prepares data for displaying a booking instance
  *

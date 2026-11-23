@@ -27,7 +27,6 @@ namespace mod_booking\placeholders\placeholders;
 use mod_booking\placeholders\placeholders_info;
 use context_user;
 
-
 defined('MOODLE_INTERNAL') || die();
 
 require_once($CFG->dirroot . '/mod/booking/lib.php');

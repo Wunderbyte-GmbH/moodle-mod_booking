@@ -25,7 +25,6 @@
  *
  */
 
-
 namespace mod_booking\checklist;
 
 use mod_booking\local\file_content;

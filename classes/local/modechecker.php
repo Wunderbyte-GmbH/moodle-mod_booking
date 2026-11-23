@@ -24,8 +24,8 @@
  */
 
 namespace mod_booking\local;
-use Exception;
 
+use Exception;
 
 /**
  * Modechecker allows to check for ajax or webservice requests.

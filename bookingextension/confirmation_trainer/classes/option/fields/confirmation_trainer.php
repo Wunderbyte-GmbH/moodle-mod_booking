@@ -22,6 +22,7 @@
  * @author Bernhard Fischer-Sengseis
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+
 namespace bookingextension_confirmation_trainer\option\fields;
 
 use mod_booking\booking_option;

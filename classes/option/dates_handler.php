@@ -23,6 +23,7 @@
  */
 
 namespace mod_booking\option;
+
 use Exception;
 use html_writer;
 use mod_booking\output\renderer;

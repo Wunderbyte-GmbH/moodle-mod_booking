@@ -24,6 +24,7 @@
  */
 
 namespace mod_booking\local\checkanswers;
+
 use core\task\manager;
 use core_component;
 use mod_booking\singleton_service;

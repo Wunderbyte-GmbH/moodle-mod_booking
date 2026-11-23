@@ -21,6 +21,7 @@
  * @copyright 2019 David Bogner, http://www.edulabs.org
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+
 use context_module;
 use mod_booking\singleton_service;
 use mod_booking\table\optiontemplatessettings_table;

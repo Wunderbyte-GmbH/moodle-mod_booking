@@ -15,6 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 namespace mod_booking\signinsheet;
+
 use mod_booking\booking_option_settings;
 use mod_booking\local\file_content;
 use mod_booking\local\pdf_download;
