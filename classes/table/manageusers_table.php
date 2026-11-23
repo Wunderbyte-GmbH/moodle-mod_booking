@@ -564,7 +564,7 @@ class manageusers_table extends wunderbyte_table {
                 || enrollink::is_initial_answer($record) === true
             ) // Only the initial answer of enrollink needs to be bought.
         ) {
-            $option->user_submit_response(
+            $saved = $option->user_submit_response(
                 $user,
                 0,
                 0,
@@ -594,7 +594,30 @@ class manageusers_table extends wunderbyte_table {
             } else {
                 $status = MOD_BOOKING_BO_SUBMIT_STATUS_DEFAULT;
             }
-            $option->user_submit_response($user, 0, 0, $status, MOD_BOOKING_VERIFIED);
+            $saved = $option->user_submit_response($user, 0, 0, $status, MOD_BOOKING_VERIFIED);
+            if ($saved === false && $status === MOD_BOOKING_BO_SUBMIT_STATUS_DEFAULT) {
+                // The last confirmation could not book the user, because neither a place nor a free
+                // place on the waiting list is left (the user occupies the last one). The answer
+                // stays on the waiting list, but the confirmation must be saved anyway. Otherwise
+                // the answer shows up as not yet approved forever and is never booked when a
+                // place becomes available.
+                $saved = $option->user_submit_response(
+                    $user,
+                    0,
+                    0,
+                    MOD_BOOKING_BO_SUBMIT_STATUS_CONFIRMATION,
+                    MOD_BOOKING_VERIFIED
+                );
+            }
+        }
+
+        if ($saved === false) {
+            // Nothing was written to the booking answer, so we must not report a success.
+            return [
+                'success' => 0,
+                'message' => get_string('confirmbookingnotsaved', 'mod_booking'),
+                'reload' => 0,
+            ];
         }
 
         // Event is triggered no matter if a bookinganswer with or without price was confirmed.
