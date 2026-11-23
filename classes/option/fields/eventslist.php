@@ -111,7 +111,7 @@ class eventslist extends field_base {
         $data = new OutputEventslist(
             $formdata['id'] ?? $formdata['optionid'],
             ['\mod_booking\event\bookingoption_updated'],
-            '',
+            'recentupdatescountlabel',
             [],
             OutputEventslist::get_timecreatedfrom()
         );

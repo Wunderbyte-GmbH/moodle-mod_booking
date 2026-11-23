@@ -3631,6 +3631,7 @@ $string['reallydeleteaction'] = 'Wirklich löschen?';
 $string['reason'] = 'Grund';
 $string['recalculateall'] = 'Alle Preise der Instanz mit Formel neu berechnen';
 $string['recalculateprices'] = 'Preise mit Formel neu berechnen';
+$string['recentupdatescountlabel'] = '{$a->filteredrecords} von {$a->totalrecords} Bearbeitungen gefunden';
 $string['recommendedin'] = "Shortcode um Buchungsoptionen in bestimmten Kursen zu empfehlen.
  Legen Sie ein neues benutzerdefiniertes Feld für Buchungsoptionen mit dem Kurznamen 'recommendedin' an.
  In einer Buchungsoption setzen Sie nun den Wert dieses Feldes auf 'course1', wenn Sie die Buchungsoption

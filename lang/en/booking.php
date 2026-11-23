@@ -3616,6 +3616,7 @@ $string['reallydeleteaction'] = 'Really delete?';
 $string['reason'] = 'Reason';
 $string['recalculateall'] = 'Calculate all prices';
 $string['recalculateprices'] = 'Calculate all prices from instance with formula';
+$string['recentupdatescountlabel'] = '{$a->filteredrecords} of {$a->totalrecords} updates found';
 $string['recommendedin'] = "Shortcode to show a list of booking options which should be recommended in a given course.
  To use this, add a booking customfield with the shortname 'recommendedin' and comma separated values with the shortnames
  of the courses you want to show this recommendations. So: When you want recommend option1 to the participants enroled in
