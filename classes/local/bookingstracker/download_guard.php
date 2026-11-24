@@ -39,7 +39,8 @@ use Throwable;
  * - PHP ran out of memory or time, or
  * - the database could not read the query of the table (not a query a column runs for a single row,
  *   see download_query_exception) and the table has at least {@see self::MINROWS} rows. With fewer
- *   rows the amount of data is no plausible cause, the query is rather broken.
+ *   rows, or if the rows cannot even be counted, the amount of data is no plausible cause: the query
+ *   is rather broken.
  *
  * local_wunderbyte_table announces the file to the browser only once all rows are queried and
  * formatted. This is what makes the redirect possible: before that, nothing has been sent.
@@ -137,8 +138,10 @@ class download_guard {
      * @return bool
      */
     public static function is_plausible_rowcount(?int $rows): bool {
-        // A table that cannot even be counted is treated like a big one.
-        return $rows === null || $rows >= self::MINROWS;
+        // A table that cannot even be counted tells us nothing about its size. Counting is cheap, so a
+        // failing count rather points to a broken query (e.g. a broken filter), which is the same for
+        // few and many rows. Such an error keeps its regular error page with the message of the database.
+        return $rows !== null && $rows >= self::MINROWS;
     }
 
     /**
@@ -249,12 +252,11 @@ class download_guard {
         // Not with debugging(): its output would be in the way of the redirect.
         // phpcs:ignore moodle.PHP.ForbiddenFunctions.FoundWithAlternative
         error_log('mod_booking: download of the Bookings tracker table ' . $scope . ' (' . $scopeid . ', '
-            . ($rows ?? 'unknown number of') . ' rows) failed: ' . $debuginfo);
+            . $rows . ' rows) failed: ' . $debuginfo);
 
         $returnurl = self::return_url($scope, $scopeid, $rows);
         if ($returnurl === null) {
-            $errorcode = empty($rows) ? 'bookingstrackerdownloadtoolarge' : 'bookingstrackerdownloadtoolargerows';
-            throw new moodle_exception($errorcode, 'mod_booking', '', $rows, $debuginfo);
+            throw new moodle_exception('bookingstrackerdownloadtoolargerows', 'mod_booking', '', $rows, $debuginfo);
         }
         // The fatal error handler must not act on the end of this script any more.
         self::$fatalredirect = null;

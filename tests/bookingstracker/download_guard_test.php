@@ -110,7 +110,7 @@ final class download_guard_test extends advanced_testcase {
     }
 
     /**
-     * The amount of data is a plausible cause from 5000 rows on, and when the rows cannot be counted.
+     * The amount of data is a plausible cause from 5000 rows on, but not when the rows cannot be counted.
      */
     public function test_is_plausible_rowcount(): void {
         $this->assertSame(5000, download_guard::MINROWS);
@@ -118,7 +118,7 @@ final class download_guard_test extends advanced_testcase {
         $this->assertFalse(download_guard::is_plausible_rowcount(4999));
         $this->assertTrue(download_guard::is_plausible_rowcount(5000));
         $this->assertTrue(download_guard::is_plausible_rowcount(150000));
-        $this->assertTrue(download_guard::is_plausible_rowcount(null));
+        $this->assertFalse(download_guard::is_plausible_rowcount(null));
     }
 
     /**
@@ -187,6 +187,24 @@ final class download_guard_test extends advanced_testcase {
         $exception = new download_query_exception(new dml_read_exception('syntax error'));
         try {
             download_guard::handle_exception($exception, 'optionstoconfirm', 3, $this->small_table());
+            $this->fail('The exception was swallowed.');
+        } catch (\Throwable $e) {
+            $this->assertSame($exception, $e);
+        }
+    }
+
+    /**
+     * The query failed and the rows cannot even be counted (e.g. a broken filter): nothing points
+     * to the amount of data, so the error is thrown again unchanged.
+     */
+    public function test_failed_query_of_an_uncountable_table_is_thrown_again(): void {
+        $this->resetAfterTest();
+        $broken = new wunderbyte_table('downloadguardbroken');
+        $broken->set_sql('*', '{wbtable_does_not_exist}', '1=1');
+
+        $exception = new download_query_exception(new dml_read_exception('syntax error'));
+        try {
+            download_guard::handle_exception($exception, 'instanceanswers', 7, $broken);
             $this->fail('The exception was swallowed.');
         } catch (\Throwable $e) {
             $this->assertSame($exception, $e);
