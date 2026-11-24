@@ -423,10 +423,12 @@ class booking_option {
         global $DB;
         if (empty($this->teachers)) {
             $this->teachers = $DB->get_records_sql(
-                'SELECT DISTINCT t.userid, u.firstname, u.lastname, u.email, u.institution
+                'SELECT DISTINCT t.userid, u.firstname, u.lastname, u.email, u.institution, t.sortorder
                             FROM {booking_teachers} t
                        LEFT JOIN {user} u ON t.userid = u.id
-                           WHERE t.optionid = ' . $this->optionid . ''
+                           WHERE t.optionid = :optionid
+                        ORDER BY ' . teachers_handler::get_order_sql('t', 'u'),
+                ['optionid' => $this->optionid]
             );
         }
         return $this->teachers;

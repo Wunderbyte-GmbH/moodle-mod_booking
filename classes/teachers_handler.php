@@ -38,6 +38,8 @@ use context_course;
 use context_module;
 use context_system;
 use dml_exception;
+use mod_booking\form\element\sortableselect;
+use mod_booking\utils\wb_payment;
 use moodle_exception;
 use moodle_url;
 use MoodleQuickForm;
@@ -52,6 +54,9 @@ use stdClass;
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class teachers_handler {
+    /** @var string Name of the form element (and of the key in the form data) that holds the order of the teachers. */
+    public const FORM_TEACHERSORDER = 'teachersorder';
+
     /** @var int $optionid */
     public $optionid = 0;
 
@@ -137,6 +142,10 @@ class teachers_handler {
 
         $mform->addHelpButton('teachersforoption', 'teachersforoption', 'mod_booking');
 
+        if (wb_payment::pro_version_is_activated()) {
+            $this->add_teachersorder_to_mform($mform, $settings->teachers);
+        }
+
         // We only show link to teaching journal if it's an already existing booking option.
         if (!empty($this->optionid) && $this->optionid > 0) {
             $optionsettings = singleton_service::get_instance_of_booking_option_settings($this->optionid);
@@ -154,6 +163,47 @@ class teachers_handler {
     }
 
     /**
+     * Adds the form element to put the teachers of the booking option in an order (PRO feature).
+     *
+     * Only teachers that are already saved in the booking option can be ordered: the element is rendered by
+     * PHP from the stored teachers and does not know what is currently chosen in the autocomplete above.
+     * So with less than two saved teachers a hint is shown instead, and the order (of a duplicated option
+     * or template) is passed on by a hidden field.
+     *
+     * @param MoodleQuickForm $mform
+     * @param array $teachers the saved teachers of the booking option, in their current order
+     * @return void
+     */
+    private function add_teachersorder_to_mform(MoodleQuickForm &$mform, array $teachers): void {
+        if (count($teachers) < 2) {
+            $mform->addElement('hidden', self::FORM_TEACHERSORDER);
+            $mform->setType(self::FORM_TEACHERSORDER, PARAM_SEQUENCE);
+            $mform->addElement(
+                'static',
+                'info:' . self::FORM_TEACHERSORDER,
+                get_string('teachersorder', 'mod_booking'),
+                get_string('teachersorder:savefirst', 'mod_booking')
+            );
+            return;
+        }
+
+        $options = [];
+        foreach ($teachers as $teacher) {
+            $options[$teacher->userid] = "$teacher->firstname $teacher->lastname";
+        }
+        sortableselect::register();
+        $mform->addElement(
+            'sortableselect',
+            self::FORM_TEACHERSORDER,
+            get_string('teachersorder', 'mod_booking'),
+            $options,
+            ['sortonly' => true]
+        );
+        $mform->setType(self::FORM_TEACHERSORDER, PARAM_SEQUENCE);
+        $mform->addHelpButton(self::FORM_TEACHERSORDER, 'teachersorder', 'mod_booking');
+    }
+
+    /**
      * Load existing teachers into mform.
      *
      * @param MoodleQuickForm $mform reference to mform
@@ -167,7 +217,10 @@ class teachers_handler {
             foreach ($teachers as $teacher) {
                 $teacherids[] = $teacher->userid;
             }
-            $mform->setDefaults(['teachersforoption' => $teacherids]);
+            $mform->setDefaults([
+                'teachersforoption' => $teacherids,
+                self::FORM_TEACHERSORDER => implode(',', $teacherids),
+            ]);
         }
     }
 
@@ -178,18 +231,23 @@ class teachers_handler {
      */
     public function set_data(stdClass &$data) {
 
-        if (
-            !isset($data->{MOD_BOOKING_FORM_TEACHERS})
-            && !empty($this->optionid)
-            && $this->optionid > 0
-        ) {
-            $optionsettings = singleton_service::get_instance_of_booking_option_settings($this->optionid);
-            $teachers = $optionsettings->teachers;
-            $teacherids = [];
-            foreach ($teachers as $teacher) {
-                $teacherids[] = $teacher->userid;
-            }
+        if (empty($this->optionid) || $this->optionid < 0) {
+            return;
+        }
+
+        $optionsettings = singleton_service::get_instance_of_booking_option_settings($this->optionid);
+        $teacherids = [];
+        foreach ($optionsettings->teachers as $teacher) {
+            $teacherids[] = $teacher->userid;
+        }
+
+        if (!isset($data->{MOD_BOOKING_FORM_TEACHERS})) {
             $data->{MOD_BOOKING_FORM_TEACHERS} = $teacherids;
+        }
+        // The teachers are loaded in their order. As comma separated list, the value fits the sortable select
+        // as well as the hidden field that passes the order on to a duplicated option.
+        if (!isset($data->{self::FORM_TEACHERSORDER})) {
+            $data->{self::FORM_TEACHERSORDER} = implode(',', $teacherids);
         }
     }
 
@@ -290,6 +348,91 @@ class teachers_handler {
                 }
             }
         }
+
+        // The order of the teachers is saved last: now the teachers of the option are up to date.
+        if (isset($formdata->{self::FORM_TEACHERSORDER}) && wb_payment::pro_version_is_activated()) {
+            $this->save_teachers_order(sortableselect::clean_values($formdata->{self::FORM_TEACHERSORDER}));
+        }
+    }
+
+    /**
+     * SQL to order teachers of a booking option: first by the position that was set in the option form,
+     * then by name. Without a set order all positions are 0, so the teachers are sorted by name.
+     * Every query that returns teachers for display uses it, so there is only one definition of the order.
+     *
+     * @param string $teacheralias alias of the table booking_teachers in the query
+     * @param string $useralias alias of the table user in the query
+     * @return string the expressions for ORDER BY (without the keyword)
+     */
+    public static function get_order_sql(string $teacheralias = 'bt', string $useralias = 'u'): string {
+        return "$teacheralias.sortorder ASC, $useralias.lastname ASC, $useralias.firstname ASC";
+    }
+
+    /**
+     * Saves the order of the teachers of the booking option.
+     *
+     * Only users that are teachers of the option get a position, other ids are ignored. Teachers that are
+     * missing in the list keep their relative order and follow after the listed ones.
+     * If the listed teachers already have the given order, nothing is stored.
+     * If the result is the order by name, no positions are stored (all 0): the option has no order of its
+     * own then, and teachers that are added later are sorted in by name again.
+     *
+     * @param array $orderedteacherids user ids of the teachers in the wanted order
+     * @return bool true if the stored order has changed
+     */
+    public function save_teachers_order(array $orderedteacherids): bool {
+        global $DB;
+
+        if (empty($this->optionid) || empty($orderedteacherids)) {
+            return false;
+        }
+
+        // The database sorts by name, so the result does not depend on a second (PHP) implementation of it.
+        $sql = "SELECT bt.id, bt.userid, bt.sortorder
+                  FROM {booking_teachers} bt
+             LEFT JOIN {user} u ON u.id = bt.userid
+                 WHERE bt.optionid = :optionid
+              ORDER BY u.lastname ASC, u.firstname ASC, bt.id ASC";
+        $records = $DB->get_records_sql($sql, ['optionid' => $this->optionid]);
+        if (empty($records)) {
+            return false;
+        }
+
+        $byname = array_values(array_unique(array_map(fn($record) => (int)$record->userid, $records)));
+
+        // The current order: by position, teachers with the same position stay sorted by name (stable sort).
+        $bysortorder = $records;
+        usort($bysortorder, fn($a, $b) => $a->sortorder <=> $b->sortorder);
+        $current = array_values(array_unique(array_map(fn($record) => (int)$record->userid, $bysortorder)));
+
+        $wanted = array_values(array_unique(array_intersect(array_map('intval', $orderedteacherids), $byname)));
+
+        // The form submits the order of the teachers it knew when it was rendered, also when the user did not
+        // touch it. If these teachers still have this order, nothing was changed: positions are only stored
+        // when the user really set an order. Otherwise a teacher added in the same form would turn the
+        // order by name into a stored order, and the new teacher would end up last instead of sorted in.
+        if ($wanted === array_values(array_intersect($current, $wanted))) {
+            return false;
+        }
+
+        $wanted = array_merge($wanted, array_values(array_diff($current, $wanted)));
+
+        $positions = ($wanted === $byname) ? [] : array_flip($wanted);
+
+        $changed = false;
+        foreach ($records as $record) {
+            $sortorder = isset($positions[(int)$record->userid]) ? $positions[(int)$record->userid] + 1 : 0;
+            if ((int)$record->sortorder !== $sortorder) {
+                $DB->set_field('booking_teachers', 'sortorder', $sortorder, ['id' => $record->id]);
+                $changed = true;
+            }
+        }
+
+        if ($changed) {
+            // The teachers are part of the cached settings of the option and of the cached tables.
+            booking_option::purge_cache_for_option($this->optionid);
+        }
+        return $changed;
     }
 
     /**
@@ -400,6 +543,10 @@ class teachers_handler {
         $newteacherrecord->userid = $userid;
         $newteacherrecord->optionid = $optionid;
         $newteacherrecord->bookingid = $bookingsettings->id ?? 0;
+        // If the teachers of the option have an order, the new teacher is added at the end.
+        // Without an order all positions stay 0 and the teachers are sorted by name.
+        $maxsortorder = (int)$DB->get_field('booking_teachers', 'MAX(sortorder)', ['optionid' => $optionid]);
+        $newteacherrecord->sortorder = $maxsortorder > 0 ? $maxsortorder + 1 : 0;
 
         $inserted = $DB->insert_record("booking_teachers", $newteacherrecord);
 

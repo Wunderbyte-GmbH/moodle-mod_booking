@@ -597,11 +597,12 @@ class booking_utils {
         if (!empty($list)) {
             [$insql, $inparams] = $DB->get_in_or_equal($list, SQL_PARAMS_NAMED, 'optionid_');
 
-            $sql = "SELECT DISTINCT bt.id, bt.userid, u.firstname, u.lastname, u.username, bt.optionid
+            $sql = "SELECT DISTINCT bt.id, bt.userid, u.firstname, u.lastname, u.username, bt.optionid, bt.sortorder
                     FROM {booking_teachers} bt
                     JOIN {user} u
                     ON bt.userid = u.id
-                    WHERE bt.optionid $insql";
+                    WHERE bt.optionid $insql
+                    ORDER BY " . teachers_handler::get_order_sql('bt', 'u');
 
             if ($records = $DB->get_records_sql($sql, $inparams)) {
                 foreach ($records as $record) {

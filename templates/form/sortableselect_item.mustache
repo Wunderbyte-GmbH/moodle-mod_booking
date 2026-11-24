@@ -29,6 +29,7 @@
     * first - whether it is the first entry
     * last - whether it is the last entry
     * legacy - whether the value is no longer offered as an option
+    * sortonly - (from the context of the element) true if the entry cannot be removed
 
     Example context (json):
     {
@@ -66,9 +67,11 @@
         aria-label="{{#str}} sortableselect:movedown, mod_booking, {{label}} {{/str}}">
         <i class="fa fa-arrow-down" aria-hidden="true"></i>
     </button>
+    {{^sortonly}}
     <button type="button" class="btn btn-sm btn-outline-secondary ms-1 ml-1" data-action="remove"
         title="{{#str}} sortableselect:remove, mod_booking, {{label}} {{/str}}"
         aria-label="{{#str}} sortableselect:remove, mod_booking, {{label}} {{/str}}">
         <i class="fa fa-trash" aria-hidden="true"></i>
     </button>
+    {{/sortonly}}
 </li>

@@ -4628,6 +4628,9 @@ $string['teacherslinkonteacher'] = 'Add links to teacher pages';
 $string['teacherslinkonteacher_desc'] = 'When there are teachers added to booking options, this setting will add a link to an overview page for each teacher.';
 $string['teachersnologinrequired'] = 'Login for teacher pages not necessary';
 $string['teachersnologinrequired_desc'] = 'If you activate this setting, everyone can access the teacher pages, regardless if logged in or not.';
+$string['teachersorder'] = 'Order of teachers <span class="badge bg-success text-light"><i class="fa fa-cogs" aria-hidden="true"></i> PRO</span>';
+$string['teachersorder:savefirst'] = 'As soon as at least two teachers are saved in this booking option, you can set their order here. Without an order of your own, teachers are sorted by name. Teachers you have just selected above are only listed here after saving.';
+$string['teachersorder_help'] = 'Move the teachers to the order in which they are shown everywhere the booking option is displayed (lists and shortcodes, the page of the booking option, placeholders like {teachers} in mails).<br><br>Only teachers that are already saved in this booking option are listed. Teachers you add above appear here after saving, at the end of the list. Teachers are added and removed with the field above, not here.<br><br>Without an order of your own (or if your order equals the order by name), teachers are sorted by last name and first name.';
 $string['teachersshowemails'] = 'Always show teacher\'s email addresses to everyone';
 $string['teachersshowemails_desc'] = 'If you activate this setting, every user can see
     the e-mail address of any teacher - even if they are not logged in. <span class="text-danger"><b>Be careful:</b> This might be

@@ -32,6 +32,7 @@
     * noselectionstring - text shown while nothing is chosen
     * choosestring - first entry of the select
     * addstring - text of the button to add an entry
+    * sortonly - true if the entries can only be ordered: no select, no button to add or to remove an entry
 
     Example context (json):
     {
@@ -50,13 +51,16 @@
         ],
         "noselectionstring": "Nothing selected",
         "choosestring": "Choose...",
-        "addstring": "Add"
+        "addstring": "Add",
+        "sortonly": false
     }
 }}
 <div class="mod-booking-sortableselect w-100" id="{{id}}_sortableselect" role="group" aria-label="{{plainlabel}}"
     data-region="sortableselect" data-name="{{name}}">
     <input type="hidden" name="{{name}}" value="">
-    <ol class="list-group mb-2 {{^hasitems}}d-none{{/hasitems}}" data-region="sortableselect-list" style="max-width: 32rem;">
+    {{! Without the select (sortonly) the list has the id of the element, so links to the element (e.g. of an error) find it. }}
+    <ol class="list-group mb-2 {{^hasitems}}d-none{{/hasitems}}" data-region="sortableselect-list" style="max-width: 32rem;"
+        {{#sortonly}}id="{{id}}"{{/sortonly}}>
         {{#items}}
             {{> mod_booking/form/sortableselect_item }}
         {{/items}}
@@ -64,6 +68,7 @@
     <p class="text-muted mb-2 {{#hasitems}}d-none{{/hasitems}}" data-region="sortableselect-empty">
         {{noselectionstring}}
     </p>
+    {{^sortonly}}
     <div class="d-flex align-items-center">
         {{! The select has the id of the element: the label of the form row belongs to it. }}
         {{! data-fieldtype: the select is inside of the form row of this element, Behat would not treat it as a select. }}
@@ -77,5 +82,6 @@
             {{addstring}}
         </button>
     </div>
+    {{/sortonly}}
     <div class="sr-only visually-hidden" aria-live="polite" data-region="sortableselect-status"></div>
 </div>

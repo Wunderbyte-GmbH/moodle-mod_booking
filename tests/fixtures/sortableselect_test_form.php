@@ -37,7 +37,7 @@ require_once($CFG->libdir . '/formslib.php');
  * Form with a sortable select, as a plugin would use the element.
  *
  * The custom data may hold: defaults (default value of the element), required (true to require a value),
- * freeze (true to freeze the element).
+ * freeze (true to freeze the element), sortonly (true if the options can only be ordered).
  *
  * @package    mod_booking
  * @copyright  2026 Wunderbyte GmbH <info@wunderbyte.at>
@@ -55,7 +55,12 @@ class sortableselect_test_form extends moodleform {
             'columns',
             'Columns',
             ['a' => 'Alpha', 'b' => 'Beta', 'c' => 'Gamma <b>bold</b>'],
-            ['noselectionstring' => 'No columns', 'choosestring' => 'Choose column...', 'addstring' => 'Add column']
+            [
+                'noselectionstring' => 'No columns',
+                'choosestring' => 'Choose column...',
+                'addstring' => 'Add column',
+                'sortonly' => !empty($this->_customdata['sortonly']),
+            ]
         );
         $mform->setType('columns', PARAM_TEXT);
         if (array_key_exists('defaults', $this->_customdata ?? [])) {

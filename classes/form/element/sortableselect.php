@@ -65,6 +65,10 @@ require_once($CFG->libdir . '/form/templatable_form_element.php');
  * - choosestring: first entry of the select that offers the options
  * - addstring: text of the button that adds the chosen option
  *
+ * - sortonly: true to only put the options in an order. All options are always part of the value: there is no
+ *   select to add an entry and no button to remove one, and the server adds options that were not submitted
+ *   at the end. Use it when the entries are chosen somewhere else and this element only orders them.
+ *
  * Only values of $options are accepted. A default value that is not (or no longer) part of $options is
  * kept as long as the user does not remove it, so that saving the form does not lose stored data silently.
  *
@@ -106,6 +110,9 @@ class sortableselect extends HTML_QuickForm_element implements templatable {
     /** @var array Texts of the element, see TEXTATTRIBUTES. */
     protected array $texts = [];
 
+    /** @var bool True if the element only orders its options: nothing can be added or removed. */
+    protected bool $sortonly = false;
+
     /** @var string HTML of the help button, set by MoodleQuickForm::addHelpButton(). */
     public $_helpbutton = '';
 
@@ -118,10 +125,13 @@ class sortableselect extends HTML_QuickForm_element implements templatable {
      * @param string|null $elementname name of the element
      * @param string|null $elementlabel label of the element
      * @param array|null $options the options that can be chosen: value => label
-     * @param array|string|null $attributes HTML attributes and the texts noselectionstring, choosestring, addstring
+     * @param array|string|null $attributes HTML attributes, the texts noselectionstring, choosestring, addstring
+     *     and the flag sortonly
      */
     public function __construct($elementname = null, $elementlabel = null, $options = null, $attributes = null) {
         if (is_array($attributes)) {
+            $this->sortonly = !empty($attributes['sortonly']);
+            unset($attributes['sortonly']);
             foreach (self::TEXTATTRIBUTES as $text) {
                 if (isset($attributes[$text])) {
                     $this->texts[$text] = (string)$attributes[$text];
@@ -191,7 +201,22 @@ class sortableselect extends HTML_QuickForm_element implements templatable {
      * @return string[]
      */
     public function getValue() {
-        return $this->filter_allowed($this->values);
+        return $this->complete_values($this->filter_allowed($this->values));
+    }
+
+    /**
+     * In the mode "sortonly" every option is part of the value: options that are missing in $values are added
+     * at the end, in the order of the options. So a manipulated or outdated submission cannot remove an entry.
+     *
+     * @param string[] $values the allowed values in their order
+     * @return string[]
+     */
+    protected function complete_values(array $values): array {
+        if (!$this->sortonly) {
+            return $values;
+        }
+        $missing = array_diff(array_map('strval', array_keys($this->options)), $values);
+        return array_values(array_merge($values, $missing));
     }
 
     /**
@@ -286,7 +311,8 @@ class sortableselect extends HTML_QuickForm_element implements templatable {
         if ($value === null) {
             $value = $this->values;
         }
-        return $this->_prepareValue($this->filter_allowed(self::clean_values($value)), $assoc);
+        $values = $this->complete_values($this->filter_allowed(self::clean_values($value)));
+        return $this->_prepareValue($values, $assoc);
     }
 
     /**
@@ -332,6 +358,7 @@ class sortableselect extends HTML_QuickForm_element implements templatable {
         $context['plainlabel'] = trim(html_to_text((string)$this->getLabel(), 0, false));
         $context['items'] = $items;
         $context['hasitems'] = !empty($items);
+        $context['sortonly'] = $this->sortonly;
         $context['options'] = $options;
         $context['noselectionstring'] = $this->texts['noselectionstring'] ?? get_string('sortableselect:empty', 'mod_booking');
         $context['choosestring'] = $this->texts['choosestring'] ?? get_string('sortableselect:choose', 'mod_booking');

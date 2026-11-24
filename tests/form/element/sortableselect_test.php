@@ -269,4 +269,48 @@ final class sortableselect_test extends advanced_testcase {
         $this->assertMatchesRegularExpression('/<label[^>]*for="id_columns"/', $html);
         $this->assertMatchesRegularExpression('/<select[^>]*id="id_columns"/', $html);
     }
+
+    /**
+     * In the mode "sortonly" the options can only be ordered: the element has no select, no button to add
+     * and no buttons to remove an entry, and all options are listed, also without a default value.
+     */
+    public function test_sortonly_renders_all_options_without_add_and_remove(): void {
+        $this->resetAfterTest();
+
+        $html = $this->render(['sortonly' => true, 'defaults' => ['c', 'a']]);
+        [, $values] = $this->get_submitted_inputs($html);
+        $this->assertSame(['c', 'a', 'b'], $values, 'Options without a position follow at the end.');
+        $this->assertStringContainsString('data-action="up"', $html);
+        $this->assertStringNotContainsString('data-action="remove"', $html);
+        $this->assertStringNotContainsString('data-action="sortableselect-add"', $html);
+        $this->assertStringNotContainsString('<select', $html);
+
+        // The normal mode keeps all of it.
+        $html = $this->render(['defaults' => ['c', 'a']]);
+        [, $values] = $this->get_submitted_inputs($html);
+        $this->assertSame(['c', 'a'], $values);
+        $this->assertStringContainsString('data-action="remove"', $html);
+        $this->assertStringContainsString('data-action="sortableselect-add"', $html);
+    }
+
+    /**
+     * In the mode "sortonly" a submission cannot remove an option: missing options are added at the end.
+     * Values that are no options are still rejected.
+     */
+    public function test_sortonly_submission_cannot_remove_options(): void {
+        $this->resetAfterTest();
+
+        $form = $this->submit(['columns' => ['c', 'a', 'b']], ['sortonly' => true]);
+        $this->assertTrue($form->is_validated());
+        $this->assertSame(['c', 'a', 'b'], $form->get_data()->columns);
+
+        $form = $this->submit(['columns' => ['b']], ['sortonly' => true]);
+        $this->assertSame(['b', 'a', 'c'], $form->get_data()->columns);
+
+        $form = $this->submit(['columns' => sortableselect::EMPTYVALUE], ['sortonly' => true]);
+        $this->assertSame(['a', 'b', 'c'], $form->get_data()->columns);
+
+        $form = $this->submit(['columns' => ['b', 'x']], ['sortonly' => true]);
+        $this->assertFalse($form->is_validated());
+    }
 }

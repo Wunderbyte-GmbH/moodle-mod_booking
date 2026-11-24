@@ -117,8 +117,8 @@ These placeholders resolve to properties of the **booking option** itself.
 
 | Placeholder | Replaced with |
 |-------------|--------------|
-| `{teacher}` | Full name of the first teacher assigned to the option |
-| `{teachers}` | Comma-separated list of all teachers assigned to the option |
+| `{teacher}` | Full name of the first teacher assigned to the option (first by name, or first in the [order of teachers](../booking-option/03-teachers-and-contact.md#order-of-teachers-pro) set in the option form) |
+| `{teachers}` | Comma-separated list of all teachers assigned to the option, sorted by name or in the [order of teachers](../booking-option/03-teachers-and-contact.md#order-of-teachers-pro) set in the option form (PRO) |
 | `{firstnamerelated}` | First name of the related user of the triggering event (e.g., the user a booking was made for) |
 | `{lastnamerelated}` | Last name of the related user of the triggering event |
 | `{emailrelated}` | Email address of the related user of the triggering event |

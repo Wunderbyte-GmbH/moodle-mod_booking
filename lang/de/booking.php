@@ -4640,6 +4640,9 @@ $string['teacherslinkonteacher_desc'] = 'Sind bei einer Buchungsoption Trainer:i
 $string['teachersnologinrequired'] = 'Einloggen bei Trainer:innen-Seiten nicht notwendig';
 $string['teachersnologinrequired_desc'] = 'Wenn Sie diese Einstellung aktivieren, dann können die Trainer:innen-Seiten auch von
 nicht-eingeloggten Benutzer:innen gesehen werden.';
+$string['teachersorder'] = 'Reihenfolge der Trainer:innen <span class="badge bg-success text-light"><i class="fa fa-cogs" aria-hidden="true"></i> PRO</span>';
+$string['teachersorder:savefirst'] = 'Sobald in dieser Buchungsoption mindestens zwei Trainer:innen gespeichert sind, können Sie hier ihre Reihenfolge festlegen. Ohne eigene Reihenfolge werden Trainer:innen nach Namen sortiert. Oben neu ausgewählte Trainer:innen erscheinen hier erst nach dem Speichern.';
+$string['teachersorder_help'] = 'Bringen Sie die Trainer:innen in die Reihenfolge, in der sie überall angezeigt werden, wo die Buchungsoption dargestellt wird (Listen und Shortcodes, Seite der Buchungsoption, Platzhalter wie {teachers} in E-Mails).<br><br>Aufgelistet sind nur Trainer:innen, die in dieser Buchungsoption bereits gespeichert sind. Oben neu hinzugefügte Trainer:innen erscheinen hier nach dem Speichern, am Ende der Liste. Hinzufügen und Entfernen ist nur im Feld darüber möglich, nicht hier.<br><br>Ohne eigene Reihenfolge (oder wenn Ihre Reihenfolge der Sortierung nach Namen entspricht) werden Trainer:innen nach Nachname und Vorname sortiert.';
 $string['teachersshowemails'] = 'E-Mail-Adressen von Trainer:innen immer anzeigen';
 $string['teachersshowemails_desc'] = 'Wenn Sie diese Einstellung aktivieren, dann werden allen Benutzer:innen die E-Mail-Adressen der Trainer:innen
 angezeigt, selbst wenn diese nicht eingeloggt sind. <span class="text-danger"><b>Achtung:</b> Dies könnte ein Datenschutz-Problem darstellen. Aktivieren Sie dies nur,

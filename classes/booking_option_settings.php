@@ -838,6 +838,11 @@ class booking_option_settings {
 
     /**
      * Function to load teachers from DB.
+     *
+     * The teachers are loaded in the order that was set in the option form (PRO), without a set order they
+     * are sorted by name. Nearly every display of the teachers of an option (tables, shortcodes, option view,
+     * placeholders, webservices) reads this array, so this is the place that decides the order.
+     * The position is part of the select, because with DISTINCT the databases only sort by selected columns.
      */
     private function load_teachers_from_db() {
         global $DB;
@@ -851,11 +856,12 @@ class booking_option_settings {
                         u.institution,
                         u.description,
                         u.descriptionformat,
-                        u.username
+                        u.username,
+                        t.sortorder
                     FROM {booking_teachers} t
                LEFT JOIN {user} u ON t.userid = u.id
                    WHERE t.optionid = :optionid
-                   ORDER BY u.lastname, u.firstname",
+                   ORDER BY " . teachers_handler::get_order_sql('t', 'u'),
             ['optionid' => $this->id]
         );
 
@@ -1570,13 +1576,15 @@ class booking_option_settings {
         ]);
         // The names only, for the fulltext search. "Lastname, firstname" is the format of the "name" in the JSON.
         $nameselect = $DB->sql_concat_join("', '", ['u.lastname', 'u.firstname']);
+        // Both lists follow the order of the teachers of the option (set order, else by name).
+        $teacherorder = teachers_handler::get_order_sql('bt', 'u');
         $where = '';
         $params = [];
 
         $from = 'LEFT JOIN
         (
-            SELECT bt.optionid, ' . $DB->sql_group_concat($innerselect) . ' as teacherobjects, '
-                . $DB->sql_group_concat($nameselect, '; ') . ' as teachernames
+            SELECT bt.optionid, ' . $DB->sql_group_concat($innerselect, ', ', $teacherorder) . ' as teacherobjects, '
+                . $DB->sql_group_concat($nameselect, '; ', $teacherorder) . ' as teachernames
             FROM {booking_teachers} bt
             JOIN {user} u
             ON bt.userid = u.id

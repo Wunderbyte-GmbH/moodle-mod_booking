@@ -87,13 +87,22 @@ const refresh = (root) => {
         item.querySelector(SELECTORS.POSITION).textContent = String(index + 1);
         item.querySelector('[data-action="up"]').disabled = disabled || index === 0;
         item.querySelector('[data-action="down"]').disabled = disabled || index === items.length - 1;
-        item.querySelector('[data-action="remove"]').disabled = disabled;
+        // In the mode "sortonly" an entry has no button to remove it.
+        const remove = item.querySelector('[data-action="remove"]');
+        if (remove) {
+            remove.disabled = disabled;
+        }
         item.querySelector(SELECTORS.HANDLE).disabled = disabled;
         // An entry that was added later is not known to the form dependencies: it follows the element.
         item.querySelector('input[type="hidden"]').disabled = disabled;
     });
-    root.querySelector(SELECTORS.SELECT).disabled = disabled;
-    root.querySelector(SELECTORS.ADD).disabled = disabled;
+    // In the mode "sortonly" there is no select and no button to add an entry.
+    const select = root.querySelector(SELECTORS.SELECT);
+    const add = root.querySelector(SELECTORS.ADD);
+    if (select && add) {
+        select.disabled = disabled;
+        add.disabled = disabled;
+    }
 
     root.querySelector(SELECTORS.LIST).classList.toggle('d-none', items.length === 0);
     root.querySelector(SELECTORS.EMPTY).classList.toggle('d-none', items.length > 0);
@@ -234,7 +243,8 @@ export const init = (elementId) => {
 
     // A button adds the chosen entry. Adding on change of the select would already add an entry
     // while a keyboard user moves through the options with the arrow keys.
-    root.querySelector(SELECTORS.ADD).addEventListener('click', () => addItem(root));
+    // In the mode "sortonly" the button does not exist: the entries can only be ordered.
+    root.querySelector(SELECTORS.ADD)?.addEventListener('click', () => addItem(root));
 
     // One listener on the list instead of one per button: it also works for entries that are added later.
     list.addEventListener('click', (e) => {
