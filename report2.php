@@ -126,7 +126,7 @@ if (!empty($optiondateid)) {
     // We only show links, if we have the matching capabilities.
     $a = new stdClass();
     $a->scopestring = get_string('report2labeloptiondate', 'mod_booking');
-    $a->title = $optionsettings->get_title_with_prefix() . " - " . $prettydatestring;
+    $a->title = format_string($optionsettings->get_title_with_prefix()) . " - " . $prettydatestring;
     $heading = get_string('managebookedusers_heading', 'mod_booking', $a);
 } else if (!empty($optionid)) {
     // We are in option scope.
@@ -176,7 +176,7 @@ if (!empty($optiondateid)) {
     // We only show links, if we have the matching capabilities.
     $a = new stdClass();
     $a->scopestring = get_string('report2labeloption', 'mod_booking');
-    $a->title = $optionsettings->get_title_with_prefix();
+    $a->title = format_string($optionsettings->get_title_with_prefix());
     $heading = get_string('managebookedusers_heading', 'mod_booking', $a);
 } else if (!empty($cmid)) {
     // We are in instance scope.
@@ -212,7 +212,7 @@ if (!empty($optiondateid)) {
     // We only show links, if we have the matching capabilities.
     $a = new stdClass();
     $a->scopestring = get_string('report2labelinstance', 'mod_booking');
-    $a->title = $bookingsettings->name;
+    $a->title = format_string($bookingsettings->name);
     $heading = get_string('managebookedusers_heading', 'mod_booking', $a);
 } else if (!empty($courseid)) {
     // We are in course scope.
@@ -244,7 +244,7 @@ if (!empty($optiondateid)) {
     // We only show links, if we have the matching capabilities.
     $a = new stdClass();
     $a->scopestring = get_string('report2labelcourse', 'mod_booking');
-    $a->title = $course->fullname;
+    $a->title = format_string($course->fullname);
     $heading = get_string('managebookedusers_heading', 'mod_booking', $a);
 } else {
     // We are in system scope.
@@ -269,7 +269,7 @@ if (!empty($optiondateid)) {
     // We only show links, if we have the matching capabilities.
     $a = new stdClass();
     $a->scopestring = get_string('report2labelsystem', 'mod_booking');
-    $a->title = $SITE->fullname;
+    $a->title = format_string($SITE->fullname);
     $heading = get_string('managebookedusers_heading', 'mod_booking', $a);
 }
 
@@ -296,7 +296,7 @@ $scopenames = [
     'system' => booking::shorten_text(format_string($SITE->fullname)),
     'course' => isset($course) ? booking::shorten_text(format_string($course->fullname)) : '',
     'instance' => isset($bookingsettings) ? booking::shorten_text(format_string($bookingsettings->name)) : '',
-    'option' => isset($optionsettings) ? booking::shorten_text($optionsettings->get_title_with_prefix()) : '',
+    'option' => isset($optionsettings) ? booking::shorten_text(format_string($optionsettings->get_title_with_prefix())) : '',
 ];
 $scopeurls = [
     'system' => $r2systemurl,
