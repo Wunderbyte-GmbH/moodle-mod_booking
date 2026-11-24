@@ -29,6 +29,21 @@ Each scope offers two views (`viewtype` parameter):
 - **Options view** (`viewtype=options`, default): one row per booking option with its occupancy figures.
 - **Answers view** (`viewtype=answers`, "View all bookings separately"): one row per booking (answer). In the **system and course scopes**, this view additionally shows the **booking instance** of each booking as a sortable column, with a filter, and the instance name is included in the fulltext search.
 
+## Downloading a table
+
+The table of booked users can be downloaded (CSV, Excel and other formats) with the download button of the table, by users with the capability `mod/booking:downloadresponses`. The search and the filters of the table also apply to the download.
+
+A download reads all rows of the table at once, while the page only reads the rows it shows. On very big tables (for example the answers view of a booking instance with tens of thousands of bookings) the download can therefore fail although the page works. In that case no file is delivered. You are taken back to the table, and a notice asks you to **narrow the table down with the search or the filters** and to start the download again.
+
+The notice is shown in two cases:
+
+- PHP ran out of memory or time while the download was prepared.
+- The database could not read the rows of the table, and the table (with the current search and filters) has **at least 5000 rows**. The notice then names the number of rows.
+
+All other errors show the regular error page, because the amount of data is not a plausible cause: a failed query of a table with fewer than 5000 rows, or an error in one of the columns. The technical cause is always written to the PHP error log of the server.
+
+This requires a version of local_wunderbyte_table that delivers the file only once all rows are ready and reports a failed query of the table as such. With older versions a failed download delivers an empty or invalid file instead.
+
 ## What you can do in the option scope
 
 The option scope of the Bookings Tracker has reached feature parity with the legacy `report.php` (same columns) and adds modern replacements for its actions:

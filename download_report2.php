@@ -24,6 +24,7 @@
 
 use local_wunderbyte_table\wunderbyte_table;
 use mod_booking\booking_answers\booking_answers;
+use mod_booking\local\bookingstracker\download_guard;
 use mod_booking\local\bookingstracker\optiondate_level;
 use mod_booking\table\manageusers_table;
 
@@ -77,4 +78,12 @@ $columns = $class->return_cols_for_download($statusparam, $scopeid);
 $table->define_headers(array_values($columns));
 $table->define_columns(array_keys($columns));
 
-$table->printtable(20, true);
+// A download reads all rows at once. If that fails because of the amount of data (the database cannot
+// read the query of a big table, PHP runs out of memory), the user is sent back to the table with a
+// hint to narrow it down.
+download_guard::register($scope, $scopeid);
+try {
+    $table->printtable(20, true);
+} catch (Throwable $e) {
+    download_guard::handle_exception($e, $scope, $scopeid, $table);
+}

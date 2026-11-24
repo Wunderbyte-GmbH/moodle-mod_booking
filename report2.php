@@ -30,6 +30,7 @@ use core\output\notification;
 use mod_booking\booking;
 use mod_booking\option\dates_handler;
 use mod_booking\output\booked_users;
+use mod_booking\local\bookingstracker\download_guard;
 use mod_booking\local\bookingstracker\optiondate_level;
 use mod_booking\local\bookingstracker\report2_access;
 use mod_booking\local\bookingstracker\report2_header_links;
@@ -45,6 +46,8 @@ $optionid = optional_param('optionid', 0, PARAM_INT);
 $cmid = optional_param('cmid', 0, PARAM_INT);
 $courseid = optional_param('courseid', 0, PARAM_INT);
 $viewtype = optional_param('viewtype', 'options', PARAM_ALPHA); // Can be 'options' or 'answers'.
+$downloaderror = optional_param(download_guard::PARAM, 0, PARAM_BOOL); // A download of a table of this page failed.
+$downloadrows = optional_param(download_guard::PARAMROWS, 0, PARAM_INT); // Number of rows of that table, 0 if unknown.
 $id = optional_param('id', 0, PARAM_INT); // Only kept for compatibility to old report.php.
 if (empty($cmid) && !empty($id)) {
     // In case we have no cmid, we use value of 'id' as cmid.
@@ -376,6 +379,11 @@ echo html_writer::div(
 
 // Title of the page for the current scope.
 echo $OUTPUT->heading("<div class='report2-title'>$ticketicon $heading</div>");
+
+// A download of a table of this page failed, most likely because of the amount of data (see download_guard).
+if ($downloaderror) {
+    echo $OUTPUT->notification(download_guard::hint($downloadrows), notification::NOTIFY_ERROR);
+}
 
 // For option scope and optiondate scope, there is no switch.
 if (empty($optionid) && empty($optiondateid)) {
