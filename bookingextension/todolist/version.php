@@ -25,10 +25,9 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->version = 2026031400;
+$plugin->version = 2026112400;
 $plugin->requires = 2024100700; // Requires this Moodle version. Current: Moodle 4.5.
 $plugin->component = 'bookingextension_todolist';
-$plugin->supported = [405, 501];
 $plugin->dependencies = [
-    'mod_booking' => 2026031101,
+    'mod_booking' => 2026112400,
 ];
