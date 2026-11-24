@@ -146,8 +146,7 @@ class systemanswers extends scope_base_answers {
             'lastname' => get_string('lastname', 'core'),
             'email' => get_string('email', 'core'),
         ];
-        $sortablecolumns['timebooked'] = get_string('bookingdate', 'mod_booking');
-        $sortablecolumns['timemodified'] = get_string('timemodified', 'mod_booking');
+        $sortablecolumns += self::time_columns();
         $table->define_sortablecolumns($sortablecolumns);
         $table->sort_default_column = 'timemodified';
         $table->sort_default_order = SORT_DESC;
@@ -155,7 +154,8 @@ class systemanswers extends scope_base_answers {
         // Filter for the booking instance.
         $instancefilter = new standardfilter('instancename', get_string('bookinginstance', 'mod_booking'));
         $table->add_filter($instancefilter);
-        $table->showfilterontop = true;
+        // Date filters for creation date, booking date and time modified.
+        $this->add_time_filters($table);
 
         if ($statusparam != MOD_BOOKING_STATUSPARAM_DELETED) {
             $table->addcheckboxes = true;

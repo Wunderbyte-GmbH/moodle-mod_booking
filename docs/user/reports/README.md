@@ -29,18 +29,32 @@ Each scope offers two views (`viewtype` parameter):
 - **Options view** (`viewtype=options`, default): one row per booking option with its occupancy figures.
 - **Answers view** (`viewtype=answers`, "View all bookings separately"): one row per booking (answer). In the **system and course scopes**, this view additionally shows the **booking instance** of each booking as a sortable column, with a filter, and the instance name is included in the fulltext search.
 
+## Times of a booking and date filters
+
+The answers view ("View all bookings separately") of the system, course and instance scope shows three times for every booking. All three can be sorted.
+
+| Column | Meaning |
+|---|---|
+| **Time created** | When the booking answer was created, i.e. the first contact of the user with the booking option. This can be before the booking: when the user was put on the waiting list, reserved a place in the shopping cart or asked to be notified. |
+| **Booking date** | When the user got the status "booked". For a direct booking it equals the time created. For a user who moved up from the waiting list or was confirmed later, it is the moment of moving up or of the confirmation. Empty as long as the user has never been booked (e.g. in the waiting list table). A cancelled booking keeps its booking date. |
+| **Time modified** | The last change of the booking answer: booking, moving up from the waiting list, cancellation, change of the completion status. |
+
+All times are shown in the timezone of the user.
+
+Each of the three columns has a **date filter** in the filter area above the table. Tick "Apply filter", choose start and end (date and time): the table then only shows the bookings whose time lies within this period, both ends included. The filters can be combined, e.g. bookings created in October that were booked in November. A booking without a value in the filtered column (no booking date on the waiting list) is not part of any period. The filters also apply to the download, so they are the way to cut a very big table down to a size that can be downloaded.
+
 ## Downloading a table
 
 The table of booked users can be downloaded (CSV, Excel and other formats) with the download button of the table, by users with the capability `mod/booking:downloadresponses`. The search and the filters of the table also apply to the download.
 
-A download reads all rows of the table at once, while the page only reads the rows it shows. On very big tables (for example the answers view of a booking instance with tens of thousands of bookings) the download can therefore fail although the page works. In that case no file is delivered. You are taken back to the table, and a notice asks you to **narrow the table down with the search or the filters** and to start the download again.
+A download reads all rows of the table at once, while the page only reads the rows it shows. On very big tables (for example the answers view of a booking instance with tens of thousands of bookings) the download can therefore fail although the page works. In that case no file is delivered. You are taken back to the table, and a notice asks you to **narrow the table down with the search or the filters** (see the date filters above) and to start the download again.
 
 The notice is shown in two cases:
 
 - PHP ran out of memory or time while the download was prepared.
 - The database could not read the rows of the table, and the table (with the current search and filters) has **at least 5000 rows**. The notice then names the number of rows.
 
-All other errors show the regular error page, because the amount of data is not a plausible cause: a failed query of a table with fewer than 5000 rows, or an error in one of the columns. The technical cause is always written to the PHP error log of the server.
+All other errors show the regular error page, because the amount of data is not a plausible cause: a failed query of a table with fewer than 5000 rows or of a table whose rows cannot even be counted, or an error in one of the columns. The technical cause is always written to the PHP error log of the server.
 
 This requires a version of local_wunderbyte_table that delivers the file only once all rows are ready and reports a failed query of the table as such. With older versions a failed download delivers an empty or invalid file instead.
 

@@ -103,7 +103,8 @@ class manageusers_table extends wunderbyte_table {
     }
 
     /**
-     * Return column timemodified.
+     * Return column timemodified (last change of the booking answer),
+     * displayed like the creation date and the booking date.
      *
      * @param stdClass $values
      * @return string
@@ -115,7 +116,8 @@ class manageusers_table extends wunderbyte_table {
         if ($this->is_downloading()) {
             return userdate($values->timemodified, self::DOWNLOADTIMEFORMAT);
         }
-        return date('d.m.Y H:i:s', $values->timemodified);
+        // Not date(): it uses the timezone of the server instead of the timezone of the user.
+        return userdate($values->timemodified);
     }
 
     /**

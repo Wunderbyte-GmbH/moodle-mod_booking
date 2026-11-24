@@ -25,6 +25,8 @@
 
 namespace mod_booking\booking_answers;
 
+use local_wunderbyte_table\filters\types\datepicker;
+use local_wunderbyte_table\wunderbyte_table;
 use mod_booking\local\bookingstracker\optiondate_level;
 
 /**
@@ -133,9 +135,56 @@ class scope_base_answers extends scope_base {
             'firstname' => get_string('firstname', 'core'),
             'lastname'  => get_string('lastname', 'core'),
             'email'     => get_string('email', 'core'),
+        ];
+        return $columns + self::time_columns();
+    }
+
+    /**
+     * The three time columns of a booking answer ([columnkey => header]), shown in every answers view:
+     * - timecreated: when the answer was created, i.e. the first contact of the user with the booking
+     *   option. This can be before the booking (waiting list, reservation, notification list).
+     * - timebooked: when the user got the status "booked". Empty as long as the user has never been booked.
+     * - timemodified: the last change of the answer (booking, moving up from the waiting list,
+     *   cancellation, completion...).
+     *
+     * @return array
+     */
+    public static function time_columns(): array {
+        return [
+            'timecreated' => get_string('timecreated', 'mod_booking'),
             'timebooked' => get_string('bookingdate', 'mod_booking'),
             'timemodified' => get_string('timemodified', 'mod_booking'),
         ];
-        return $columns;
+    }
+
+    /**
+     * Adds a "from - to" date filter for each of the three time columns to the table, so the
+     * (potentially very long) list of answers can be narrowed down to a period.
+     *
+     * The datepicker filter of local_wunderbyte_table compares two columns with a time span. We name the
+     * same column twice, so both ends of the span apply to it; with "within" as the only operation this
+     * is: column >= start AND column <= end. Answers without a value in the column (e.g. no booking date
+     * on the waiting list) are not part of any period.
+     *
+     * The second column must not be left out: the JavaScript of the filter then clears all other
+     * filters of the table whenever the span changes, so two date filters could not be combined.
+     *
+     * @param wunderbyte_table $table
+     * @return void
+     */
+    protected function add_time_filters(wunderbyte_table $table): void {
+        foreach (self::time_columns() as $column => $label) {
+            $datepicker = new datepicker($column, $label, $column, $label);
+            $datepicker->add_options(
+                'in between',
+                '<',
+                get_string('apply_filter', 'local_wunderbyte_table'),
+                'now - 1 month',
+                'now',
+                ['within']
+            );
+            $table->add_filter($datepicker);
+        }
+        $table->showfilterontop = true;
     }
 }
