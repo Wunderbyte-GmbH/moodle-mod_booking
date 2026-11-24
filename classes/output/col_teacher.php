@@ -79,6 +79,13 @@ class col_teacher implements renderable, templatable {
 
             $this->teachers[] = (array)$teacher;
         }
+
+        // The templates show the teachers as one list separated by commas, so they need to know the last one.
+        // The flag is set here, once for every template that renders the teachers (also of other plugins).
+        $lastindex = count($this->teachers) - 1;
+        foreach ($this->teachers as $index => $teacher) {
+            $this->teachers[$index]['last'] = ($index === $lastindex);
+        }
     }
 
     /**
@@ -90,6 +97,7 @@ class col_teacher implements renderable, templatable {
 
         return [
             'teachers' => $this->teachers,
+            'hasteachers' => !empty($this->teachers),
         ];
     }
 }

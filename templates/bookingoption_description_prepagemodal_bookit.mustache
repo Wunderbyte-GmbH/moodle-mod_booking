@@ -149,8 +149,10 @@
             {{^imageurl}}<div class="col-md-12">{{/imageurl}}
                 <h2 class="title" >{{{title}}}</h2>
                 <div class="ms-3" {{^teachers}} style="display:none"{{/teachers}}>
+                    <i class="fa fa-graduation-cap" aria-hidden="true"></i>
                     {{#teachers}}
-                        <span class="me-1"><i class="fa fa-graduation-cap" aria-hidden="true"></i> {{firstname}} {{lastname}}</span>
+                        {{! The separator is ", ": the space is the whitespace between the elements. }}
+                        <span class="text-nowrap">{{firstname}} {{lastname}}{{^last}},{{/last}}</span>
                     {{/teachers}}
                 </div>
                 <ul class="infolist" style="list-style: none;">

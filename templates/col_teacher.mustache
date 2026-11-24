@@ -23,8 +23,16 @@
     Data attributes required for JS:
     * data-region
 
+    The teachers of a booking option as one list: one icon, then the names separated by ", ".
+    Nothing is rendered for a booking option without teachers.
+
+    Context variables required for this template:
+    * hasteachers - whether the booking option has teachers
+    * teachers - the teachers in their order: firstname, lastname, teacherurl (optional), last (true for the last one)
+
     Example context (json):
     {
+        "hasteachers": true,
         "teachers": [
             {
                 "userid": "1006",
@@ -32,18 +40,26 @@
                 "lastname": "Yoga",
                 "email": "maxima.yoga@mailnotexisting.net",
                 "institution": "Institution",
-                "teacherurl": "url"
+                "teacherurl": "url",
+                "last": false
+            },
+            {
+                "userid": "1007",
+                "firstname": "Anna",
+                "lastname": "Smith",
+                "last": true
             }
         ]
     }
 }}
-<span class="col-teacher-teachers-container flex-wrap-container">
-{{#teachers}}
-    <span class="col-teacher-teacher flex-wrap-element">
-    <i class="fa fa-fw fa-sm fa-graduation-cap text-gray" aria-hidden="true"></i>&nbsp;
-    {{#teacherurl}}<a href="{{teacherurl}}">{{/teacherurl}}
-        {{firstname}} {{lastname}}
-    {{#teacherurl}}</a>{{/teacherurl}}&nbsp;
-    </span>
-{{/teachers}}
+{{#hasteachers}}
+{{! No flex container: it would drop the whitespace between its children, and the space after the comma is wanted. }}
+<span class="col-teacher-teachers-container">
+    <i class="fa fa-fw fa-sm fa-graduation-cap text-gray" aria-hidden="true"></i>
+    {{#teachers}}
+    {{! The separator is ", ": the comma is inside of the element of its teacher (a line break never separates a }}
+    {{! name from its comma), the space is the whitespace between the elements. }}
+    <span class="col-teacher-teacher flex-wrap-element">{{#teacherurl}}<a href="{{teacherurl}}">{{/teacherurl}}{{firstname}} {{lastname}}{{#teacherurl}}</a>{{/teacherurl}}{{^last}},{{/last}}</span>
+    {{/teachers}}
 </span>
+{{/hasteachers}}
