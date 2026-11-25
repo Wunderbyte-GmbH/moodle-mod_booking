@@ -54,6 +54,8 @@ class scope_base_options extends scope_base {
                 c.fullname AS coursename,
                 bo.titleprefix,
                 bo.text,
+                bo.coursestarttime,
+                bo.courseendtime,
                 b.name AS instancename,
                 COALESCE(MAX(ba.timecreated), 0) AS timecreated,
                 COUNT(ba.id) answerscount,
@@ -81,7 +83,8 @@ class scope_base_options extends scope_base {
      */
     public function get_endpart(): string {
         return
-            "GROUP BY cm.id, c.id, c.fullname, bo.id, ba.waitinglist, bo.titleprefix, bo.text, b.name
+            "GROUP BY cm.id, c.id, c.fullname, bo.id, ba.waitinglist, bo.titleprefix, bo.text,
+                bo.coursestarttime, bo.courseendtime, b.name
             ORDER BY bo.titleprefix, bo.text ASC
             LIMIT 1000000";
     }
@@ -105,6 +108,7 @@ class scope_base_options extends scope_base {
         if (in_array($this->scope, ['system', 'course'])) {
             $columns['instancename'] = get_string('bookinginstance', 'mod_booking');
         }
+        $columns += self::option_time_columns();
         $columns['answerscount'] = get_string('answerscount', 'mod_booking');
 
         // Only for actual bookings, we need the presence counter.

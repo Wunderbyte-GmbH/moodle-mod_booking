@@ -121,35 +121,42 @@ class manageusers_table extends wunderbyte_table {
     }
 
     /**
-     * Return column coursestarttime.
+     * Return column coursestarttime: the start of the booking option, i.e. of its first date.
      *
      * @param stdClass $values
      * @return string
      */
     public function col_coursestarttime(stdClass $values): string {
-        if (empty($values->coursestarttime)) {
-            return '';
-        }
-        if ($this->is_downloading()) {
-            return userdate($values->coursestarttime, self::DOWNLOADTIMEFORMAT);
-        }
-        return date('d.m.Y', $values->coursestarttime);
+        return $this->option_time((int)($values->coursestarttime ?? 0));
     }
 
     /**
-     * Return column courseendtime.
+     * Return column courseendtime: the end of the booking option, i.e. of its last date.
      *
      * @param stdClass $values
      * @return string
      */
     public function col_courseendtime(stdClass $values): string {
-        if (empty($values->courseendtime)) {
+        return $this->option_time((int)($values->courseendtime ?? 0));
+    }
+
+    /**
+     * Formats the start or the end of a booking option: date and time in a short format, as these
+     * columns stand next to many others. Empty for booking options without dates.
+     *
+     * @param int $timestamp
+     * @return string
+     */
+    private function option_time(int $timestamp): string {
+        if (empty($timestamp)) {
             return '';
         }
         if ($this->is_downloading()) {
-            return userdate($values->courseendtime, self::DOWNLOADTIMEFORMAT);
+            return userdate($timestamp, self::DOWNLOADTIMEFORMAT);
         }
-        return date('d.m.Y', $values->courseendtime);
+        // Not date(): it uses the timezone of the server instead of the timezone of the user.
+        // Without $fixday, as userdate() would strip the leading zero of the day ("1/12/26") in this numeric format.
+        return userdate($timestamp, get_string('strftimedatetimeshort', 'langconfig'), 99, false);
     }
 
     /**

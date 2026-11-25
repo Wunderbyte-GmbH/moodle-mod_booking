@@ -131,6 +131,7 @@ class scope_base_answers extends scope_base {
         if (in_array($this->scope, ['systemanswers', 'courseanswers'])) {
             $columns['instancename'] = get_string('bookinginstance', 'mod_booking');
         }
+        $columns += self::option_time_columns();
         $columns += [
             'firstname' => get_string('firstname', 'core'),
             'lastname'  => get_string('lastname', 'core'),

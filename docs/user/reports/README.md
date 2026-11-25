@@ -29,6 +29,17 @@ Each scope offers two views (`viewtype` parameter):
 - **Options view** (`viewtype=options`, default): one row per booking option with its occupancy figures.
 - **Answers view** (`viewtype=answers`, "View all bookings separately"): one row per booking (answer). In the **system and course scopes**, this view additionally shows the **booking instance** of each booking as a sortable column, with a filter, and the instance name is included in the fulltext search.
 
+## Start and end of the booking option
+
+The scopes that list several booking options (system, course and booking instance) show two columns for every row, in both view types:
+
+| Column | Meaning |
+|---|---|
+| **Start time of the course** | Start of the first date of the booking option. |
+| **End time of the course** | End of the last date of the booking option. |
+
+Both are shown with date and time in the timezone of the user, can be sorted and are empty for booking options without dates (e.g. self-paced courses). They are part of the download of these tables; the download of "View all bookings separately" of a booking instance keeps the columns chosen in the instance settings ("Customize columns and fields"), where start and end can be selected as well. The scope of a single booking option does not show them: its dates are listed in the info box above the table.
+
 ## Link to the user profile
 
 Wherever a table of the Bookings Tracker shows the **first name** and the **last name** of a user, both are links to the Moodle profile of this user, like the name on the legacy `report.php`. The profile opens in a new tab, so the table keeps its page, its filters and the checked rows. Downloads contain the plain names.

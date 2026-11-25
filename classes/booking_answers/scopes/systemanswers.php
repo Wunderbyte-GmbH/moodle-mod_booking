@@ -146,6 +146,7 @@ class systemanswers extends scope_base_answers {
             'lastname' => get_string('lastname', 'core'),
             'email' => get_string('email', 'core'),
         ];
+        $sortablecolumns += self::option_time_columns();
         $sortablecolumns += self::time_columns();
         $table->define_sortablecolumns($sortablecolumns);
         $table->sort_default_column = 'timemodified';

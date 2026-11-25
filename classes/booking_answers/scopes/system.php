@@ -136,6 +136,7 @@ class system extends scope_base_options {
             'answerscount' => get_string('answerscount', 'mod_booking'),
             'timecreated' => get_string('timecreated', 'mod_booking'),
         ];
+        $sortablecolumns += self::option_time_columns();
         if ($statusparam == 0) {
             $sortablecolumns['presencecount'] = get_string('presencecount', 'mod_booking');
         }

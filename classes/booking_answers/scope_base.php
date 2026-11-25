@@ -68,6 +68,22 @@ class scope_base {
     }
 
     /**
+     * Start and end of a booking option ([columnkey => header]), shown for every row in the scopes
+     * that list several booking options (system, course and instance scope, both views):
+     * - coursestarttime: the start of the first date of the booking option.
+     * - courseendtime: the end of the last date of the booking option.
+     * Both are empty for booking options without dates (e.g. self-paced courses).
+     *
+     * @return array
+     */
+    public static function option_time_columns(): array {
+        return [
+            'coursestarttime' => get_string('coursestarttime', 'mod_booking'),
+            'courseendtime' => get_string('courseendtime', 'mod_booking'),
+        ];
+    }
+
+    /**
      * This functions defines the columns for the table download of each scope.
      * By default, the download uses the same columns as the displayed table.
      * Scopes supporting the per-instance setting reportfields override this.
