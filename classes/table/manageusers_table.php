@@ -288,6 +288,49 @@ class manageusers_table extends wunderbyte_table {
     }
 
     /**
+     * Return first name column, linked to the Moodle profile of the user
+     * like on report.php (plain name in downloads).
+     *
+     * @param stdClass $values
+     * @return string
+     */
+    public function col_firstname(stdClass $values) {
+        return $this->user_profile_link($values, (string)($values->firstname ?? ''));
+    }
+
+    /**
+     * Return last name column, linked to the Moodle profile of the user
+     * like on report.php (plain name in downloads).
+     *
+     * @param stdClass $values
+     * @return string
+     */
+    public function col_lastname(stdClass $values) {
+        return $this->user_profile_link($values, (string)($values->lastname ?? ''));
+    }
+
+    /**
+     * Links a text to the Moodle profile of the user of a row. The profile opens in a new tab.
+     *
+     * A download gets the plain text: a file has no use for HTML. So does a row without a user id
+     * or without text, as there is nothing to link.
+     *
+     * @param stdClass $values the row, the user is taken from its userid
+     * @param string $text the text to show
+     * @return string
+     */
+    private function user_profile_link(stdClass $values, string $text): string {
+        if ($this->is_downloading() || empty($values->userid) || $text === '') {
+            return $text;
+        }
+        $url = new moodle_url('/user/profile.php', ['id' => $values->userid]);
+        // The name is user input, html_writer::link() does not escape the text of a link.
+        // The profile opens in a new tab, so the table keeps its page, filters and checked rows.
+        // The rel attribute keeps the opened page from reaching back to this one (window.opener).
+        return html_writer::link($url, s($text), ['target' => '_blank', 'rel' => 'noopener noreferrer']);
+    }
+
+    /**
      * Return booking instance column: the instance name, linked to the view.php
      * of the instance (plain name in downloads).
      *
