@@ -6077,24 +6077,6 @@ function xmldb_booking_upgrade($oldversion) {
         upgrade_mod_savepoint(true, 2026111800, 'booking');
     }
 
-    if ($oldversion < 2026111801) {
-        // Cancelled booking options kept their calendar events (course or site events, events of teachers).
-        $deleted = booking_delete_calendar_events_of_cancelled_options_2026111801();
-
-        // The step deletes calendar events, so it leaves a trace (table upgrade_log).
-        if (!empty($deleted)) {
-            upgrade_log(
-                UPGRADE_LOG_NORMAL,
-                'mod_booking',
-                array_sum($deleted) . ' calendar events of ' . count($deleted) . ' cancelled booking options deleted',
-                'Ids of the booking options: ' . implode(', ', array_keys($deleted))
-            );
-        }
-
-        // Booking savepoint reached.
-        upgrade_mod_savepoint(true, 2026111801, 'booking');
-    }
-
     if ($oldversion < 2026111900) {
         // The waiting list migration (step 2026090304) deleted all pending send_mail_by_rule_adhoc tasks,
         // also the reminders of rules that have nothing to do with the waiting list.
