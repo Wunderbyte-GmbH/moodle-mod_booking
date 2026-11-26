@@ -26,6 +26,7 @@
 namespace mod_booking;
 
 use mod_booking\local\connectedcourse;
+use mod_booking\local\slotbooking\slot_calendar;
 use mod_booking\output\description\description_ical;
 
 /**
@@ -226,6 +227,10 @@ class ical {
             ['optionid' => $option->id],
             'coursestarttime ASC'
         );
+        // A slot option has no dates of its own: the times are the slots this user has booked.
+        if (slot_calendar::is_slot_option((int)$option->id)) {
+            $this->times = slot_calendar::get_booked_slot_times((int)$option->id, (int)$user->id);
+        }
         // Check if start and end dates exist.
         $coursedates = ($this->option->coursestarttime && $this->option->courseendtime);
         $sessiontimes = !empty($this->times);

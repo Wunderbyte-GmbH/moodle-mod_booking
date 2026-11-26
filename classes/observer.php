@@ -46,6 +46,7 @@ use mod_booking\local\user_course_state;
 use mod_booking\local\checkanswers\checkanswers;
 use mod_booking\local\mobile\customformstore;
 use mod_booking\local\search\reindex;
+use mod_booking\local\slotbooking\slot_calendar;
 use mod_booking\option\fields\certificate;
 use mod_booking\output\view;
 use mod_booking\singleton_service;
@@ -186,6 +187,10 @@ class mod_booking_observer {
                 $DB->delete_records('event', ['id' => $record->eventid]);
                 $DB->delete_records('booking_userevents', ['id' => $record->id]);
             }
+
+            // A user can hold more than one booking of a slot option. The events of the bookings that
+            // are still active were just deleted as well, so they are created again.
+            slot_calendar::sync_user_events((int)$optionid, (int)$userid);
         };
 
         $optionid = $event->objectid;
@@ -195,6 +200,19 @@ class mod_booking_observer {
         // Not gated on is_enabled() so tickets created earlier are still invalidated after the feature is turned off.
         // cancel_ticket() is a safe no-op when the user holds no valid ticket.
         ticket_manager::cancel_ticket((int) $event->objectid, (int) $event->relateduserid);
+    }
+
+    /**
+     * Slots of a booking were booked, moved or released: rebuild the user's calendar events of the slot option.
+     *
+     * The booked times of a slot option live in its booking answers, so every change of them has to reach
+     * the user's calendar. All three slot events carry the option (other['optionid']) and the booked user.
+     *
+     * @param \core\event\base $event bookinganswer_slotbooked, bookinganswer_slotmoved or bookinganswer_slotcancelled
+     * @return void
+     */
+    public static function bookinganswer_slots_changed(\core\event\base $event) {
+        slot_calendar::sync_user_events((int)($event->other['optionid'] ?? 0), (int)$event->relateduserid);
     }
 
     /**

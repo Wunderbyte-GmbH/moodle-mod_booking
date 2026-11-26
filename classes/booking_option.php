@@ -2493,7 +2493,11 @@ class booking_option {
 
         $dontusepersonalevents = get_config('booking', 'dontaddpersonalevents');
 
-        if ($dontusepersonalevents != 1) {
+        // Slot options get one event per booked slot instead, from the observer of the slot events
+        // (slot_calendar). Here, the slot type "session" would get an event for every session.
+        $isslotoption = (int)($settings->type ?? MOD_BOOKING_OPTIONTYPE_DEFAULT) === MOD_BOOKING_OPTIONTYPE_SLOTBOOKING;
+
+        if ($dontusepersonalevents != 1 && !$isslotoption) {
             // If the option has optiondates, then add the optiondate events to the user's calendar.
             if ($optiondates) {
                 foreach ($optiondates as $optiondate) {

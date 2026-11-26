@@ -87,6 +87,19 @@ $observers = [
         'callback' => 'mod_booking_observer::bookinganswer_cancelled',
     ],
     [
+        // Slot bookings: keep the personal calendar events in line with the booked slots.
+        'eventname' => '\mod_booking\event\bookinganswer_slotbooked',
+        'callback' => 'mod_booking_observer::bookinganswer_slots_changed',
+    ],
+    [
+        'eventname' => '\mod_booking\event\bookinganswer_slotmoved',
+        'callback' => 'mod_booking_observer::bookinganswer_slots_changed',
+    ],
+    [
+        'eventname' => '\mod_booking\event\bookinganswer_slotcancelled',
+        'callback' => 'mod_booking_observer::bookinganswer_slots_changed',
+    ],
+    [
         // Entry tickets: issue an entry ticket certificate when a booking succeeds.
         'eventname' => '\mod_booking\event\bookingoption_booked',
         'callback' => 'mod_booking_observer::bookingoption_booked',
