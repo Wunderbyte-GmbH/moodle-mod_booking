@@ -4236,8 +4236,25 @@ $string['slot_move_event_description_multi'] = 'Benutzer:in mit ID {$a->adminid}
 $string['slot_move_event_description_single'] = 'Benutzer:in mit ID {$a->adminid} hat die Buchungsantwort {$a->baid} (Option {$a->optionid}) für Benutzer:in {$a->userid} verschoben. Verschobener Slot von {$a->oldslots} auf {$a->newslots}. Grund: {$a->reason}';
 $string['slot_move_event_name'] = 'Buchungsslot verschoben';
 $string['slot_move_locked_label'] = 'Gesperrt (Frist abgelaufen)';
-$string['slot_move_notification_body'] = 'Ihr gebuchter Slot wurde verschoben.\nNeue Zeit: {$a->newtime}\nGrund: {$a->reason}';
+$string['slot_move_notification_body'] = 'Hallo {$a->participant},
+
+Ihr Termin in "{$a->option}" wurde verschoben.
+
+Bisherige Zeit:
+{$a->oldtime}
+
+Neue Zeit:
+{$a->newtime}';
+$string['slot_move_notification_reason'] = 'Grund: {$a}';
 $string['slot_move_notification_subject'] = 'Ihr Buchungsslot wurde verschoben';
+$string['slot_move_notification_teacher_body'] = 'Der Termin von {$a->participant} in "{$a->option}" wurde verschoben.
+
+Bisherige Zeit:
+{$a->oldtime}
+
+Neue Zeit:
+{$a->newtime}';
+$string['slot_move_notification_teacher_subject'] = 'Ein Termin wurde verschoben';
 $string['slot_move_notpending'] = 'Diese Umbuchung ist nicht mehr offen und kann nicht abgeschlossen werden.';
 $string['slot_move_or_cancel_action'] = 'Slot verschieben oder stornieren';
 $string['slot_move_reason'] = 'Grund der Verschiebung';
@@ -4258,9 +4275,23 @@ $string['slot_rebook'] = 'Umbuchen';
 $string['slot_rebook_action'] = 'Slot umbuchen';
 $string['slot_rebook_deadline_passed'] = 'Die Frist zum Umbuchen ist abgelaufen.';
 $string['slot_rebook_not_allowed'] = 'Sie dürfen diesen Slot nicht umbuchen.';
-$string['slot_rebook_notification_teacher_body'] = 'Teilnehmer:in {$a->participant} hat von {$a->oldtime} auf {$a->newtime} umgebucht.';
+$string['slot_rebook_notification_teacher_body'] = 'Teilnehmer:in {$a->participant} hat einen Termin in "{$a->option}" verschoben.
+
+Bisherige Zeit:
+{$a->oldtime}
+
+Neue Zeit:
+{$a->newtime}';
 $string['slot_rebook_notification_teacher_subject'] = 'Eine:r Teilnehmer:in hat einen Termin umgebucht';
-$string['slot_rebook_notification_user_body'] = 'Sie haben Ihren Termin verschoben.\nNeue Zeit: {$a->newtime}';
+$string['slot_rebook_notification_user_body'] = 'Hallo {$a->participant},
+
+Sie haben Ihren Termin in "{$a->option}" verschoben.
+
+Bisherige Zeit:
+{$a->oldtime}
+
+Neue Zeit:
+{$a->newtime}';
 $string['slot_rebook_notification_user_subject'] = 'Ihr Termin wurde verschoben';
 $string['slot_rebook_reason'] = 'Grund (optional)';
 $string['slot_rebook_slot_started'] = 'Ein bereits begonnener Slot kann nicht abgegeben werden.';
@@ -4392,6 +4423,8 @@ $string['slotbookingdateswarning'] = 'Für diesen Slot-Typ werden keine Termine 
 $string['slotmove_cartitem_description'] = 'Slot-Wechsel von {$a->old} auf {$a->new}';
 $string['slotmove_cartitem_title'] = 'Umbuchung: {$a}';
 $string['slotmove_refunded'] = 'Ihnen wurden {$a} als Guthaben gutgeschrieben.';
+$string['slotmovenotification'] = 'Mail senden, wenn ein Slot verschoben wird';
+$string['slotmovenotification_desc'] = 'Wenn ein Slot verschoben wird, bekommt die teilnehmende Person eine Mail von der Buchungsverwalter:in, ebenso die Trainer:innen der Buchungsoption und die Prüfer:innen des Slots. Schalten Sie das aus, wenn eine Buchungsregel auf das Ereignis "Buchungsslot verschoben" diese Mail stattdessen sendet.';
 $string['slotsbooked'] = 'Gebuchte Slots aus einem Slot-gebucht-Ereignis, sonst die gebuchten Slots der Buchung (z. B. in der Buchungsbestätigung).';
 $string['slotscancelled'] = 'Stornierte Slots aus einem Slot-storniert-Ereignis.';
 $string['slotsmovedfrom'] = 'Ursprüngliche Slots (verschoben von) eines Slot-verschoben-Ereignisses.';

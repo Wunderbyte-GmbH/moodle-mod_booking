@@ -824,6 +824,15 @@ if ($ADMIN->fulltree) {
                 $slotbookingsdisplaymodes
             )
         );
+        // The built-in mail when a slot is moved. Off when a booking rule sends this mail instead.
+        $settings->add(
+            new admin_setting_configcheckbox(
+                'booking/slotmovenotification',
+                get_string('slotmovenotification', 'mod_booking'),
+                get_string('slotmovenotification_desc', 'mod_booking'),
+                1
+            )
+        );
     } else {
         $settings->add(
             new admin_setting_heading(

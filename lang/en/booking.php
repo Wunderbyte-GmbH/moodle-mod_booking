@@ -4224,8 +4224,25 @@ $string['slot_move_event_description_multi'] = 'User with id {$a->adminid} moved
 $string['slot_move_event_description_single'] = 'User with id {$a->adminid} moved booking answer {$a->baid} (option {$a->optionid}) for user {$a->userid}. Moved slot from {$a->oldslots} to {$a->newslots}. Reason: {$a->reason}';
 $string['slot_move_event_name'] = 'Booking slot moved';
 $string['slot_move_locked_label'] = 'Locked (deadline passed)';
-$string['slot_move_notification_body'] = 'Your booking slot has been moved.\nNew time: {$a->newtime}\nReason: {$a->reason}';
+$string['slot_move_notification_body'] = 'Hello {$a->participant},
+
+your appointment in "{$a->option}" has been moved.
+
+Previous time:
+{$a->oldtime}
+
+New time:
+{$a->newtime}';
+$string['slot_move_notification_reason'] = 'Reason: {$a}';
 $string['slot_move_notification_subject'] = 'Your booking slot has been moved';
+$string['slot_move_notification_teacher_body'] = 'The appointment of {$a->participant} in "{$a->option}" has been moved.
+
+Previous time:
+{$a->oldtime}
+
+New time:
+{$a->newtime}';
+$string['slot_move_notification_teacher_subject'] = 'An appointment has been moved';
 $string['slot_move_notpending'] = 'This slot move is no longer pending and cannot be completed.';
 $string['slot_move_or_cancel_action'] = 'Move or cancel slot';
 $string['slot_move_reason'] = 'Move reason';
@@ -4246,9 +4263,23 @@ $string['slot_rebook'] = 'Rebook';
 $string['slot_rebook_action'] = 'Rebook slot';
 $string['slot_rebook_deadline_passed'] = 'The rebooking deadline has passed.';
 $string['slot_rebook_not_allowed'] = 'You are not allowed to rebook this slot.';
-$string['slot_rebook_notification_teacher_body'] = 'Participant {$a->participant} has rebooked from {$a->oldtime} to {$a->newtime}.';
+$string['slot_rebook_notification_teacher_body'] = 'Participant {$a->participant} has moved an appointment in "{$a->option}".
+
+Previous time:
+{$a->oldtime}
+
+New time:
+{$a->newtime}';
 $string['slot_rebook_notification_teacher_subject'] = 'A participant has rebooked an appointment';
-$string['slot_rebook_notification_user_body'] = 'You have moved your appointment.\nNew time: {$a->newtime}';
+$string['slot_rebook_notification_user_body'] = 'Hello {$a->participant},
+
+you have moved your appointment in "{$a->option}".
+
+Previous time:
+{$a->oldtime}
+
+New time:
+{$a->newtime}';
 $string['slot_rebook_notification_user_subject'] = 'Your appointment has been moved';
 $string['slot_rebook_reason'] = 'Reason (optional)';
 $string['slot_rebook_slot_started'] = 'A slot that has already started cannot be given up.';
@@ -4380,6 +4411,8 @@ $string['slotbookingdateswarning'] = 'Dates are not used for this slot type. Opt
 $string['slotmove_cartitem_description'] = 'Slot change from {$a->old} to {$a->new}';
 $string['slotmove_cartitem_title'] = 'Rebooking: {$a}';
 $string['slotmove_refunded'] = 'You have been refunded {$a} as credit.';
+$string['slotmovenotification'] = 'Send a mail when a slot is moved';
+$string['slotmovenotification_desc'] = 'When a slot is moved, the participant gets a mail from the booking manager, and so do the teachers of the booking option and the examiners of the slot. Turn this off if a booking rule on the event "Booking slot moved" sends this mail instead.';
 $string['slotsbooked'] = 'Booked slots from a slot-booked event, otherwise the booked slots of the booking (e.g. in the booking confirmation).';
 $string['slotscancelled'] = 'Cancelled slots from a slot-cancelled event.';
 $string['slotsmovedfrom'] = 'Original slots (moved from) of a slot-moved event.';

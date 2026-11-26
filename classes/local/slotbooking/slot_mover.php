@@ -1018,9 +1018,10 @@ class slot_mover {
             $cancelevent->trigger();
         }
 
-        // The move notification only makes sense when a slot actually moved in.
+        // The move notification only makes sense when a slot actually moved in. It names the slots
+        // that changed, not the whole booking.
         if ($firemoved) {
-            self::notify($answer, $slotdata, $oldstart, $oldend, $newstart, $newend, $reason, $initiatedby);
+            self::notify($answer, $slotdata, $removedslots, $addedslots, $reason, $initiatedby);
         }
 
         return [
@@ -1031,14 +1032,18 @@ class slot_mover {
     }
 
     /**
-     * Notify the student and any assigned teachers about the moved slot.
+     * Notify the participant and the teachers about the moved slots.
+     *
+     * The mail comes from the booking manager of the instance (no-reply if none is set), in the
+     * language of each recipient, and names the slots that were given up and the slots that were
+     * taken instead. Teachers are the examiners of the slots and the teachers of the option.
+     * It can be switched off with the setting booking/slotmovenotification, for example when a
+     * booking rule on "Booking slot moved" sends this mail instead.
      *
      * @param stdClass $answer booking answer record
      * @param array $slotdata updated slot data
-     * @param int $oldstart previous aggregated start timestamp
-     * @param int $oldend previous aggregated end timestamp
-     * @param int $newstart new start timestamp
-     * @param int $newend new end timestamp
+     * @param array $removedslots slots given up, each ['start' => int, 'end' => int]
+     * @param array $addedslots slots taken instead, each ['start' => int, 'end' => int]
      * @param string $reason move reason
      * @param string $initiatedby 'manager' or 'self'
      * @return void
@@ -1046,54 +1051,104 @@ class slot_mover {
     private static function notify(
         stdClass $answer,
         array $slotdata,
-        int $oldstart,
-        int $oldend,
-        int $newstart,
-        int $newend,
+        array $removedslots,
+        array $addedslots,
         string $reason,
         string $initiatedby
     ): void {
         global $DB;
 
-        $user = $DB->get_record('user', ['id' => $answer->userid], '*', MUST_EXIST);
-
-        // Same-day-collapsed ranges ("Wed, 24 June 2026, 10:00 AM - 11:00 AM").
-        $newtime = dates_handler::prettify_optiondates_start_end($newstart, $newend, current_language());
-        $oldtime = dates_handler::prettify_optiondates_start_end($oldstart, $oldend, current_language());
-
-        if ($initiatedby === 'self') {
-            $usersubject = get_string('slot_rebook_notification_user_subject', 'mod_booking');
-            $userbody = get_string('slot_rebook_notification_user_body', 'mod_booking', (object)[
-                'newtime' => $newtime,
-            ]);
-            $teachersubject = get_string('slot_rebook_notification_teacher_subject', 'mod_booking');
-            $teacherbody = get_string('slot_rebook_notification_teacher_body', 'mod_booking', (object)[
-                'participant' => fullname($user),
-                'oldtime' => $oldtime,
-                'newtime' => $newtime,
-            ]);
-        } else {
-            $usersubject = get_string('slot_move_notification_subject', 'mod_booking');
-            $userbody = get_string('slot_move_notification_body', 'mod_booking', (object)[
-                'newtime' => $newtime,
-                'reason' => $reason,
-            ]);
-            $teachersubject = $usersubject;
-            $teacherbody = $userbody;
+        // Unset (not saved yet) counts as on.
+        if ((string)get_config('booking', 'slotmovenotification') === '0') {
+            return;
         }
 
-        email_to_user($user, core_user::get_noreply_user(), $usersubject, $userbody);
+        $participant = $DB->get_record('user', ['id' => $answer->userid], '*', MUST_EXIST);
+        $settings = singleton_service::get_instance_of_booking_option_settings((int)$answer->optionid);
+        $bookingsettings = singleton_service::get_instance_of_booking_settings_by_bookingid((int)$settings->bookingid);
+        $from = !empty($bookingsettings->bookingmanageruser->id)
+            ? $bookingsettings->bookingmanageruser
+            : core_user::get_noreply_user();
 
+        $changes = [$removedslots, $addedslots, $reason, $initiatedby];
+        self::send_move_mail($participant, $from, $participant, $settings, $changes, false);
+
+        // Teachers: the examiners of the slots and the teachers of the option, each only once.
         $teacherids = [];
         if (!empty($slotdata['teachers']) && is_array($slotdata['teachers'])) {
-            $teacherids = array_values(array_unique(array_filter(array_map('intval', $slotdata['teachers']))));
+            $teacherids = array_map('intval', $slotdata['teachers']);
         }
+        foreach ($settings->teachers ?? [] as $teacher) {
+            $teacherids[] = (int)$teacher->userid;
+        }
+        $teacherids = array_diff(array_unique(array_filter($teacherids)), [(int)$participant->id]);
 
         if (!empty($teacherids)) {
-            $teachers = $DB->get_records_list('user', 'id', $teacherids);
-            foreach ($teachers as $teacher) {
-                email_to_user($teacher, core_user::get_noreply_user(), $teachersubject, $teacherbody);
+            foreach ($DB->get_records_list('user', 'id', $teacherids) as $teacher) {
+                self::send_move_mail($teacher, $from, $participant, $settings, $changes, true);
             }
         }
+    }
+
+    /**
+     * Send the move mail to one recipient, in the recipient's language.
+     *
+     * @param stdClass $recipient user who gets the mail
+     * @param stdClass $from sender
+     * @param stdClass $participant user whose slots were moved
+     * @param \mod_booking\booking_option_settings $settings option settings
+     * @param array $changes [slots given up, slots taken instead, move reason, 'manager' or 'self']
+     * @param bool $forteacher whether the recipient is a teacher (else the participant)
+     * @return void
+     */
+    private static function send_move_mail(
+        stdClass $recipient,
+        stdClass $from,
+        stdClass $participant,
+        $settings,
+        array $changes,
+        bool $forteacher
+    ): void {
+        [$removedslots, $addedslots, $reason, $initiatedby] = $changes;
+        $previouslanguage = force_current_language($recipient->lang ?? '');
+        try {
+            $a = (object)[
+                'participant' => fullname($participant),
+                'option' => format_string($settings->get_title_with_prefix(), true, ['escape' => false]),
+                'oldtime' => self::format_slot_list($removedslots),
+                'newtime' => self::format_slot_list($addedslots),
+                'reason' => $reason,
+            ];
+
+            if ($initiatedby === 'self') {
+                $key = $forteacher ? 'slot_rebook_notification_teacher' : 'slot_rebook_notification_user';
+            } else {
+                $key = $forteacher ? 'slot_move_notification_teacher' : 'slot_move_notification';
+            }
+            $subject = get_string($key . '_subject', 'mod_booking', $a);
+            $body = get_string($key . '_body', 'mod_booking', $a);
+            if (trim($reason) !== '') {
+                $body .= "\n\n" . get_string('slot_move_notification_reason', 'mod_booking', $reason);
+            }
+
+            email_to_user($recipient, $from, $subject, $body, nl2br(s($body)));
+        } finally {
+            force_current_language($previouslanguage);
+        }
+    }
+
+    /**
+     * One line per slot, e.g. "Wed, 24 June 2026, 10:00 AM - 11:00 AM", in the current language.
+     *
+     * @param array $slots each ['start' => int, 'end' => int]
+     * @return string
+     */
+    private static function format_slot_list(array $slots): string {
+        usort($slots, static fn(array $a, array $b): int => (int)$a['start'] <=> (int)$b['start']);
+        $lines = [];
+        foreach ($slots as $slot) {
+            $lines[] = dates_handler::prettify_optiondates_start_end((int)$slot['start'], (int)$slot['end'], current_language());
+        }
+        return implode("\n", $lines);
     }
 }
