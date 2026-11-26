@@ -160,6 +160,26 @@ final class bookforuser_listing_guard_test extends booking_advanced_testcase {
     }
 
     /**
+     * The shortcode names the capabilities for acting for others to the helper that reads the
+     * user id from the url, so the helper itself checks them. A user id that is accepted without
+     * this check is counted by the helper; that must not happen here.
+     *
+     * @covers \mod_booking\shortcodes::init_table_for_courses
+     */
+    public function test_capabilities_for_acting_for_others_are_named_to_the_helper(): void {
+        $env = $this->create_env();
+        $this->grant_bookforothers((int)$env['supervisor']->id);
+        $this->setUser($env['supervisor']);
+        $_GET['userid'] = (string)$env['employee']->id;
+        \local_wunderbyte_table\local\helper\actforuser::$unverifiedforeignids = 0;
+
+        $table = shortcodes::init_table_for_courses(null, 'phase0guardnamed', ['urlparamforuserid' => 'userid']);
+
+        $this->assertSame((int)$env['employee']->id, $table->foruserid);
+        $this->assertSame(0, \local_wunderbyte_table\local\helper\actforuser::$unverifiedforeignids);
+    }
+
+    /**
      * All columns of a row agree on the target user: col_booknow renders the
      * button for foruserid and col_text builds the optionview link for the same
      * foruserid (#2214 unified the former session-cache-based col_text).

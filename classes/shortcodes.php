@@ -1991,22 +1991,22 @@ class shortcodes {
             $context = context_system::instance();
         }
         // Important security check.
-        // The user must have the cashier capability to fetch data of other users.
-        if (
-            class_exists('local_shopping_cart\shopping_cart')
-            && has_capability('local/shopping_cart:cashier', $syscontext)
+        // Only users with one of these capabilities may fetch data of other users. The helper checks
+        // them before it accepts the id of another user from the url.
+        $actforcapabilities = [
             // This check actually corresponds to the check in booking_bookit currently line 126.
             // It allows overriding a blocking condition under some circumstances.
-            || has_capability('mod/booking:bookforothers', $context)
+            'mod/booking:bookforothers' => $context,
             // Team bookers (eg. supervisors) may book for some users only.
             // The allowedtobookforuser condition decides per option and shows a label if not allowed.
-            || has_capability('mod/booking:bookmyteam', $context)
-        ) {
-            // Check if rendering is for another user id.
-            $userid = actforuser::get_foruserid($args, 0);
-        } else {
-            $userid = 0;
+            'mod/booking:bookmyteam' => $context,
+        ];
+        if (class_exists('local_shopping_cart\shopping_cart')) {
+            // The cashier of the shopping cart.
+            $actforcapabilities['local/shopping_cart:cashier'] = $syscontext;
         }
+        // Check if rendering is for another user id.
+        $userid = actforuser::get_foruserid($args, 0, $actforcapabilities);
 
         $tablename = $uniquetablename ?? bin2hex(random_bytes(12));
         // This is required to differentiate between instances when the table is rendered for a specific user.
