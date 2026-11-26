@@ -36,6 +36,7 @@ use mod_booking\booking_option;
 use mod_booking\enrollink;
 use mod_booking\event\booking_failed;
 use mod_booking\local\slotbooking\slot_answer;
+use mod_booking\local\slotbooking\slot_change_policy;
 use mod_booking\local\slotbooking\slot_move_store;
 use mod_booking\local\slotbooking\slot_mover;
 use mod_booking\local\slotbooking\slot_price;
@@ -1018,11 +1019,13 @@ class service_provider implements \local_shopping_cart\local\callback\service_pr
      * @param int $itemid An identifier that is known to the plugin
      * @param int $userid the user whose purchase would be cancelled, defaults to the current user
      *                    (local_shopping_cart only asks for non-cashiers, who can only cancel their own purchases)
+     * @param int $identifier the purchase identifier (local_shopping_cart_history.identifier) when a concrete
+     *                        purchase is checked, 0 otherwise
      *
      * @return bool true if cancelling is allowed, else false
      */
-    public static function allowed_to_cancel(string $area, int $itemid, int $userid = 0): bool {
-        global $USER;
+    public static function allowed_to_cancel(string $area, int $itemid, int $userid = 0, int $identifier = 0): bool {
+        global $DB, $USER;
 
         $allowedtocancel = true;
         // Currently, we only check this for options.
@@ -1055,6 +1058,28 @@ class service_provider implements \local_shopping_cart\local\callback\service_pr
             ) {
                 $allowedtocancel = false;
             }
+
+            // Slot booking: a whole purchase can only be cancelled while every slot of THIS purchase is
+            // still outside its move/cancel deadline - the same rule as the cancel button on the option
+            // (cancelmyself). The purchase identifier links the purchase to its booking answer. Without
+            // it (e.g. the per-slot release check in slot_mover) this check does not apply, so single
+            // free slots can still be released.
+            if (
+                $allowedtocancel
+                && !empty($identifier)
+                && (int)($optionsettings->type ?? MOD_BOOKING_OPTIONTYPE_DEFAULT) === MOD_BOOKING_OPTIONTYPE_SLOTBOOKING
+            ) {
+                $answer = $DB->get_record('booking_answers', [
+                    'optionid' => $itemid,
+                    'userid' => $userid ?: (int)$USER->id,
+                    'purchaseidentifier' => $identifier,
+                    'waitinglist' => MOD_BOOKING_STATUSPARAM_BOOKED,
+                ], '*', IGNORE_MULTIPLE);
+                if (!empty($answer) && !slot_change_policy::answer_all_slots_actionable($answer)) {
+                    $allowedtocancel = false;
+                }
+            }
+
             /* IMPORTANT: We had to remove this check as it has to be possible to override this
             by setting a canceluntil date in shopping_cart_history table directly. */
             // Check if the option has its own canceluntil date and if it has already passed.
