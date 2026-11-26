@@ -150,6 +150,10 @@ class select_user_from_event implements booking_rule_condition {
             'bookingoptionwaitinglist_booked',
             'bookingoption_booked',
             'bookinganswer_waitingforconfirmation',
+            // Slot events: the affected user is the user of the booking, also when staff made the change.
+            'bookinganswer_slotbooked',
+            'bookinganswer_slotmoved',
+            'bookinganswer_slotcancelled',
             'teacher_added',
             'teacher_removed',
             'selectusers_user_added',
