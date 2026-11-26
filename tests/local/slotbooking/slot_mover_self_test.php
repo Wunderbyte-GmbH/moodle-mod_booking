@@ -34,6 +34,7 @@ use mod_booking\local\slotbooking\slot_dto;
 use mod_booking\local\slotbooking\slot_event_placeholders;
 use mod_booking\local\slotbooking\slot_mover;
 use mod_booking\local\slotbooking\target_price_policy;
+use mod_booking\option\dates_handler;
 use mod_booking\option\fields\multiplebookings;
 
 defined('MOODLE_INTERNAL') || die();
@@ -98,6 +99,78 @@ final class slot_mover_self_test extends booking_advanced_testcase {
         $this->assertNotEmpty($moved);
         $event = reset($moved);
         $this->assertSame('self', $event->other['initiatedby']);
+    }
+
+    /**
+     * With two booked slots and one of them moved, the slot-moved event and its placeholders name
+     * only the slot that moved; all booked slots after the move stay in bookedslots (GH-1686).
+     *
+     * @covers \mod_booking\local\slotbooking\slot_mover::move_self
+     * @covers \mod_booking\placeholders\placeholders\slotsmovedfrom
+     * @covers \mod_booking\placeholders\placeholders\slotsmovedto
+     */
+    public function test_slotmoved_event_carries_only_the_moved_slots(): void {
+        [$option, $userid, , $bookingid] = $this->create_self_rebooking_option();
+
+        $slots = slot_dto::build_picker_slots($option->id, $userid);
+        usort($slots, static fn($a, $b) => (int)$a['start'] <=> (int)$b['start']);
+        $this->assertGreaterThanOrEqual(3, count($slots));
+        $range = static fn(array $slot): array => ['start' => (int)$slot['start'], 'end' => (int)$slot['end']];
+        [$kept, $target, $moving] = [$range($slots[0]), $range($slots[1]), $range($slots[2])];
+
+        // Two booked slots: the first one stays, the third one is moved to the second.
+        $baid = $this->create_booked_slot_answer_multi($option->id, $bookingid, $userid, [$kept, $moving]);
+
+        $this->setUser($userid);
+        $sink = $this->redirectEmails();
+        $eventsink = $this->redirectEvents();
+        slot_mover::move_self($option->id, $baid, [$slots[0]['key'], $slots[1]['key']], '');
+        $sink->close();
+        $events = $eventsink->get_events();
+        $eventsink->close();
+
+        $moved = array_values(array_filter($events, static fn($e) => $e instanceof \mod_booking\event\bookinganswer_slotmoved));
+        $this->assertCount(1, $moved);
+        $other = $moved[0]->other;
+        $this->assertSame([$moving], array_map($range, $other['oldslots']), 'oldslots: only the slot given up.');
+        $this->assertSame([$target], array_map($range, $other['newslots']), 'newslots: only the slot taken instead.');
+        $this->assertSame([$kept, $target], array_map($range, $other['bookedslots']), 'bookedslots: all slots after the move.');
+
+        // The placeholders of a rule on this event.
+        $rulejson = json_encode(['datafromevent' => ['other' => $other]]);
+        $text = '';
+        $params = [];
+        $from = \mod_booking\placeholders\placeholders\slotsmovedfrom::return_value(
+            0,
+            $option->id,
+            $userid,
+            0,
+            0,
+            0,
+            $text,
+            $params,
+            MOD_BOOKING_DESCRIPTION_WEBSITE,
+            $rulejson
+        );
+        $to = \mod_booking\placeholders\placeholders\slotsmovedto::return_value(
+            0,
+            $option->id,
+            $userid,
+            0,
+            0,
+            0,
+            $text,
+            $params,
+            MOD_BOOKING_DESCRIPTION_WEBSITE,
+            $rulejson
+        );
+        $pretty = static fn(array $slot): string => dates_handler::prettify_optiondates_start_end(
+            $slot['start'],
+            $slot['end'],
+            current_language()
+        );
+        $this->assertSame($pretty($moving), $from, '{slotsmovedfrom} names only the moved slot.');
+        $this->assertSame($pretty($target), $to, '{slotsmovedto} names only the new slot.');
     }
 
     /**

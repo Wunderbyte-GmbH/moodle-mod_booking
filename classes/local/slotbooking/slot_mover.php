@@ -989,8 +989,10 @@ class slot_mover {
                     'oldend' => $oldend,
                     'newstart' => $newstart,
                     'newend' => $newend,
-                    'oldslots' => $currentslots,
-                    'newslots' => $newslots,
+                    // Only the slots that changed ({slotsmovedfrom}, {slotsmovedto}); all booked slots
+                    // after the move are in bookedslots.
+                    'oldslots' => $removedslots,
+                    'newslots' => $addedslots,
                     'bookedslots' => $newslots,
                     'slotcount' => count($newslots),
                     'reason' => $reason,
