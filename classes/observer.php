@@ -641,49 +641,9 @@ class mod_booking_observer {
      * @param template_switched $event
      */
     public static function template_switched(template_switched $event) {
-        $data = $event->get_data();
-        $encodedtable = $data["other"]["tablecachehash"];
-        $template = $data["other"]["template"];
-        $viewparam = $data["other"]["viewparam"];
-        // Only apply this for Booking templates!
-        if (
-            !empty($encodedtable)
-            && in_array($template, [
-                'mod_booking/table_list',
-                'mod_booking/table_cards',
-            ])
-        ) {
-            $table = wunderbyte_table::instantiate_from_tablecache_hash($encodedtable);
-            $columns = array_keys($table->columns);
-            unset($columns['id']);
-
-            // Important: Unset old template data, before switching!
-            $table->unset_template_data();
-
-            switch ($viewparam) {
-                case 1: // MOD_BOOKING_VIEW_PARAM_CARDS.
-                    view::generate_table_for_cards($table, $columns);
-                    break;
-                case 2: // MOD_BOOKING_VIEW_PARAM_LIST_IMG_LEFT.
-                    $table->set_template_data('showheaderimageleft', true);
-                    view::generate_table_for_list($table, $columns);
-                    break;
-                case 3: // MOD_BOOKING_VIEW_PARAM_LIST_IMG_RIGHT.
-                    $table->set_template_data('showheaderimageright', true);
-                    view::generate_table_for_list($table, $columns);
-                    break;
-                case 4: // MOD_BOOKING_VIEW_PARAM_LIST_IMG_LEFT_HALF.
-                    $table->set_template_data('showheaderimagelefthalf', true);
-                    view::generate_table_for_list($table, $columns);
-                    break;
-                case 0: // MOD_BOOKING_VIEW_PARAM_LIST.
-                default:
-                    $table->set_template_data('noheaderimage', true);
-                    view::generate_table_for_list($table, $columns);
-                    break;
-            }
-            $table->return_encoded_table(true);
-        }
+        // Nothing to do. The choice is stored for the user by the table itself, and the columns are
+        // arranged for the chosen view on every request, see bookingoptions_wbtable::apply_template_layout().
+        // The cached table definition is shared by all users and must not be changed here.
     }
 
     /**

@@ -35,6 +35,7 @@ use mod_booking\local\modechecker;
 use mod_booking\local\override_user_field;
 use mod_booking\output\col_responsiblecontacts;
 use mod_booking\output\renderer;
+use mod_booking\output\view;
 use mod_booking\placeholders\placeholders_info;
 
 defined('MOODLE_INTERNAL') || die();
@@ -103,6 +104,13 @@ class bookingoptions_wbtable extends wunderbyte_table {
      * @var int 0 = MOD_BOOKING_VIEW_PARAM_LIST
      */
     public int $viewparam = 0;
+
+    /**
+     * The fields of the options the table was built with. Needed to arrange the columns again
+     * when a user has chosen another view in the template switcher.
+     * @var array|null
+     */
+    public ?array $optionsfields = null;
 
     /**
      * Customfield columns.
@@ -374,6 +382,35 @@ class bookingoptions_wbtable extends wunderbyte_table {
             $this->inlinestartpage,
             $this->return_current_viewparam()
         );
+    }
+
+    /**
+     * Arrange the columns for the view the current user has chosen in the template switcher.
+     * Runs on every request; the cached table definition keeps the view of the instance.
+     *
+     * @param string $template
+     * @param int $viewparam one of the MOD_BOOKING_VIEW_PARAM_* constants
+     * @return void
+     */
+    public function apply_template_layout(string $template, int $viewparam): void {
+        // Only tables with a template switcher change their view at runtime, and only between the views of mod_booking.
+        if (
+            empty($this->switchtemplates['templates'])
+            || !in_array($template, ['mod_booking/table_list', 'mod_booking/table_cards'], true)
+        ) {
+            return;
+        }
+        // The definition is already arranged for this view.
+        if ($viewparam === (int)$this->viewparam) {
+            return;
+        }
+
+        // Important: Remove the template data of the old view before switching.
+        $this->templatedata = [];
+        $this->viewparam = $viewparam;
+
+        $table = $this;
+        view::arrange_table_for_viewparam($table, $viewparam, $this->optionsfields ?? array_keys($this->columns));
     }
 
     /**

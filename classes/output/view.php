@@ -1363,46 +1363,17 @@ class view implements renderable, templatable {
             $bowbtable->set_customfields_info_array($customfieldsinfoarray);
         }
 
-        // If template switcher is active, we need to use the table's viewparam.
-        $chosenviewparam = get_user_preferences('wbtable_chosen_template_viewparam_' . $bowbtable->uniqueid);
-        if (!empty($bowbtable->switchtemplates) && is_number($chosenviewparam)) {
-            $viewparam = $chosenviewparam;
-            // Extra safety, if the selected templates in instance change, we use the first one available.
-            if (!empty($selectedtemplates)) {
-                if (!in_array($viewparam, $selectedtemplates)) {
-                    $viewparam = (int)$selectedtemplates[0] ?? MOD_BOOKING_VIEW_PARAM_LIST;
-                    set_user_preference('wbtable_chosen_template_viewparam_' . $bowbtable->uniqueid, $viewparam);
-                }
-            }
-        }
+        // The table definition is cached once for everybody, so it is always built with the view of the
+        // instance (or of the shortcode). The view a user has chosen in the template switcher is applied
+        // by the table on every request, see bookingoptions_wbtable::apply_template_layout().
 
         // Store the view which is actually rendered, so that col_booknow knows if the pre booking
         // pages can be shown inline (only supported by the list views) - see turnoffmodals setting.
         $bowbtable->viewparam = $viewparam;
+        $bowbtable->optionsfields = $optionsfields;
 
         // Switch view type (cards view or list view).
-        switch ($viewparam) {
-            case MOD_BOOKING_VIEW_PARAM_CARDS:
-                self::generate_table_for_cards($bowbtable, $optionsfields);
-                break;
-            case MOD_BOOKING_VIEW_PARAM_LIST_IMG_LEFT:
-                $bowbtable->set_template_data('showheaderimageleft', true);
-                self::generate_table_for_list($bowbtable, $optionsfields);
-                break;
-            case MOD_BOOKING_VIEW_PARAM_LIST_IMG_RIGHT:
-                $bowbtable->set_template_data('showheaderimageright', true);
-                self::generate_table_for_list($bowbtable, $optionsfields);
-                break;
-            case MOD_BOOKING_VIEW_PARAM_LIST_IMG_LEFT_HALF:
-                $bowbtable->set_template_data('showheaderimagelefthalf', true);
-                self::generate_table_for_list($bowbtable, $optionsfields);
-                break;
-            case MOD_BOOKING_VIEW_PARAM_LIST:
-            default:
-                $bowbtable->set_template_data('noheaderimage', true);
-                self::generate_table_for_list($bowbtable, $optionsfields);
-                break;
-        }
+        self::arrange_table_for_viewparam($bowbtable, $viewparam, $optionsfields);
 
         // Header column.
         $bowbtable->define_header_column('text');
@@ -1606,6 +1577,43 @@ class view implements renderable, templatable {
 
         // Let's collapse filters per default.
         $bowbtable->filteronloadinactive = $filterinactive;
+    }
+
+    /**
+     * Arrange the columns of a booking options table for one of the views (list, cards, list with image...).
+     *
+     * @param bookingoptions_wbtable $bowbtable
+     * @param int $viewparam one of the MOD_BOOKING_VIEW_PARAM_* constants
+     * @param array $optionsfields
+     * @return void
+     */
+    public static function arrange_table_for_viewparam(
+        bookingoptions_wbtable &$bowbtable,
+        int $viewparam,
+        array $optionsfields
+    ): void {
+        switch ($viewparam) {
+            case MOD_BOOKING_VIEW_PARAM_CARDS:
+                self::generate_table_for_cards($bowbtable, $optionsfields);
+                break;
+            case MOD_BOOKING_VIEW_PARAM_LIST_IMG_LEFT:
+                $bowbtable->set_template_data('showheaderimageleft', true);
+                self::generate_table_for_list($bowbtable, $optionsfields);
+                break;
+            case MOD_BOOKING_VIEW_PARAM_LIST_IMG_RIGHT:
+                $bowbtable->set_template_data('showheaderimageright', true);
+                self::generate_table_for_list($bowbtable, $optionsfields);
+                break;
+            case MOD_BOOKING_VIEW_PARAM_LIST_IMG_LEFT_HALF:
+                $bowbtable->set_template_data('showheaderimagelefthalf', true);
+                self::generate_table_for_list($bowbtable, $optionsfields);
+                break;
+            case MOD_BOOKING_VIEW_PARAM_LIST:
+            default:
+                $bowbtable->set_template_data('noheaderimage', true);
+                self::generate_table_for_list($bowbtable, $optionsfields);
+                break;
+        }
     }
 
     /**
@@ -1856,9 +1864,6 @@ class view implements renderable, templatable {
 
         // At last, we set the correct template!
         $bowbtable->tabletemplate = 'mod_booking/table_cards';
-
-        // We also need to set the user preference for the template.
-        set_user_preference('wbtable_chosen_template_' . $bowbtable->uniqueid, 'mod_booking/table_cards');
     }
 
     /**
@@ -2139,8 +2144,6 @@ class view implements renderable, templatable {
 
         // At last, we set the correct template!
         $bowbtable->tabletemplate = 'mod_booking/table_list';
-
-        set_user_preference('wbtable_chosen_template_' . $bowbtable->uniqueid, 'mod_booking/table_list');
     }
 
     /**
