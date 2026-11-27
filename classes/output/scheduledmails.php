@@ -27,9 +27,11 @@
 
 namespace mod_booking\output;
 
+use context;
 use context_system;
 use local_wunderbyte_table\filters\types\standardfilter;
 use mod_booking\local\bulk_check\bulk_check;
+use mod_booking\local\table_access;
 use moodle_url;
 use mod_booking\table\scheduledmails_table;
 use renderer_base;
@@ -60,6 +62,11 @@ class scheduledmails implements renderable, templatable {
      */
     public function __construct(int $contextid) {
         $table = new scheduledmails_table('scheduledmails', $contextid);
+        table_access::declare_any_capability(
+            $table,
+            context::instance_by_id($contextid),
+            ['mod/booking:viewscheduledmails', 'mod/booking:editbookingrules']
+        );
 
         $columns = [
             'rulename' => get_string('rulename', 'mod_booking'),

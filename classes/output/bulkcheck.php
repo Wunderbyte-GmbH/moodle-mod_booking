@@ -24,6 +24,7 @@
 
 namespace mod_booking\output;
 
+use context_system;
 use local_wunderbyte_table\filters\types\standardfilter;
 use mod_booking\local\bulk_check\bulk_check;
 use mod_booking\table\bulk_check_table;
@@ -64,8 +65,9 @@ class bulkcheck implements renderable, templatable {
         $table->define_headers(array_values($columns));
         $table->define_columns(array_keys($columns));
 
-        // The shared action web service checks this before it dispatches to our handlers.
-        $table->requirecapability = 'mod/booking:managebulkcheck';
+        // The data and the action web services check this before they deliver rows or dispatch
+        // to our handlers.
+        $table->declare_access_by_capability('mod/booking:managebulkcheck', context_system::instance());
 
         [$fields, $from, $where, $params] = bulk_check::get_parked_mails_sql($ruleid);
         $table->set_sql($fields, $from, $where, $params);

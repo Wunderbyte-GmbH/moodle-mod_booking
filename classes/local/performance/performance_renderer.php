@@ -24,6 +24,7 @@
 
 namespace mod_booking\local\performance;
 
+use context_system;
 use mod_booking\local\performance\table\performance_table;
 
 /**
@@ -52,6 +53,7 @@ class performance_renderer {
         ";
 
         $table = new performance_table('performancetable');
+        $table->declare_access_by_capability('mod/booking:viewperformance', context_system::instance());
 
         $table->define_columns(['shortcodename', 'actions']);
         $table->sortablecolumns = ['shortcodename'];

@@ -1433,7 +1433,11 @@ if (!$tableallbookings->is_downloading()) {
             $optionid,
             ['\mod_booking\event\message_sent'],
             'messagescountlabel',
-            $messagecolumns
+            $messagecolumns,
+            0,
+            '',
+            [],
+            \mod_booking\local\table_access::any_capability($context, ['mod/booking:viewreports'])
         );
         $eventslist->icon = 'fa fa-envelope-o';
         $eventslist->title = get_string('showmessages', 'mod_booking');

@@ -71,6 +71,17 @@ $fileandsheetname = $bookingoptionname . "_teachers";
 
 // Important: We have to add $optionid here, so the cache gets not overwritten by the next table.
 $optiondatesteacherstable = new optiondates_teachers_table('optiondates_teachers_table_' . $optionid);
+// The table is reloaded without this page, so it repeats the check from above.
+\mod_booking\local\table_access::declare_any_capability(
+    $optiondatesteacherstable,
+    $context,
+    [
+        'mod/booking:updatebooking',
+        'mod/booking:editteachersownoption',
+        'mod/booking:viewreports',
+        'mod/booking:limitededitownoption',
+    ]
+);
 
 $optiondatesteacherstable->is_downloading($download, $fileandsheetname, $fileandsheetname);
 

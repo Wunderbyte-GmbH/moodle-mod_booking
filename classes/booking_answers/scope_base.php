@@ -198,17 +198,28 @@ class scope_base {
      * @param int $scopeid optionid | optiondateid | cmid | courseid | 0
      * @return void
      */
-    protected function declare_users_table_access(wunderbyte_table $table, int $scopeid): void {
-        $table->declare_access_by_callback(
-            [self::class, 'users_table_access_callback'],
-            [
+    public function declare_users_table_access(wunderbyte_table $table, int $scopeid): void {
+        $access = $this->get_users_table_access($scopeid);
+        $table->declare_access_by_callback($access['callback'], $access['args']);
+    }
+
+    /**
+     * The audience of the tables of this scope, built for the current user.
+     *
+     * @param int $scopeid optionid | optiondateid | cmid | courseid | 0
+     * @return array with the keys callback and args, for wunderbyte_table::declare_access_by_callback()
+     */
+    public function get_users_table_access(int $scopeid): array {
+        return [
+            'callback' => [self::class, 'users_table_access_callback'],
+            'args' => [
                 'scope' => static::return_classname(),
                 'scopeid' => $scopeid,
                 // The rows can be limited to the users the current user may see (e.g. the own team).
                 // A table is only delivered to users with the same limit as the user it was built for.
                 'restriction' => $this->get_answers_restriction_fingerprint($scopeid),
-            ]
-        );
+            ],
+        ];
     }
 
     /**

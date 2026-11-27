@@ -25,6 +25,7 @@
 
 namespace mod_booking\local\performance\table;
 
+use context_system;
 use html_writer;
 use local_wunderbyte_table\output\table;
 use local_wunderbyte_table\wunderbyte_table;
@@ -71,6 +72,7 @@ class performance_table extends wunderbyte_table {
         table::transform_actionbuttons_array($data);
 
         $table = new measurements_table('performancemeasurementtable');
+        $table->declare_access_by_capability('mod/booking:viewperformance', context_system::instance());
 
         $table->define_headers([
             get_string('endtimemeasurement', 'booking'),

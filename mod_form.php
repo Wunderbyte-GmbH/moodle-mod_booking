@@ -1716,7 +1716,14 @@ class mod_booking_mod_form extends moodleform_mod {
                 ['\mod_booking\event\bookinginstance_updated'],
                 '',
                 [],
-                eventslist::get_timecreatedfrom()
+                eventslist::get_timecreatedfrom(),
+                '',
+                [],
+                // The form is for users who may edit the activity.
+                \mod_booking\local\table_access::any_capability(
+                    context_module::instance($this->_cm->id),
+                    ['moodle/course:manageactivities']
+                )
             );
 
             $html = $OUTPUT->render_from_template('mod_booking/eventslist', $data);

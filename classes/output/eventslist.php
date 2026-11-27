@@ -25,7 +25,9 @@
 
 namespace mod_booking\output;
 
+use context_system;
 use mod_booking\booking;
+use mod_booking\local\table_access;
 use mod_booking\table\event_log_table;
 use moodle_url;
 use renderer_base;
@@ -85,6 +87,8 @@ class eventslist implements renderable, templatable {
      * @param int $timecreatedfrom only show log entries created at or after this timestamp, 0 to show all
      * @param string $extrawhere optional additional where condition (starting with " AND "), e.g. to scope the events
      * @param array $extraparams params for $extrawhere
+     * @param array $access who may load the table, see \mod_booking\local\table_access::any_capability().
+     *        Without it, the table is for users who may view the reports of the whole site.
      */
     public function __construct(
         int $id = 0,
@@ -93,7 +97,8 @@ class eventslist implements renderable, templatable {
         array $columns = [],
         int $timecreatedfrom = 0,
         string $extrawhere = '',
-        array $extraparams = []
+        array $extraparams = [],
+        array $access = []
     ) {
 
         global $DB;
@@ -112,6 +117,10 @@ class eventslist implements renderable, templatable {
         $tablename = md5($tablenamestring);
 
         $table = new event_log_table($tablename);
+        if (empty($access)) {
+            $access = table_access::any_capability(context_system::instance(), ['mod/booking:viewreports']);
+        }
+        table_access::declare($table, $access);
 
         $table->set_filter_sql($select, $from, $where, $filter, $params);
 
