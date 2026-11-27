@@ -22,7 +22,7 @@
  * @license https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-use local_wunderbyte_table\wunderbyte_table;
+use mod_booking\local\download_access;
 use mod_booking\singleton_service;
 use mod_booking\table\bookingoptions_wbtable;
 
@@ -45,8 +45,9 @@ $PAGE->set_url($downloadurl);
 
 $booking = singleton_service::get_instance_of_booking_by_cmid($cmid);
 
+// The right to download and the rights on the table itself, see download_access.
 /** @var bookingoptions_wbtable $table */
-$table = wunderbyte_table::instantiate_from_tablecache_hash($encodedtable);
+$table = download_access::options_table_of_instance($encodedtable, $cmid);
 
 $bookingsettings = singleton_service::get_instance_of_booking_settings_by_cmid($cmid);
 $instancename = $bookingsettings->name;
