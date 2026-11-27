@@ -74,7 +74,7 @@ class search_booking_instances extends external_api {
             $sqlparams['bookingid'] = $bookingid;
         }
 
-        $sql = "SELECT b.id, b.name AS text, c.fullname AS coursename, cm.visible AS visible
+        $sql = "SELECT b.id, b.name AS text, c.fullname AS coursename, cm.visible AS visible, cm.id AS cmid
                 FROM {booking} b
                 JOIN {course} c ON c.id = b.course
                 JOIN {modules} m ON m.name = 'booking'
@@ -86,6 +86,16 @@ class search_booking_instances extends external_api {
 
         $list = [];
         foreach ($records as $record) {
+            // The search fills the instance selector of the certificate conditions. Only the
+            // instances in which the user may edit these conditions are listed, so the names of
+            // booking instances and courses the user has nothing to do with are not disclosed.
+            $modulecontext = \context_module::instance((int)$record->cmid, IGNORE_MISSING);
+            if (
+                empty($modulecontext)
+                || !has_capability('mod/booking:editcertificateconditions', $modulecontext)
+            ) {
+                continue;
+            }
             $list[] = [
                 'id' => (int)$record->id,
                 'text' => (string)$record->text,
