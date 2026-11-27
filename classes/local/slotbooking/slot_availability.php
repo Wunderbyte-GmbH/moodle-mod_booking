@@ -604,6 +604,20 @@ class slot_availability {
     }
 
     /**
+     * Whether the user already holds exactly this slot in one of their active answers
+     * (booked, or reserved in the shopping cart).
+     *
+     * @param int $optionid booking option id
+     * @param int $userid user id
+     * @param int $slotstart slot start timestamp
+     * @param int $slotend slot end timestamp
+     * @return bool
+     */
+    public static function user_holds_slot(int $optionid, int $userid, int $slotstart, int $slotend): bool {
+        return !empty(self::get_booked_slot_key_set_for_user($optionid, $userid)[$slotstart . ':' . $slotend]);
+    }
+
+    /**
      * Slot keys the user holds in bookings that still count against max_slots_per_user.
      *
      * Unlike get_booked_slot_key_set_for_user(), which answers "which slots does this user hold"
@@ -764,6 +778,13 @@ class slot_availability {
         // A running slot (start in the past, end in the future) stays bookable.
         if ($slotend <= time()) {
             $result['errormessage'] = get_string('slot_error_selected_unavailable', 'mod_booking');
+            return $result;
+        }
+
+        // Minimum notice: a new slot must start at least N minutes from now. Only when users
+        // book for themselves, see slot_notice_policy.
+        if (slot_notice_policy::blocks_slot($optionid, $userid, $slotstart, $slotend)) {
+            $result['errormessage'] = slot_notice_policy::get_error_message($optionid);
             return $result;
         }
 
@@ -1368,6 +1389,8 @@ class slot_availability {
         $holds = slot_move_store::get_active_holds_for_option($optionid);
         // Assigned teachers are per (option, user), not per slot - fetch once and reuse below.
         $assignedteachers = $userid > 0 ? self::get_assigned_teacher_ids_for_user($optionid, $userid) : [];
+        // Slots that start before this are not offered (minimum notice, 0 = none).
+        $earlieststart = slot_notice_policy::earliest_bookable_start($optionid, $userid);
 
         $result = [];
         foreach ($slots as $slot) {
@@ -1384,6 +1407,11 @@ class slot_availability {
                     'capacity' => $capacity,
                     'warningmessage' => '',
                 ];
+                continue;
+            }
+
+            // The user's own slots above stay listed; a new slot inside the notice is not offered.
+            if ($earlieststart > 0 && $slotstart < $earlieststart) {
                 continue;
             }
 

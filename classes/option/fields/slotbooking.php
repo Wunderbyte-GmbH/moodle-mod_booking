@@ -30,6 +30,7 @@ use mod_booking\booking_option_settings;
 use mod_booking\semester;
 use mod_booking\singleton_service;
 use mod_booking\local\slotbooking\buffer_math;
+use mod_booking\local\slotbooking\slot_notice_policy;
 use mod_booking\local\slotbooking\slot_validity;
 use mod_booking\option\field_base;
 use mod_booking\option\type_resolver;
@@ -396,6 +397,18 @@ class slotbooking extends field_base {
         $mform->addHelpButton('slot_change_deadline_minutes', 'slot_change_deadline_minutes', 'mod_booking');
         $mform->hideIf('slot_change_deadline_minutes', 'optiontype', 'neq', MOD_BOOKING_OPTIONTYPE_SLOTBOOKING);
 
+        // Minimum notice before slot start for new bookings (minutes). '' = inherit the
+        // instance/plugin default.
+        $mform->addElement(
+            'select',
+            'slot_booking_notice_minutes',
+            get_string('slot_booking_notice_minutes', 'mod_booking'),
+            slot_notice_policy::get_select_options()
+        );
+        $mform->setDefault('slot_booking_notice_minutes', '');
+        $mform->addHelpButton('slot_booking_notice_minutes', 'slot_booking_notice_minutes', 'mod_booking');
+        $mform->hideIf('slot_booking_notice_minutes', 'optiontype', 'neq', MOD_BOOKING_OPTIONTYPE_SLOTBOOKING);
+
         // Warmup/cooldown buffer: blocks time before/after a slot's core time for
         // preparation/follow-up. 0 (the default) disables the respective buffer.
         $mform->addElement('text', 'slot_buffer_warmup_minutes', get_string('slot_buffer_warmup_minutes', 'mod_booking'));
@@ -624,6 +637,11 @@ class slotbooking extends field_base {
         $record->change_deadline_minutes = ($deadlineraw === '' || $deadlineraw === null)
             ? null
             : (int)$deadlineraw;
+        // Minimum notice before slot start. '' (empty) means inherit and is stored as NULL.
+        $noticeraw = $formdata->slot_booking_notice_minutes ?? '';
+        $record->booking_notice_minutes = ($noticeraw === '' || $noticeraw === null)
+            ? null
+            : max(0, (int)$noticeraw);
         $record->buffer_warmup_minutes = max(0, (int)($formdata->slot_buffer_warmup_minutes ?? 0));
         $record->buffer_cooldown_minutes = max(0, (int)($formdata->slot_buffer_cooldown_minutes ?? 0));
         $combinationmode = (string)($formdata->slot_buffer_combination_mode ?? buffer_math::MODE_SUMMED);
@@ -687,6 +705,7 @@ class slotbooking extends field_base {
             $setifmissing('slot_teachers_required', 0);
             $setifmissing('slot_allow_self_rebooking', 0);
             $setifmissing('slot_change_deadline_minutes', '');
+            $setifmissing('slot_booking_notice_minutes', '');
             $setifmissing('slot_buffer_warmup_minutes', 0);
             $setifmissing('slot_buffer_cooldown_minutes', 0);
             $setifmissing('slot_buffer_combination_mode', buffer_math::MODE_SUMMED);
@@ -726,6 +745,10 @@ class slotbooking extends field_base {
                     $setifmissing(
                         'slot_change_deadline_minutes',
                         $config->change_deadline_minutes === null ? '' : (int)$config->change_deadline_minutes
+                    );
+                    $setifmissing(
+                        'slot_booking_notice_minutes',
+                        ($config->booking_notice_minutes ?? null) === null ? '' : (int)$config->booking_notice_minutes
                     );
                     $setifmissing('slot_buffer_warmup_minutes', (int)($config->buffer_warmup_minutes ?? 0));
                     $setifmissing('slot_buffer_cooldown_minutes', (int)($config->buffer_cooldown_minutes ?? 0));
@@ -788,6 +811,7 @@ class slotbooking extends field_base {
         $data->slot_teachers_required = 0;
         $data->slot_allow_self_rebooking = 0;
         $data->slot_change_deadline_minutes = '';
+        $data->slot_booking_notice_minutes = '';
         $data->slot_buffer_warmup_minutes = 0;
         $data->slot_buffer_cooldown_minutes = 0;
         $data->slot_buffer_combination_mode = buffer_math::MODE_SUMMED;
@@ -832,6 +856,9 @@ class slotbooking extends field_base {
                 $data->slot_change_deadline_minutes = $config->change_deadline_minutes === null
                     ? ''
                     : (int)$config->change_deadline_minutes;
+                $data->slot_booking_notice_minutes = ($config->booking_notice_minutes ?? null) === null
+                    ? ''
+                    : (int)$config->booking_notice_minutes;
                 $data->slot_buffer_warmup_minutes = (int)($config->buffer_warmup_minutes ?? 0);
                 $data->slot_buffer_cooldown_minutes = (int)($config->buffer_cooldown_minutes ?? 0);
                 $data->slot_buffer_combination_mode = (string)($config->buffer_combination_mode ?? buffer_math::MODE_SUMMED);

@@ -800,6 +800,23 @@ function booking_store_slot_change_deadline_default($booking) {
 }
 
 /**
+ * Store the instance default for the slot minimum notice before slot start in the booking JSON.
+ *
+ * An empty value (or unset) means "inherit the site default" and removes the key.
+ *
+ * @param object $booking the booking instance data (modified by reference via the json field)
+ * @return void
+ */
+function booking_store_slot_booking_notice_default($booking) {
+    $value = $booking->slot_booking_notice_minutes ?? '';
+    if ($value === '' || $value === null) {
+        booking::remove_key_from_json($booking, 'slot_booking_notice_minutes');
+    } else {
+        booking::add_data_to_json($booking, 'slot_booking_notice_minutes', max(0, (int)$value));
+    }
+}
+
+/**
  * Store the instance defaults for the sign-in sheet download in the booking JSON.
  *
  * Only runs when the sign-in sheet section of mod_form was part of the submitted
@@ -948,6 +965,8 @@ function booking_add_instance($booking) {
     }
     // Slot booking: instance default for the relative per-slot move/cancel deadline ('' = inherit).
     booking_store_slot_change_deadline_default($booking);
+    // Slot booking: instance default for the minimum notice before slot start ('' = inherit).
+    booking_store_slot_booking_notice_default($booking);
     // Instance defaults for the sign-in sheet download are stored in the JSON.
     booking_store_signinsheet_instance_settings($booking);
 
@@ -1292,6 +1311,8 @@ function booking_update_instance($booking) {
     }
     // Slot booking: instance default for the relative per-slot move/cancel deadline ('' = inherit).
     booking_store_slot_change_deadline_default($booking);
+    // Slot booking: instance default for the minimum notice before slot start ('' = inherit).
+    booking_store_slot_booking_notice_default($booking);
     // Instance defaults for the sign-in sheet download are stored in the JSON.
     booking_store_signinsheet_instance_settings($booking);
     // View param (list view or card view) is stored in JSON.

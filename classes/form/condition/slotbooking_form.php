@@ -32,6 +32,7 @@ use mod_booking\local\mobile\slotbookingstore;
 use mod_booking\bo_availability\conditions\cancelmyself;
 use mod_booking\local\slotbooking\slot_availability;
 use mod_booking\local\slotbooking\slot_dto;
+use mod_booking\local\slotbooking\slot_notice_policy;
 use mod_booking\local\slotbooking\slot_validity;
 use mod_booking\singleton_service;
 use moodle_url;
@@ -831,7 +832,8 @@ class slotbooking_form extends dynamic_form {
             return [];
         }
 
-        $rangestart = time();
+        // Minimum notice: the windows start at the earliest bookable start (0 = no notice).
+        $rangestart = max(time(), slot_notice_policy::earliest_bookable_start($optionid, $userid));
         if (!empty($config->valid_from)) {
             $rangestart = max($rangestart, (int)$config->valid_from);
         }

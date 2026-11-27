@@ -197,7 +197,9 @@ class save_slot_selection extends external_api {
                 excludeanswerids: $ownanswerids
             );
             if (empty($evaluation['bookable'])) {
-                $errors['slot_selection'] = get_string('slot_error_selected_unavailable', 'mod_booking');
+                // Same message as slotbooking_form::validation(), e.g. the minimum notice.
+                $errors['slot_selection'] = (string)($evaluation['errormessage'] ?? '')
+                    ?: get_string('slot_error_selected_unavailable', 'mod_booking');
                 continue;
             }
 

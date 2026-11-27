@@ -1872,6 +1872,17 @@ if ($ADMIN->fulltree) {
                 PARAM_INT
             )
         );
+        // Slot booking: site default for the minimum notice before slot start for new bookings
+        // (minutes, 0 = none). Booking instances and options can override this.
+        $settings->add(
+            new admin_setting_configtext(
+                'booking/slot_booking_notice_minutes',
+                get_string('slot_booking_notice_minutes', 'mod_booking'),
+                get_string('slot_booking_notice_minutes_desc', 'mod_booking'),
+                0,
+                PARAM_INT
+            )
+        );
     } else {
         $settings->add(
             new admin_setting_heading(

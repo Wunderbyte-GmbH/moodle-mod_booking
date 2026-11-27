@@ -27,6 +27,7 @@ use mod_booking\booking;
 use mod_booking\customfield\booking_handler;
 use mod_booking\elective;
 use mod_booking\form\element\sortableselect;
+use mod_booking\local\slotbooking\slot_notice_policy;
 use mod_booking\output\eventslist;
 use mod_booking\placeholders\placeholders_info;
 use mod_booking\semester;
@@ -1238,6 +1239,18 @@ class mod_booking_mod_form extends moodleform_mod {
         $mform->addHelpButton('slot_change_deadline_minutes', 'slot_change_deadline_minutes', 'mod_booking');
         $slotdeadlinedefault = booking::get_value_of_json_by_key((int) $bookingid, 'slot_change_deadline_minutes');
         $mform->setDefault('slot_change_deadline_minutes', $slotdeadlinedefault === null ? '' : $slotdeadlinedefault);
+
+        // Slot booking: instance default for the minimum notice before slot start for new bookings
+        // (minutes). '' = inherit the site default; options can override per option.
+        $mform->addElement(
+            'select',
+            'slot_booking_notice_minutes',
+            get_string('slot_booking_notice_minutes', 'mod_booking'),
+            slot_notice_policy::get_select_options()
+        );
+        $mform->addHelpButton('slot_booking_notice_minutes', 'slot_booking_notice_minutes', 'mod_booking');
+        $slotnoticedefault = booking::get_value_of_json_by_key((int) $bookingid, 'slot_booking_notice_minutes');
+        $mform->setDefault('slot_booking_notice_minutes', $slotnoticedefault === null ? '' : $slotnoticedefault);
 
         $mform->addElement('advcheckbox', 'disablebooking', get_string('disablebookingforinstance', 'mod_booking'));
         $mform->setType('disablebooking', PARAM_INT);

@@ -6102,5 +6102,28 @@ function xmldb_booking_upgrade($oldversion) {
         upgrade_mod_savepoint(true, 2026112400, 'booking');
     }
 
+    if ($oldversion < 2026112502) {
+        // Slot booking: minimum notice in minutes before each slot start for new bookings.
+        // NULL = inherit the booking instance / site default.
+        $table = new xmldb_table('booking_slot_config');
+        $field = new xmldb_field(
+            'booking_notice_minutes',
+            XMLDB_TYPE_INTEGER,
+            '10',
+            null,
+            null,
+            null,
+            null,
+            'change_deadline_minutes'
+        );
+
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Booking savepoint reached.
+        upgrade_mod_savepoint(true, 2026112502, 'booking');
+    }
+
     return true;
 }

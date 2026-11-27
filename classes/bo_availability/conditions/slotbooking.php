@@ -33,6 +33,7 @@ use mod_booking\local\slotbooking\slot_answer;
 use mod_booking\local\slotbooking\slot_availability;
 use mod_booking\local\slotbooking\slot_feature;
 use mod_booking\local\slotbooking\slot_mover;
+use mod_booking\local\slotbooking\slot_notice_policy;
 use mod_booking\local\slotbooking\slot_price;
 use mod_booking\local\slotbooking\slot_dto;
 use MoodleQuickForm;
@@ -495,6 +496,14 @@ class slotbooking implements bo_condition {
                 true
             );
             if (empty($evaluation['bookable'])) {
+                if (slot_notice_policy::blocks_slot($optionid, (int)$userid, (int)$start, (int)$end)) {
+                    throw new moodle_exception(
+                        'slot_error_booking_notice',
+                        'mod_booking',
+                        '',
+                        slot_notice_policy::get_notice_text($optionid)
+                    );
+                }
                 throw new moodle_exception('slot_error_selected_unavailable', 'mod_booking');
             }
 
