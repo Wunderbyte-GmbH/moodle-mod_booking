@@ -24,12 +24,8 @@
 
 namespace mod_booking\bo_actions\action_types;
 
-use coding_exception;
-use context_module;
-use core_reportbuilder\local\helpers\user_profile_fields;
 use mod_booking\bo_actions\booking_action;
 use mod_booking\singleton_service;
-use MoodleQuickForm;
 use stdClass;
 
 defined('MOODLE_INTERNAL') || die();
@@ -65,28 +61,21 @@ class userprofilefield extends booking_action {
 
         require_once("$CFG->dirroot/user/profile/lib.php");
 
+        // This loads the current values from the database into $user->profile_field_<shortname>.
+        // We must not read $user->profile here: it is not always loaded, and it can be an old copy.
         profile_load_data($user);
 
-        // There are two ways to acces the profile fields, we have to support both.
         $key = "profile_field_" . $actiondata->boactionselectuserprofilefield;
-        if (
-            isset($user->profile[$actiondata->boactionselectuserprofilefield])
-            || isset($user->{$key})
-        ) {
+        if (isset($user->{$key})) {
             switch ($actiondata->boactionuserprofileoperator) {
                 case 'set':
                     $user->{$key} = $actiondata->boactionuserprofilefieldvalue;
                     break;
                 case 'add':
-                    $number = intval($user->profile[$actiondata->boactionselectuserprofilefield]);
-                    $user->{$key} =
-                            $number + $actiondata->boactionuserprofilefieldvalue;
+                    $user->{$key} = intval($user->{$key}) + $actiondata->boactionuserprofilefieldvalue;
                     break;
                 case 'subtract':
-                    $number = intval($user->profile[$actiondata->boactionselectuserprofilefield]);
-
-                    $user->{$key} =
-                            $number - $actiondata->boactionuserprofilefieldvalue;
+                    $user->{$key} = intval($user->{$key}) - $actiondata->boactionuserprofilefieldvalue;
                     break;
                 case 'adddate':
                     // First we check if the user has already a value in the field.
@@ -112,6 +101,15 @@ class userprofilefield extends booking_action {
                     break;
             }
             profile_save_data($user);
+
+            // Copies of the profile which were loaded before are old now, so we load them again.
+            // We do not create $user->profile if it is not there: other code would think it is complete.
+            if (isset($user->profile)) {
+                profile_load_custom_fields($user);
+            }
+            if ($USER !== $user && !empty($USER->id) && $USER->id == $user->id && isset($USER->profile)) {
+                profile_load_custom_fields($USER);
+            }
         }
 
         return 0; // We will allow all other after actions like events.
