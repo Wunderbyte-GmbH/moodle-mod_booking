@@ -22,7 +22,7 @@
  * @license https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-use local_wunderbyte_table\wunderbyte_table;
+use mod_booking\local\download_access;
 use mod_booking\table\optiondates_teachers_table;
 
 require_once("../../config.php");
@@ -41,8 +41,9 @@ $PAGE->set_context($context);
 $PAGE->set_url('/download_optiondates_teachers_report.php');
 
 // Table will be of an instance of the child class extending wunderbyte_table.
+// The table knows who may load it: the users who may open the report of the option.
 /** @var optiondates_teachers_table $table */
-$table = wunderbyte_table::instantiate_from_tablecache_hash($encodedtable);
+$table = download_access::teachers_report_table($encodedtable);
 
 // Re-initialize, otherwise the defining will not work!
 $table->headers = [];

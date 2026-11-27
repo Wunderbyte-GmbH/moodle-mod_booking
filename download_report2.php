@@ -22,8 +22,8 @@
  * @license https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-use local_wunderbyte_table\wunderbyte_table;
 use mod_booking\booking_answers\booking_answers;
+use mod_booking\local\download_access;
 use mod_booking\local\bookingstracker\download_guard;
 use mod_booking\local\bookingstracker\optiondate_level;
 use mod_booking\table\manageusers_table;
@@ -55,14 +55,10 @@ $class = $ba->return_class_for_scope($scope);
 
 // Server-side re-check of the capability which also gates the download button:
 // downloading the responses (personal data of the booked users) requires
-// mod/booking:downloadresponses in the context of the requested scope.
-if (!$class->has_capability_in_scope($scopeid, 'mod/booking:downloadresponses')) {
-    throw new required_capability_exception($syscontext, 'mod/booking:downloadresponses', 'nopermissions', '');
-}
-
-// Table will be of an instance of the child class extending wunderbyte_table.
+// mod/booking:downloadresponses in the context of the requested scope. The table that is
+// exported has to be the table of this scope, and the user has to be allowed to load it.
 /** @var manageusers_table $table */
-$table = wunderbyte_table::instantiate_from_tablecache_hash($encodedtable);
+$table = download_access::users_table_of_scope($encodedtable, $scope, $scopeid);
 
 // File name and sheet name.
 $fileandsheetname = "{$scope}_report";
