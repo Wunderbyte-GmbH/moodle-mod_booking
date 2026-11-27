@@ -30,9 +30,8 @@ use mod_booking\bo_availability\bo_condition;
 use mod_booking\bo_availability\bo_info;
 use mod_booking\booking_bookit;
 use mod_booking\booking_option_settings;
+use mod_booking\local\credits\user_credits;
 use mod_booking\output\bookingoption_description;
-use mod_booking\output\bookit_button;
-use mod_booking\price;
 use mod_booking\singleton_service;
 use MoodleQuickForm;
 
@@ -118,31 +117,17 @@ class bookwithcredits implements bo_condition {
 
         $isavailable = true;
 
-        $isactive = get_config('booking', 'bookwithcreditsactive');
-
-        if (!empty($isactive)) {
-            $profilefield = get_config('booking', 'bookwithcreditsprofilefield');
-
-            if (!empty($profilefield) && $settings->credits > 0) {
-                // If the user is not yet booked we return true.
-                if (empty($settings->jsonobject->useprice)) {
-                    // When we use credits, we can't book without.
+        if (user_credits::is_active() && $settings->credits > 0) {
+            // If the user is not yet booked we return true.
+            if (empty($settings->jsonobject->useprice)) {
+                // When we use credits, we can't book without.
+                $isavailable = false;
+            } else {
+                $userid = empty($userid) ? (int)$USER->id : $userid;
+                // A slot booking option costs the credits per selected slot. With too few
+                // credits, the option is paid with its price instead.
+                if (user_credits::get_required_credits($settings, $userid) <= user_credits::get_user_credits($userid)) {
                     $isavailable = false;
-                } else {
-                    if (!empty($userid) && $USER->id != $userid) {
-                        $user = singleton_service::get_instance_of_user($userid);
-                        profile_load_custom_fields($user);
-                    } else {
-                        $user = $USER;
-                    }
-
-                    $key = "profile_field_" . $profilefield;
-
-                    $usercredit = $user->{$key} ?? $user->profile[$profilefield] ?? 0;
-
-                    if ($settings->credits <= $usercredit) {
-                        $isavailable = false;
-                    }
                 }
             }
         }
@@ -299,21 +284,19 @@ class bookwithcredits implements bo_condition {
 
         global $USER;
 
-        if ($userid === null) {
-            $userid = $USER->id;
+        if (empty($userid)) {
+            $userid = (int)$USER->id;
         }
 
-        if (empty($userid) || $userid != $USER->id) {
-            $user = singleton_service::get_instance_of_user($userid);
-        } else {
-            $user = $USER;
-        }
-
-        $profilefield = get_config('booking', 'bookwithcreditsprofilefield');
-        $credits = $user->profile[$profilefield] ?? 0;
-
-        if ($credits < $settings->credits) {
+        if (user_credits::get_user_credits($userid) < user_credits::get_required_credits($settings, $userid)) {
             $label = get_string('notenoughcreditstobook', 'mod_booking');
+        } else if (!empty($settings->slotconfig)) {
+            // A slot option costs the credits per slot.
+            $label = get_string(
+                $settings->credits == 1 ? 'bookwithcreditperslot' : 'bookwithcreditsperslot',
+                'mod_booking',
+                $settings->credits
+            );
         } else if ($settings->credits > 1 || empty($settings->credits)) {
             $label = get_string('bookwithcredits', 'mod_booking', $settings->credits);
         } else {

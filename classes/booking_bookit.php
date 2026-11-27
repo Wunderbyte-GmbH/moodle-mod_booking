@@ -31,6 +31,7 @@ use context_system;
 use mod_booking\bo_availability\bo_info;
 use mod_booking\bo_availability\conditions\cancelmyself;
 use mod_booking\enrollink;
+use mod_booking\local\credits\user_credits;
 use mod_booking\local\modechecker;
 use mod_booking\output\bookingoption_description;
 use mod_booking\output\bookit_button;
@@ -497,7 +498,7 @@ class booking_bookit {
      */
     public static function bookit(string $area, int $itemid, int $userid = 0, string $data = ''): array {
 
-        global $USER, $CFG;
+        global $USER;
 
         $requestoverrides = bookit_request_overrides::from_data($data);
 
@@ -593,34 +594,21 @@ class booking_bookit {
                 // This means we can actuall book.
                 $isavailable = true;
             } else if ($id === MOD_BOOKING_BO_COND_CONFIRMBOOKWITHCREDITS) {
-                 // Make sure cache is not blocking anymore.
-                 $cache = cache::make('mod_booking', 'confirmbooking');
-                 $cachekey = $userid . "_" . $settings->id . '_bookwithcredits';
+                // Make sure the first click (cache) is not blocking anymore.
+                user_credits::clear_confirm_marker($userid, (int)$settings->id);
 
-                // Now, before actually booking, we also need to subtract the credit from the concerned user.
-                // Get the used custom profile field.
-                if (!$profilefield = get_config('booking', 'bookwithcreditsprofilefield')) {
-                    $cache->delete($userid);
+                if (user_credits::get_profilefield() === '') {
                     throw new moodle_exception('nocreditsfielddefined', 'mod_booking');
                 }
 
-                if ($USER->id != $userid) {
-                    $user = singleton_service::get_instance_of_user($userid);
-                } else {
-                    $user = $USER;
-                    profile_load_custom_fields($user);
+                // A slot booking option costs the credits per selected slot.
+                if (user_credits::get_user_credits($userid) < user_credits::get_required_credits($settings, $userid)) {
+                    throw user_credits::not_enough_credits_exception($settings, $userid);
                 }
 
-                if ($user->profile[$profilefield] < $settings->credits) {
-                    $cache->delete($cachekey);
-                    throw new moodle_exception('notenoughcredits', 'mod_booking');
-                }
-
-                $user->profile[$profilefield] = $user->profile[$profilefield] - $settings->credits;
-
-                // We require this file only if we really do need it.
-                require_once("$CFG->dirroot/user/profile/lib.php");
-                profile_save_custom_fields($userid, [$profilefield => $user->profile[$profilefield]]);
+                // The credits are taken only when the booking is saved (see user_credits::charge_answer()),
+                // so a booking that fails on the way (e.g. the slot was taken meanwhile) costs nothing.
+                user_credits::confirm_payment($userid, $settings);
 
                 // This means we can actually book.
                 $isavailable = true;
@@ -763,10 +751,13 @@ class booking_bookit {
                     'message' => $confirmationarmed ? 'confirmationarmed' : 'notallowedtobook',
                 ];
             }
-            return array_merge(
-                self::answer_booking_option($area, $itemid, MOD_BOOKING_STATUSPARAM_BOOKED, $userid),
-                ['status' => 1, 'message' => 'booked']
-            );
+            try {
+                $bookingresult = self::answer_booking_option($area, $itemid, MOD_BOOKING_STATUSPARAM_BOOKED, $userid);
+            } finally {
+                // A confirmed credit payment is valid for this one booking only.
+                user_credits::forget_payment($userid, $itemid);
+            }
+            return array_merge($bookingresult, ['status' => 1, 'message' => 'booked']);
         } else if (strpos($area, 'subbooking') === 0) {
             // As a subbooking can have different slots, we use the area to provide the subbooking id.
             // The syntax is "subbooking-1" for the subbooking id 1.

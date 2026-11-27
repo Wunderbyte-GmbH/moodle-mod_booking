@@ -1326,9 +1326,11 @@ $string['booktootherbooking'] = 'Nutzer:innen umbuchen / zu anderer Buchungsopti
 $string['bookusers'] = 'Feld für den Import, um Nutzer:innen zu buchen';
 $string['bookuserswithoutcompletedactivity'] = 'Benutzer:innen ohne abgeschlossene Aktivität buchen';
 $string['bookwithcredit'] = '{$a} Credit';
+$string['bookwithcreditperslot'] = '{$a} Credit pro Slot';
 $string['bookwithcredits'] = '{$a} Credits';
 $string['bookwithcreditsactive'] = "Buchen mit Guthaben/Credits";
 $string['bookwithcreditsactive_desc'] = "Nutzer:innen mit Guthaben/Credits sehen keinen Preis, sondern können mit ihren Credits buchen.";
+$string['bookwithcreditsperslot'] = '{$a} Credits pro Slot';
 $string['bookwithcreditsprofilefield'] = "Benutzerdefiniertes Profilfeld für Guthaben/Credits";
 $string['bookwithcreditsprofilefield_desc'] = "Um die Funktion nutzen zu können, muss es ein Profilfeld geben, in dem die Credits der Nutzer:innen hiinterlegt werden können.
 <span class='text-danger'><b>Achtung:</b> Dieses Feld sollte von den Nutzer:innen nicht bearbeitet werden können.</span>";
@@ -1886,7 +1888,10 @@ $string['createnewmoodlecoursefromtemplateinfo'] = '<div class="alert alert-warn
 $string['createnewmoodlecoursefromtemplatewithusers'] = 'Übernehme die Nutzer:innen des Vorlagenkurses in den neuen Kurs';
 $string['createoptionsfromoptiondate'] = 'Für jeden Einzeltermin eine neue Buchungsoption erstellen';
 $string['credits'] = 'Credits';
-$string['credits_help'] = 'Wie viele credits werden bei der Buchung dieser Option verbraucht';
+$string['credits_help'] = 'Wie viele Credits bei der Buchung dieser Option verbraucht werden.<br>
+<b>Slot-Buchung:</b> Die Credits gelten pro Slot. 3 Slots kosten 3-mal diese Zahl.
+Die Credits werden abgezogen, wenn die Buchung gespeichert wird. Wird ein Slot storniert (von der Person vor der Stornofrist oder vom Personal),
+werden seine Credits zurückgegeben. Das Verschieben eines Slots auf eine andere Zeit ändert die Credits nicht.';
 $string['creditsmessage'] = 'Noch {$a->creditsleft} von insgesamt {$a->maxcredits} Credits verfügbar.';
 $string['csvfile'] = 'CSV Datei';
 $string['currentcategory'] = 'Kurskategorie der Buchungsoption';
@@ -2950,6 +2955,7 @@ $string['noteacherset'] = 'Kein/e Trainer:in';
 $string['notemplate'] = 'Nicht als Vorlage benutzen';
 $string['notemplateyet'] = 'Es gibt noch kein Template';
 $string['notenoughcredits'] = 'Sie haben nicht genügend Credits.';
+$string['notenoughcreditsforslots'] = 'Nicht genügend Credits: {$a->slots} Slot(s) kosten {$a->required} Credit(s). Ihre Credits: {$a->available}.';
 $string['notenoughcreditstobook'] = 'Nicht genug Credit um zu buchen';
 $string['notes'] = 'Anmerkungen';
 $string['notesedited'] = 'Anmerkungen bearbeitet';

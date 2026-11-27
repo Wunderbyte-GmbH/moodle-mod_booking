@@ -900,9 +900,12 @@ class bo_info {
             // First, determine if this is a booking option with a price.
 
             // Book this option.
+            // Paid with credits, an option with a price is booked like one without a price
+            // (bookit confirms and takes the credits), it does not go to the shopping cart.
             if (
                 !self::has_price_set($results)
                 || self::booked_on_waitinglist($results)
+                || self::pays_with_credits($results)
             ) {
                 // Check if we are already booked.
                 $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
@@ -1374,6 +1377,8 @@ class bo_info {
         $confirmation = null;
         $showcheckout = false;
         $askforconfirmation = false;
+        // Results are sorted by id (high first), so book with credits comes before the price.
+        $bookwithcredits = false;
 
         // First, sort all the pages according to this system:
         // Depending on the MOD_BOOKING_BO_PREPAGE_x constant, we order them pre or post the real booking button.
@@ -1382,11 +1387,16 @@ class bo_info {
                 $askforconfirmation = true;
             }
 
+            if ($result['id'] === MOD_BOOKING_BO_COND_BOOKWITHCREDITS) {
+                $bookwithcredits = true;
+            }
+
             if (
                 $result['id'] === MOD_BOOKING_BO_COND_PRICEISSET &&
                 class_exists('local_shopping_cart\shopping_cart')
             ) {
-                if (!$askforconfirmation) {
+                // Paid with credits, there is no checkout.
+                if (!$askforconfirmation && !$bookwithcredits) {
                     $showcheckout = true;
                 }
             }
@@ -1531,6 +1541,24 @@ class bo_info {
     private static function has_price_set(array $results): bool {
         foreach ($results as $result) {
             if ($result['classname'] == 'mod_booking\bo_availability\conditions\priceisset') {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Whether the user pays this option with credits.
+     *
+     * The condition bookwithcredits only blocks when the option is paid with credits: with a price,
+     * only when the user has enough credits (otherwise the price is paid).
+     *
+     * @param array $results
+     * @return bool
+     */
+    private static function pays_with_credits(array $results): bool {
+        foreach ($results as $result) {
+            if ($result['classname'] == 'mod_booking\bo_availability\conditions\bookwithcredits') {
                 return true;
             }
         }

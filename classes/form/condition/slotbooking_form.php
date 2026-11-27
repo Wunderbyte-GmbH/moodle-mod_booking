@@ -28,6 +28,7 @@ use context;
 use context_system;
 use core_form\dynamic_form;
 use html_writer;
+use mod_booking\local\credits\user_credits;
 use mod_booking\local\mobile\slotbookingstore;
 use mod_booking\bo_availability\conditions\cancelmyself;
 use mod_booking\local\slotbooking\slot_availability;
@@ -527,6 +528,13 @@ class slotbooking_form extends dynamic_form {
                 return $errors;
             }
 
+            // Book with credits: tell the user before booking when the credits are not enough.
+            $crediterror = user_credits::get_not_enough_credits_message($settings, $userid, 1);
+            if ($crediterror !== null) {
+                $errors[$errortarget] = $crediterror;
+                return $errors;
+            }
+
             $evaluation = slot_availability::evaluate_slot_for_user(
                 $optionid,
                 $start,
@@ -560,6 +568,14 @@ class slotbooking_form extends dynamic_form {
 
         if (count($entries) > $maxslots) {
             $errors[$errortarget] = get_string('slot_error_selection_toomany', 'mod_booking', $maxslots);
+            return $errors;
+        }
+
+        // Book with credits: every slot costs the credits of the option. Tell the user before
+        // booking when the credits are not enough for the selected slots.
+        $crediterror = user_credits::get_not_enough_credits_message($settings, $userid, count($entries));
+        if ($crediterror !== null) {
+            $errors[$errortarget] = $crediterror;
             return $errors;
         }
 

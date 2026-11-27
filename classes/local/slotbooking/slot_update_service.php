@@ -38,8 +38,10 @@ namespace mod_booking\local\slotbooking;
 use context_module;
 use local_shopping_cart\shopping_cart;
 use mod_booking\booking_option_settings;
+use mod_booking\local\credits\user_credits;
 use mod_booking\singleton_service;
 use moodle_exception;
+use stdClass;
 
 /**
  * Routes and commits a self-service slot update by its net price delta.
@@ -170,7 +172,7 @@ class slot_update_service {
         }
         usort($newslots, static fn(array $a, array $b): int => $a['start'] <=> $b['start']);
 
-        $delta = target_price_policy::calculate_move_delta($optionid, $userid, $currentslots, $newslots);
+        $delta = self::price_delta($optionid, $userid, $answer, $currentslots, $newslots);
 
         if (count($newkeys) === 0) {
             $route = 'cancel';
@@ -201,6 +203,33 @@ class slot_update_service {
             'slotcount' => count($newslots),
             'errors' => array_values(array_unique($errors)),
         ];
+    }
+
+    /**
+     * The net price difference of a new slot selection against the current slots.
+     *
+     * A booking paid with credits pays per slot, not by price: it never pays money for a change
+     * and never gets money back (its credits are handled by user_credits). Without this, a move to
+     * a slot with a different price would ask for money or refund money of another purchase.
+     *
+     * @param int $optionid booking option id
+     * @param int $userid user id
+     * @param stdClass $answer the booking answer
+     * @param array $currentslots current slots
+     * @param array $newslots new slots
+     * @return float
+     */
+    private static function price_delta(
+        int $optionid,
+        int $userid,
+        stdClass $answer,
+        array $currentslots,
+        array $newslots
+    ): float {
+        if (user_credits::answer_paid_with_credits($answer)) {
+            return 0.0;
+        }
+        return target_price_policy::calculate_move_delta($optionid, $userid, $currentslots, $newslots);
     }
 
     /**
@@ -314,9 +343,10 @@ class slot_update_service {
 
         // Same-count move/swap: validate + resolve the target slots, then price the change.
         $resolved = slot_mover::resolve_self_target_slots($optionid, $baid, $keys);
-        $delta = target_price_policy::calculate_move_delta(
+        $delta = self::price_delta(
             $optionid,
             $userid,
+            $ctx['answer'],
             $resolved['currentslots'],
             $resolved['newslots']
         );
@@ -433,7 +463,7 @@ class slot_update_service {
         }
         usort($newslots, static fn(array $a, array $b): int => $a['start'] <=> $b['start']);
 
-        $delta = target_price_policy::calculate_move_delta($optionid, $userid, $currentslots, $newslots);
+        $delta = self::price_delta($optionid, $userid, $ctx['answer'], $currentslots, $newslots);
         // The booking runs empty: that is a full cancellation, not a partial refund. When the
         // answer knows which purchase paid for it, hand exactly that purchase to the payment
         // component - it applies its own cancellation rules (remaining value after earlier partial

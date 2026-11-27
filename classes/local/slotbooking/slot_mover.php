@@ -37,6 +37,7 @@ use mod_booking\booking;
 use mod_booking\booking_option;
 use mod_booking\event\bookinganswer_slotcancelled;
 use mod_booking\event\bookinganswer_slotmoved;
+use mod_booking\local\credits\user_credits;
 use mod_booking\option\dates_handler;
 use mod_booking\option\fields\multiplebookings;
 use mod_booking\singleton_service;
@@ -611,6 +612,9 @@ class slot_mover {
         $answer->json = json_encode($payload);
         $DB->update_record('booking_answers', $answer);
 
+        // A booking paid with credits gets the credits of the released slots back.
+        user_credits::refund_removed_slots($baid);
+
         booking_option::purge_cache_for_answers($optionid);
         singleton_service::destroy_answers_for_user((int)$answer->userid, (int)$settings->bookingid);
 
@@ -955,6 +959,10 @@ class slot_mover {
         $payload['slot'] = $slotdata;
         $answer->json = json_encode($payload);
         $DB->update_record('booking_answers', $answer);
+
+        // A booking paid with credits gets the credits back for slots it gave up without a
+        // replacement. A move keeps the number of slots, so it changes nothing.
+        user_credits::refund_removed_slots($baid);
 
         // Ensure all booking answer caches reflect the moved slot immediately.
         booking_option::purge_cache_for_answers($optionid);

@@ -1327,9 +1327,11 @@ $string['booktootherbooking'] = 'Book users to other booking option';
 $string['bookusers'] = 'For Import, to book users directly';
 $string['bookuserswithoutcompletedactivity'] = "Book users without completed activity";
 $string['bookwithcredit'] = '{$a} credit';
+$string['bookwithcreditperslot'] = '{$a} credit per slot';
 $string['bookwithcredits'] = '{$a} credits';
 $string['bookwithcreditsactive'] = "Book with credits";
 $string['bookwithcreditsactive_desc'] = "Users with credits can book directly without paying a price.";
+$string['bookwithcreditsperslot'] = '{$a} credits per slot';
 $string['bookwithcreditsprofilefield'] = "User profile field for credits";
 $string['bookwithcreditsprofilefield_desc'] = "To use this functionality, please define a user profile field where credits are stored.
 <span class='text-danger'><b>Be careful:</b> You should create this field in a way that your users can't set a credit themselves.</span>";
@@ -1886,7 +1888,10 @@ $string['createnewmoodlecoursefromtemplateinfo'] = '<div class="alert alert-warn
 $string['createnewmoodlecoursefromtemplatewithusers'] = 'Transfer the users from the template course to the new course.';
 $string['createoptionsfromoptiondate'] = 'For each option date create a new option';
 $string['credits'] = 'Credits';
-$string['credits_help'] = 'The number of credits which will be used by booking this option.';
+$string['credits_help'] = 'The number of credits which will be used by booking this option.<br>
+<b>Slot booking:</b> the credits are per slot. Booking 3 slots costs 3 times this number.
+The credits are taken when the booking is saved. When a slot is cancelled (by the user before the cancellation deadline, or by staff),
+its credits are given back. Moving a slot to another time does not change the credits.';
 $string['creditsmessage'] = 'You have {$a->creditsleft} of {$a->maxcredits} credits left.';
 $string['csvfile'] = 'CSV file';
 $string['currentcategory'] = 'Category of booking option';
@@ -2938,6 +2943,7 @@ $string['noteacherset'] = 'No teacher';
 $string['notemplate'] = 'Do not use as template';
 $string['notemplateyet'] = 'No template yet';
 $string['notenoughcredits'] = 'You do not have enough credits.';
+$string['notenoughcreditsforslots'] = 'Not enough credits: {$a->slots} slot(s) cost {$a->required} credit(s). Your credits: {$a->available}.';
 $string['notenoughcreditstobook'] = 'Not enough credit to book';
 $string['notes'] = 'Notes';
 $string['notesedited'] = 'Notes edited';

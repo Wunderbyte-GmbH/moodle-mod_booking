@@ -24,7 +24,7 @@
 
 namespace mod_booking\option\fields;
 
-use cache;
+use mod_booking\local\credits\user_credits;
 use mod_booking\option\fields_info;
 use mod_booking\option\field_base;
 use mod_booking\singleton_service;
@@ -125,38 +125,20 @@ class credits extends field_base {
         if (!$booking->is_elective() && get_config('booking', 'bookwithcreditsactive')) {
             $mform->addElement('text', 'credits', get_string('credits', 'mod_booking'));
             $mform->setType('credits', PARAM_INT);
+            $mform->addHelpButton('credits', 'credits', 'mod_booking');
         }
     }
 
     /**
      * This static functions checks if the user has paid with credits.
      * If so, we add it to the json column in booking_answers.
+     * Only a payment the user confirmed in this request counts (see booking_bookit::bookit()),
+     * so a later booking (e.g. through the shopping cart) is never marked as paid with credits.
      * @param stdClass $newanswer
      * @param int $userid
      * @return void
      */
     public static function add_json_to_booking_answer(stdClass &$newanswer, int $userid) {
-
-        // If we have bought with credits, we need to save that in the answer.
-        $cache = cache::make('mod_booking', 'confirmbooking');
-        $cachekey = $userid . "_" . $newanswer->optionid . '_bookwithcredits';
-        // Only if we find the form in cache, we save it to the answer.
-        // We can just overwrite any preivous answer.
-        $data = $cache->get($userid);
-        if (
-            $data !== false
-            && isset($data[$cachekey])
-        ) {
-            if (!isset($newanswer->json)) {
-                $jsonobject = new stdClass();
-            } else {
-                $jsonobject = json_decode($newanswer->json);
-            }
-
-            $jsonobject->paidwithcredits = 1;
-
-            $cache->delete($cachekey);
-            $newanswer->json = json_encode($jsonobject);
-        }
+        user_credits::add_payment_to_answer($newanswer, $userid);
     }
 }

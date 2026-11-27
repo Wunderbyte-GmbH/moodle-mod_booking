@@ -55,6 +55,7 @@ use mod_booking\event\bookingoption_bookedviaautoenrol;
 use mod_booking\local\calendar\calendar_helper;
 use mod_booking\local\certificateclass;
 use mod_booking\local\confirmationworkflow\confirmation;
+use mod_booking\local\credits\user_credits;
 use mod_booking\option\dates_handler;
 use mod_booking\bo_actions\actions_info;
 use mod_booking\bo_availability\bo_info;
@@ -882,6 +883,8 @@ class booking_option {
                         // Remember the baid of the answer we just (soft-)deleted, so the
                         // on-cancel after-actions can address exactly this purchase.
                         $deletedbaid = (int)$result->id;
+                        // A slot booking paid with credits gets the credits of its slots back.
+                        user_credits::refund_removed_slots((int)$result->id);
                     }
 
                     if (!empty($slotcancelother['bookedslots'])) {
@@ -2243,6 +2246,9 @@ class booking_option {
                 new moodle_exception("dmlwriteexception");
             }
         }
+
+        // Book with credits: the credits are taken only now that the booking is saved.
+        user_credits::charge_answer($newanswer);
 
         $status = empty($historystatus) ? $newanswer->waitinglist : $historystatus;
         $addtionalinfos = [];
