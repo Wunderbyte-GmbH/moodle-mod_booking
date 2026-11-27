@@ -99,6 +99,8 @@ class supervisorteam extends optionstoconfirm {
         $table->sort_default_order = SORT_ASC;
         $table->define_sortablecolumns($sortablecolumns);
 
+        $this->declare_users_table_access($table, $scopeid);
+
         return $table;
     }
 

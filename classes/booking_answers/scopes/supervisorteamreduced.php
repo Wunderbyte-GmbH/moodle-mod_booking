@@ -94,6 +94,8 @@ class supervisorteamreduced extends supervisorteam {
 
         $table->fulltextsearchcolumns = ['name', 'text'];
 
+        $this->declare_users_table_access($table, $scopeid);
+
         return $table;
     }
 

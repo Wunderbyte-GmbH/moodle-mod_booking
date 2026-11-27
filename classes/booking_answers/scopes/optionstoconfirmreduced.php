@@ -96,6 +96,8 @@ class optionstoconfirmreduced extends optionstoconfirm {
         $table->sort_default_column = 'name';
         $table->sort_default_order = SORT_ASC;
 
+        $this->declare_users_table_access($table, $scopeid);
+
         return $table;
     }
 

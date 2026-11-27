@@ -209,7 +209,35 @@ class optionstoconfirm extends option {
             }
         }
 
+        $this->declare_users_table_access($table, $scopeid);
+
         return $table;
+    }
+
+    /**
+     * Whether the current user may load the table of this scope. The rows of the table are
+     * selected for the user who opens the list (own team, deputies, HR or everybody), so every
+     * logged in user may have a table - but only the own one, see
+     * get_answers_restriction_fingerprint().
+     *
+     * @param int $scopeid
+     * @return bool
+     */
+    public function user_can_load_users_table(int $scopeid): bool {
+        return isloggedin() && !isguestuser();
+    }
+
+    /**
+     * The sql of this scope is built for the current user. A table is therefore only delivered
+     * to the user it was built for. Deputies get the rows of the supervisor in their own table.
+     *
+     * @param int $scopeid
+     * @return string
+     */
+    public function get_answers_restriction_fingerprint(int $scopeid): string {
+        global $USER;
+
+        return 'user' . (int)$USER->id;
     }
 
     /**
