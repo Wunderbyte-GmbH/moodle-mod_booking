@@ -1186,17 +1186,27 @@ class service_provider implements \local_shopping_cart\local\callback\service_pr
             ];
 
             if ($id > 0 && !in_array($id, $allowedconditions)) {
+                // A user who holds a booking is "already booked", whatever blocks first. For slot
+                // options the condition alreadybooked does not block (more slots may be booked), so
+                // a booked user got "cannot be booked" (from cancelmyself) - and the booking dialog,
+                // which asks this before it opens (e.g. "Booked - Move or cancel slot"), showed a
+                // shopping cart error. "Already booked" lets the dialog open.
+                $bookinganswers = singleton_service::get_instance_of_booking_answers($settings);
+                if (
+                    in_array($id, MOD_BOOKING_BO_COND_BOOKED_STATES, true)
+                    || $bookinganswers->user_status($userid) === MOD_BOOKING_STATUSPARAM_BOOKED
+                ) {
+                    return [
+                        'allow' => false,
+                        'info' => 'alreadybooked',
+                        'itemname' => $settings->get_title_with_prefix() ?? '',
+                    ];
+                }
                 switch ($id) {
                     case MOD_BOOKING_BO_COND_FULLYBOOKED:
                         return [
                             'allow' => false,
                             'info' => 'fullybooked',
-                            'itemname' => $settings->get_title_with_prefix() ?? '',
-                        ];
-                    case MOD_BOOKING_BO_COND_ALREADYBOOKED:
-                        return [
-                            'allow' => false,
-                            'info' => 'alreadybooked',
                             'itemname' => $settings->get_title_with_prefix() ?? '',
                         ];
                     default:
