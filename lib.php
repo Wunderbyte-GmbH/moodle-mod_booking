@@ -3223,7 +3223,7 @@ function booking_get_category_tree(int $catid, int $courseid): array {
             ))->out(false),
             'deleteurl' => (new moodle_url(
                 '/mod/booking/categoryadd.php',
-                ['courseid' => $courseid, 'cid' => $category->id, 'delete' => 1]
+                ['courseid' => $courseid, 'cid' => $category->id, 'delete' => 1, 'sesskey' => sesskey()]
             ))->out(false),
             'hascategories' => !empty($subcategories),
             'categories' => $subcategories,

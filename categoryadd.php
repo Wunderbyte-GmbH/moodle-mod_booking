@@ -58,24 +58,9 @@ $PAGE->set_pagelayout('standard');
 $redirecturl = new moodle_url('/mod/booking/categories.php', ['courseid' => $courseid]);
 
 if ($delete == 1) {
-    $candelete = true;
-
-    $categories = $DB->get_records("booking_category", ["cid" => $cid]);
-    if (count((array) $categories) > 0) {
-        $candelete = false;
-        $delmessage = get_string('deletesubcategory', 'booking');
-    }
-
-    $bookings = $DB->get_records("booking", ["categoryid" => $cid]);
-    if (count((array) $bookings) > 0) {
-        $candelete = false;
-        $delmessage = get_string('usedinbooking', 'booking');
-    }
-
-    if ($candelete) {
-        $DB->delete_records("booking_category", ["id" => $cid]);
-        $delmessage = get_string('successfulldeleted', 'booking');
-    }
+    // Deleting changes data, so the request has to come from a page of this session.
+    require_sesskey();
+    $delmessage = \mod_booking\local\booking_categories::delete((int)$courseid, (int)$cid);
     redirect($redirecturl, $delmessage, 5);
 }
 
@@ -83,7 +68,8 @@ $mform = new mod_booking_categories_form(null, ['courseid' => $courseid, 'cidd' 
 
 $defaultvalues = new stdClass();
 if ($cid != '') {
-    $defaultvalues = $DB->get_record('booking_category', ['id' => $cid]);
+    // Only a category of the course the rights were checked for can be edited.
+    $defaultvalues = $DB->get_record('booking_category', ['id' => $cid, 'course' => $courseid], '*', MUST_EXIST);
 }
 
 $defaultvalues->courseid = $courseid;
@@ -94,21 +80,7 @@ $PAGE->set_title(get_string('addnewcategory', 'booking'));
 if ($mform->is_cancelled()) {
     redirect($redirecturl, '', 0);
 } else if ($data = $mform->get_data(true)) {
-    $category = new stdClass();
-    $category->id = $data->id;
-    $category->name = $data->name;
-    if ($cid == $data->id) {
-        $category->cid = 0;
-    } else {
-        $category->cid = $data->cid;
-    }
-    $category->course = $data->course;
-
-    if ($category->id != '') {
-        $DB->update_record("booking_category", $category);
-    } else {
-        $DB->insert_record("booking_category", $category);
-    }
+    \mod_booking\local\booking_categories::save((int)$courseid, (int)$cid, $data);
     redirect($redirecturl, '', 0);
 }
 
