@@ -68,6 +68,8 @@ class bulkoperations_table extends wunderbyte_table {
     ): self {
 
         $table = new self($uniqueid);
+        // The table lists all options, also invisible ones, and offers the bulk operations.
+        $table->declare_access_by_capability('mod/booking:executebulkoperations', $context);
         $columns = [
             'id' => get_string('id', 'local_wunderbyte_table'),
             'titleprefix' => get_string('titleprefix', 'mod_booking'),

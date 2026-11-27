@@ -869,6 +869,7 @@ class booking_skill_support {
             $optionsfields
         ): array {
             $table = new bookingoptions_wbtable("cmid_{$cmid} aioptionsearch");
+            view::declare_table_access($table, (int)$cmid);
             view::apply_standard_params_for_bookingtable(
                 $table,
                 $optionsfields,

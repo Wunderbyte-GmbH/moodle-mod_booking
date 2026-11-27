@@ -32,6 +32,7 @@ use dml_exception;
 use local_wunderbyte_table\filters\types\customfieldfilter;
 use local_wunderbyte_table\filters\types\datepicker;
 use local_wunderbyte_table\filters\types\standardfilter;
+use local_wunderbyte_table\wunderbyte_table;
 use mod_booking\booking;
 use mod_booking\booking_option;
 use mod_booking\booking_settings;
@@ -427,6 +428,7 @@ class view implements renderable, templatable {
 
         // Create the table.
         $electivetable = new bookingoptions_wbtable("cmid_{$cmid} electivetable");
+        self::declare_table_access($electivetable, $cmid);
 
         // Initialize the default columnes, headers, settings and layout for the table.
         // In the future, we can parametrize this function so we can use it on many different places.
@@ -470,6 +472,7 @@ class view implements renderable, templatable {
 
         // Create the table.
         $allbookingoptionstable = new bookingoptions_wbtable("cmid_{$cmid} allbookingoptionstable");
+        self::declare_table_access($allbookingoptionstable, $cmid);
 
         // Initialize the default columnes, headers, settings and layout for the table.
         // In the future, we can parametrize this function so we can use it on many different places.
@@ -515,6 +518,7 @@ class view implements renderable, templatable {
 
         // Create the table.
         $activebookingoptionstable = new bookingoptions_wbtable("cmid_{$cmid} activebookingoptionstable");
+        self::declare_table_access($activebookingoptionstable, $cmid);
 
         $wherearray = [
             'bookingid' => (int)$booking->id,
@@ -570,6 +574,7 @@ class view implements renderable, templatable {
 
         // Create the table.
         $mybookingoptionstable = new bookingoptions_wbtable("cmid_{$cmid}_userid_{$USER->id} mybookingoptionstable");
+        self::declare_table_access($mybookingoptionstable, $cmid, 'mod/booking:view', (int)$USER->id);
 
         // Initialize the default columnes, headers, settings and layout for the table.
         // In the future, we can parametrize this function so we can use it on many different places.
@@ -621,6 +626,7 @@ class view implements renderable, templatable {
 
         // Create the table.
         $myfavoritestable = new bookingoptions_wbtable("cmid_{$cmid}_userid_{$USER->id} myfavoritestable");
+        self::declare_table_access($myfavoritestable, $cmid, 'mod/booking:view', (int)$USER->id);
 
         // Initialize the default columns, headers, settings and layout for the table.
         // The favorites toggle is set in there (the tab is only reachable when the feature is enabled).
@@ -722,7 +728,13 @@ class view implements renderable, templatable {
         $teacheroptionstable->set_filter_sql($fields, $from, $where, $filter, $params);
 
         $teacheroptionstable->showreloadbutton = false; // No reload button on teacher pages.
-        $teacheroptionstable->requirelogin = false; // Teacher pages need to be accessible without login.
+        if ($bypassteacherid > 0) {
+            // On the own page the teacher also sees options that are hidden from others.
+            self::declare_table_access($teacheroptionstable, $cmid, 'mod/booking:view', $bypassteacherid);
+        } else {
+            // Teacher pages need to be accessible without login.
+            $teacheroptionstable->declare_public_access();
+        }
 
         if ($lazy) {
             [$idstring, $encodedtable, $out]
@@ -755,6 +767,7 @@ class view implements renderable, templatable {
 
         // Create the table.
         $responsiblecontacttable = new bookingoptions_wbtable("cmid_{$cmid} responsiblecontacttable");
+        self::declare_table_access($responsiblecontacttable, $cmid, 'mod/booking:view', (int)$USER->id);
 
         // Initialize the default columnes, headers, settings and layout for the table.
         // In the future, we can parametrize this function so we can use it on many different places.
@@ -781,7 +794,6 @@ class view implements renderable, templatable {
         $responsiblecontacttable->set_filter_sql($fields, $from, $where, $filter, $params);
 
         $responsiblecontacttable->showreloadbutton = false; // No reload button on teacher pages.
-        $responsiblecontacttable->requirelogin = true;
 
         if ($lazy) {
             global $DB;
@@ -823,6 +835,7 @@ class view implements renderable, templatable {
         // of the default (e.g. list) view that was produced for the same option under the shared id.
         $tablesuffix = $forceviewparam !== null ? "_view{$forceviewparam}" : '';
         $showonlyonetable = new bookingoptions_wbtable("cmid_{$cmid}_optionid_{$optionid}{$tablesuffix} showonlyonetable");
+        self::declare_table_access($showonlyonetable, $cmid);
 
         // Initialize the default columnes, headers, settings and layout for the table.
         // In the future, we can parametrize this function so we can use it on many different places.
@@ -876,6 +889,7 @@ class view implements renderable, templatable {
 
         // Create the table.
         $myinstitutiontable = new bookingoptions_wbtable("cmid_{$cmid} myinstitutiontable");
+        self::declare_table_access($myinstitutiontable, $cmid);
 
         // Initialize the default columnes, headers, settings and layout for the table.
         // In the future, we can parametrize this function so we can use it on many different places.
@@ -924,6 +938,7 @@ class view implements renderable, templatable {
 
         // Create the table.
         $visibleoptionstable = new bookingoptions_wbtable("cmid_{$cmid} visibleoptionstable");
+        self::declare_table_access($visibleoptionstable, $cmid, 'mod/booking:canseeinvisibleoptions');
 
         // Initialize the default columnes, headers, settings and layout for the table.
         // In the future, we can parametrize this function so we can use it on many different places.
@@ -972,6 +987,7 @@ class view implements renderable, templatable {
 
         // Create the table.
         $invisibleoptionstable = new bookingoptions_wbtable("cmid_{$cmid} invisibleoptionstable");
+        self::declare_table_access($invisibleoptionstable, $cmid, 'mod/booking:canseeinvisibleoptions');
 
         // Initialize the default columnes, headers, settings and layout for the table.
         // In the future, we can parametrize this function so we can use it on many different places.
@@ -1052,6 +1068,7 @@ class view implements renderable, templatable {
 
         // Create the table.
         $whatsnewtable = new bookingoptions_wbtable("cmid_{$cmid} whatsnewtable");
+        self::declare_table_access($whatsnewtable, $cmid);
 
         // Initialize the default columnes, headers, settings and layout for the table.
         // In the future, we can parametrize this function so we can use it on many different places.
@@ -1100,6 +1117,55 @@ class view implements renderable, templatable {
      */
     public static function favoritestoggle_is_enabled(): bool {
         return wb_payment::pro_version_is_activated() && get_config('booking', 'enablefavoritestoggle');
+    }
+
+    /**
+     * Declares on a table with the options of a booking instance who may load it. The table is
+     * cached and reloaded by its hash (paging, filters, lazy loading), so it has to repeat the
+     * check of the page that shows it.
+     *
+     * @param wunderbyte_table $table
+     * @param int $cmid course module id of the booking instance
+     * @param string $capability capability the user needs in the booking instance
+     * @param int $userid if set, the table is personal and only delivered to this user
+     * @return void
+     */
+    public static function declare_table_access(
+        wunderbyte_table $table,
+        int $cmid,
+        string $capability = 'mod/booking:view',
+        int $userid = 0
+    ): void {
+        $table->declare_access_by_callback(
+            [self::class, 'table_access_callback'],
+            ['cmid' => $cmid, 'capability' => $capability, 'userid' => $userid]
+        );
+    }
+
+    /**
+     * Access check of the tables with booking options, called by the table for the current user.
+     *
+     * @param wunderbyte_table $table
+     * @param array $args cmid, capability and userid, see declare_table_access()
+     * @return bool
+     */
+    public static function table_access_callback(wunderbyte_table $table, array $args): bool {
+        global $USER;
+
+        $userid = (int)($args['userid'] ?? 0);
+        if ($userid > 0 && $userid !== (int)$USER->id) {
+            return false;
+        }
+        $capability = (string)($args['capability'] ?? '');
+        if ($capability === '') {
+            return false;
+        }
+        $context = context_module::instance((int)($args['cmid'] ?? 0), IGNORE_MISSING);
+        if (empty($context)) {
+            // The booking instance does not exist any more.
+            return false;
+        }
+        return has_capability($capability, $context);
     }
 
     /**
