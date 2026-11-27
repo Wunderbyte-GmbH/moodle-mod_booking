@@ -4302,16 +4302,20 @@ class booking_option {
             return $this->render_meeting_fields($sessionid, $field, $descriptionparam, $forbookeduser);
         }
 
+        // The value is entered by everybody who may edit the option and is put into the page as
+        // html. Formatting is kept, everything that a browser would execute is removed.
+        $value = clean_text((string)$field->value, FORMAT_HTML);
+
         switch ($field->cfgname) {
             case 'addcomment':
                 return [
                     'name' => "",
-                    'value' => $field->value,
+                    'value' => $value,
                 ];
             default:
                 return [
                     'name' => "$field->cfgname: ",
-                    'value' => $field->value,
+                    'value' => $value,
                 ];
         }
     }
@@ -4363,10 +4367,23 @@ class booking_option {
                 $label = get_string_manager()->string_exists($field->cfgname, 'mod_booking')
                     ? get_string($field->cfgname, 'mod_booking')
                     : $field->cfgname;
+                // The stored value has to be a web address. It is entered by everybody who may edit
+                // the option, so it is never put into the page as it is.
+                $meetingurl = clean_param(trim((string)$field->value), PARAM_URL);
+                $scheme = strtolower((string)parse_url($meetingurl, PHP_URL_SCHEME));
+                if ($meetingurl === '' || !in_array($scheme, ['http', 'https'], true)) {
+                    return [
+                        'name' => null,
+                        'value' => get_string('linknotvalid', 'mod_booking'),
+                    ];
+                }
                 return [
                     'name' => null,
-                    'value' => "<a href=$field->value class='btn btn-secondary booking-meetinglink-btn'>"
-                        . $label . "</a>",
+                    'value' => html_writer::link(
+                        $meetingurl,
+                        s($label),
+                        ['class' => 'btn btn-secondary booking-meetinglink-btn']
+                    ),
                 ];
             case MOD_BOOKING_DESCRIPTION_CALENDAR:
                 // Calendar is static, so we don't have to check for booked or not.
@@ -4388,8 +4405,11 @@ class booking_option {
 
                     return [
                             'name' => null,
-                            'value' => "<a href=$encodedlink class='btn btn-secondary booking-meetinglink-btn'>" .
-                                $field->cfgname . "</a>",
+                            'value' => html_writer::link(
+                                $encodedlink,
+                                s($field->cfgname),
+                                ['class' => 'btn btn-secondary booking-meetinglink-btn']
+                            ),
                     ];
                 } else {
                     return [];
@@ -4410,7 +4430,7 @@ class booking_option {
                 $link = $link->out(false);
                 return [
                         'name' => null,
-                        'value' => "$field->cfgname: $link",
+                        'value' => s($field->cfgname) . ": $link",
                 ];
             case MOD_BOOKING_DESCRIPTION_MAIL:
                 // For the mail placeholder {bookingdetails} no button but link only.
@@ -4426,10 +4446,13 @@ class booking_option {
                     ]
                 );
                 $link = $link->out(false);
-                $fieldname = get_string($field->cfgname, 'mod_booking');
+                // Preset names (zoommeeting, teamsmeeting, ...) are lang string keys, free-text names are shown as is.
+                $fieldname = get_string_manager()->string_exists($field->cfgname, 'mod_booking')
+                    ? get_string($field->cfgname, 'mod_booking')
+                    : $field->cfgname;
                 return [
                     'name' => null,
-                    'value' => "<a href='$link' target='_blank'>$fieldname</a>",
+                    'value' => html_writer::link($link, s($fieldname), ['target' => '_blank']),
                 ];
             default:
                 return [];

@@ -113,8 +113,10 @@ function booking_get_rendered_customfields($optiondateid) {
     $customfieldshtml = ''; // The rendered HTML.
     if ($customfields = $DB->get_records("booking_customfields", ["optiondateid" => $optiondateid])) {
         foreach ($customfields as $customfield) {
-            $customfieldshtml .= '<p><i>' . $customfield->cfgname . ': </i>';
-            $customfieldshtml .= $customfield->value . '</p>';
+            // Name and value are entered by everybody who may edit the option. The name is plain
+            // text, the value keeps its formatting but nothing that a browser would execute.
+            $customfieldshtml .= '<p><i>' . s($customfield->cfgname) . ': </i>';
+            $customfieldshtml .= clean_text((string)$customfield->value, FORMAT_HTML) . '</p>';
         }
     }
     return $customfieldshtml;
