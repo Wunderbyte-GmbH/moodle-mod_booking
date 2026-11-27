@@ -34,7 +34,8 @@ $optionid = required_param('optionid', PARAM_INT);
 require_course_login($course, false, $cm);
 
 $context = context_module::instance($cm->id);
-require_capability('mod/booking:view', $context);
+// The calendar names the users who booked the slots, so it follows the Bookings tracker of the option.
+\mod_booking\local\bookingstracker\report2_access::require_option_scope_access((int)$cm->id, (int)$optionid);
 
 // Only used to decide whether there are booked slots to show; the report module
 // loads the full slot data on demand via the mod_booking_get_booked_slots webservice.

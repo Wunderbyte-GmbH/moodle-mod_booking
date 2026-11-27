@@ -75,6 +75,24 @@ class report2_access {
     }
 
     /**
+     * Requires that the option belongs to the booking instance and that the current user may open
+     * the Bookings tracker of the option. For pages and web services that show who booked.
+     *
+     * @param int $cmid
+     * @param int $optionid
+     * @return void
+     */
+    public static function require_option_scope_access(int $cmid, int $optionid): void {
+        $context = context_module::instance($cmid);
+        if (
+            !self::option_belongs_to_context($optionid, $context)
+            || !self::has_option_scope_access($cmid, $optionid)
+        ) {
+            throw new \required_capability_exception($context, 'mod/booking:readresponses', 'nopermissions', '');
+        }
+    }
+
+    /**
      * Whether the current user may load the tables with the booked users of an option.
      * These tables are shown in the Bookings tracker and on the page to book other users.
      *

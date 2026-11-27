@@ -95,6 +95,56 @@ final class slotbooking_external_test extends booking_advanced_testcase {
     }
 
     /**
+     * The report of the booked slots names the users who booked. It is for the users who may open
+     * the Bookings tracker of the option, not for everybody who may view the booking instance.
+     */
+    public function test_get_booked_slots_is_for_users_of_the_tracker(): void {
+        [$option, $studentid, $cmid] = $this->create_fixed_slot_option();
+        $this->enrol_owner_as_student($cmid, $studentid);
+        $context = \context_module::instance($cmid);
+
+        $reportviewer = self::getDataGenerator()->create_user();
+        $this->enrol_owner_as_student($cmid, (int)$reportviewer->id);
+        $roleid = self::getDataGenerator()->create_role();
+        assign_capability('mod/booking:viewreports', CAP_ALLOW, $roleid, $context->id, true);
+        role_assign($roleid, $reportviewer->id, $context->id);
+
+        // A participant may view the booking instance, but does not get the report.
+        $this->setUser($studentid);
+        $this->assertTrue(has_capability('mod/booking:view', $context));
+        $refused = false;
+        try {
+            get_booked_slots::execute($cmid, $option->id);
+        } catch (\required_capability_exception $e) {
+            $refused = true;
+        }
+        $this->assertTrue($refused);
+
+        $this->setUser($reportviewer);
+        $result = get_booked_slots::execute($cmid, $option->id);
+        $this->assertIsArray(json_decode($result['slots'], true));
+    }
+
+    /**
+     * The right in one booking instance does not open the report of an option of another instance.
+     */
+    public function test_get_booked_slots_rejects_option_of_another_instance(): void {
+        [, , $cmid] = $this->create_fixed_slot_option();
+        [$otheroption] = $this->create_fixed_slot_option();
+        $context = \context_module::instance($cmid);
+
+        $reportviewer = self::getDataGenerator()->create_user();
+        $this->enrol_owner_as_student($cmid, (int)$reportviewer->id);
+        $roleid = self::getDataGenerator()->create_role();
+        assign_capability('mod/booking:viewreports', CAP_ALLOW, $roleid, $context->id, true);
+        role_assign($roleid, $reportviewer->id, $context->id);
+
+        $this->setUser($reportviewer);
+        $this->expectException(\required_capability_exception::class);
+        get_booked_slots::execute($cmid, $otheroption->id);
+    }
+
+    /**
      * save_slot_selection validates an open slot and caches it in the store.
      */
     public function test_save_slot_selection_persists_valid_selection(): void {

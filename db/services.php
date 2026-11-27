@@ -49,7 +49,7 @@ $functions = [
         'classname' => 'mod_booking\external\get_booked_slots',
         'description' => 'Return the booked-slot report data for a slot booking option.',
         'type' => 'read',
-        'capabilities' => 'mod/booking:view',
+        'capabilities' => 'mod/booking:viewreports, mod/booking:readresponses, mod/booking:updatebooking',
         'ajax' => true,
         'services' => [MOODLE_OFFICIAL_MOBILE_SERVICE, 'moodle_mobile_app'],
     ],

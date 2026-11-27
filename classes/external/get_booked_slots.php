@@ -31,6 +31,7 @@ use core_external\external_api;
 use core_external\external_function_parameters;
 use core_external\external_single_structure;
 use core_external\external_value;
+use mod_booking\local\bookingstracker\report2_access;
 use mod_booking\local\slotbooking\slot_dto;
 
 /**
@@ -64,7 +65,9 @@ class get_booked_slots extends external_api {
 
         $context = context_module::instance($params['cmid']);
         self::validate_context($context);
-        require_capability('mod/booking:view', $context);
+        // The report names the users who booked the slots, so it follows the Bookings tracker of
+        // the option. The slots a user can book come from mod_booking_get_slots.
+        report2_access::require_option_scope_access($params['cmid'], $params['optionid']);
 
         $report = slot_dto::build_report_slots($params['optionid'], $params['cmid']);
 
