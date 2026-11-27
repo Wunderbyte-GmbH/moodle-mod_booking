@@ -3020,6 +3020,8 @@ $string['openformat'] = 'offenes Format';
 $string['optional'] = 'optional';
 $string['optionannotation'] = 'Interne Anmerkung';
 $string['optionannotation_help'] = 'Fügen Sie interne Notizen bzw. Anmerkungen hinzu. Diese werden NUR in DIESEM Formular und sonst nirgendwo angezeigt.';
+$string['optionattachmentspublic'] = 'Anhänge von Buchungsoptionen ohne Anmeldung';
+$string['optionattachmentspublic_desc'] = 'Wenn diese Einstellung aktiv ist, können die Dateianhänge von Buchungsoptionen von allen heruntergeladen werden, die den Link kennen, auch ohne Anmeldung. Verwenden Sie das, wenn die Anhänge öffentliches Material Ihres Katalogs sind. Ist die Einstellung nicht aktiv, werden die Anhänge nur an angemeldete Nutzer:innen ausgeliefert, die die Buchungsinstanz ansehen dürfen. Bilder von Buchungsoptionen sind immer öffentlich.';
 $string['optionbookablebody'] = 'Sie können {$a->title} ab sofort wieder buchen. Klicken Sie <a href="{$a->url}">hier</a>, um direkt zur Buchungsoption zu gelangen.<br><br>
 (Sie erhalten diese Nachricht, da Sie bei der Buchungsoption auf den Benachrichtigungs-Button geklickt haben.)<br><br>
 <a href="{$a->unsubscribelink}">Von Erinnerungs-E-Mails für "{$a->title}" abmelden.</a>';

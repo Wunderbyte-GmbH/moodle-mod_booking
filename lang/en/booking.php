@@ -3006,6 +3006,8 @@ $string['openformat'] = 'open format';
 $string['optional'] = 'optional';
 $string['optionannotation'] = 'Internal annotation';
 $string['optionannotation_help'] = 'Add internal remarks, annotations or anything you want. It will only be shown in this form and nowhere else.';
+$string['optionattachmentspublic'] = 'Attachments of booking options without login';
+$string['optionattachmentspublic_desc'] = 'If this is activated, the files attached to booking options can be downloaded by everybody who has the link, also without login. Use it when the attachments are public material of your catalogue. If it is not activated, the attachments are only delivered to logged in users who may view the booking instance. Images of booking options are always public.';
 $string['optionbookablebody'] = '{$a->title} is now available again. <a href="{$a->url}">Click here</a> to directly go there.<br><br>
 (You receive this mail because you have clicked on the notification button for this option.)<br><br>
 <a href="{$a->unsubscribelink}">Unsubscribe from notification e-mails for "{$a->title}".</a>';

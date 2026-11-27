@@ -601,6 +601,18 @@ if ($ADMIN->fulltree) {
         )
     );
 
+    // Whether the attachments of booking options are public material of the catalogue. Until this
+    // setting existed they were delivered to everybody, so a site that already has booking options
+    // keeps this behaviour by default. A new installation starts with the safe value.
+    $settings->add(
+        new admin_setting_configcheckbox(
+            'booking/optionattachmentspublic',
+            get_string('optionattachmentspublic', 'mod_booking'),
+            get_string('optionattachmentspublic_desc', 'mod_booking'),
+            $DB->record_exists('booking_options', []) ? 1 : 0
+        )
+    );
+
     if (!empty($customfields)) {
         // Custom fields to be shown for each booking option in the options overview (view.php)
         // of all booking instances that do not define customfieldsforview themselves.

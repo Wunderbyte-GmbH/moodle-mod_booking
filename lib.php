@@ -533,24 +533,11 @@ function booking_pluginfile($course, $cm, $context, $filearea, $args, $forcedown
         return false;
     }
 
-    // Make sure the filearea is one of those used by the plugin.
-    if (
-        $filearea !== 'myfilemanager'
-        && $filearea !== 'bookingimages'
-        && $filearea !== 'myfilemanageroption'
-        && $filearea !== 'bookingoptionimage'
-        && $filearea !== 'mod_booking_signinlogo'
-        && $filearea !== 'signinlogoheader'
-        && $filearea !== 'signinlogofooter'
-        && $filearea !== 'templatefile'
-        && $filearea !== 'tickets'
-    ) {
+    // Every file area has its audience: images and logos are public, attachments need a login and
+    // the right to view the booking instance, areas without a rule are not delivered.
+    if (!\mod_booking\local\file_access::can_access_area((string)$filearea, $context)) {
         return false;
     }
-
-    // Make sure the user is logged in and has access to the module.
-    // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
-    /* require_login($course, true, $cm); */
 
     // Leave this line out if you set the itemid to null in make_pluginfile_url (set $itemid to 0 instead).
     $itemid = array_shift($args); // The first item in the $args array.
