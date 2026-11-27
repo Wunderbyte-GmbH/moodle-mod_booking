@@ -57,6 +57,12 @@ class report2_access {
     public static function has_option_scope_access(int $cmid, int $optionid): bool {
         $context = context_module::instance($cmid);
 
+        // Instance and option both come from the request. The rights below are checked in the
+        // instance, so they only count for an option of this instance.
+        if (!empty($optionid) && !self::option_belongs_to_context($optionid, $context)) {
+            return false;
+        }
+
         if (booking_check_if_teacher($optionid)) {
             return true;
         }

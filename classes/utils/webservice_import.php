@@ -25,6 +25,8 @@
 
 namespace mod_booking\utils;
 
+use context_module;
+use mod_booking\local\bookingstracker\report2_access;
 use coding_exception;
 use mod_booking\booking;
 use stdClass;
@@ -98,9 +100,26 @@ class webservice_import {
         $data->bookingid = $bookingid;
         $this->cm = get_coursemodule_from_instance('booking', $bookingid);
 
-        if (!isset($data->cmid)) {
-            $data->cmid = $this->cm->id;
+        // The import writes into this booking instance, so the right to edit is checked here: in the
+        // context of the instance the data resolves to, whatever the request used to get authorised.
+        $targetcontext = context_module::instance($this->cm->id);
+        require_capability('mod/booking:updatebooking', $targetcontext);
+
+        // An option that the request names by its id has to be an option of this booking instance.
+        if (
+            !empty($data->bookingoptionid)
+            && !report2_access::option_belongs_to_context((int)$data->bookingoptionid, $targetcontext)
+        ) {
+            throw new \moodle_exception(
+                'nopermissions',
+                'error',
+                '',
+                get_string('bookingoption', 'mod_booking')
+            );
         }
+
+        // The course module is the one of the booking instance, never a value of the request.
+        $data->cmid = $this->cm->id;
 
         $data->importing = 1;
 

@@ -25,6 +25,7 @@
 namespace mod_booking\local;
 
 use context_module;
+use mod_booking\local\bookingstracker\report2_access;
 
 /**
  * Access rule for the entry of the booking option report (report.php).
@@ -49,6 +50,12 @@ class report_access {
      */
     public static function has_report_access(int $cmid, int $optionid): bool {
         $context = context_module::instance($cmid);
+
+        // Instance and option both come from the request. The rights below are checked in the
+        // instance, so they only count for an option of this instance.
+        if (!empty($optionid) && !report2_access::option_belongs_to_context($optionid, $context)) {
+            return false;
+        }
 
         if (booking_check_if_teacher($optionid)) {
             return true;

@@ -463,6 +463,8 @@ class singleton_service {
 
         $instance = self::get_instance();
 
+        self::notify_if_option_is_of_another_instance($cmid, $optionid);
+
         if (isset($instance->bookingoptions[$optionid])) {
             return $instance->bookingoptions[$optionid];
         } else {
@@ -474,6 +476,32 @@ class singleton_service {
                 return null;
             }
         }
+    }
+
+    /**
+     * A booking option belongs to exactly one booking instance. Callers that ask for an option
+     * together with the course module of another instance most probably took both ids from a
+     * request without checking that they belong together, and then check rights in the wrong
+     * instance. For now this only tells developers about such callers; the option is still
+     * returned. In a next step the call will be refused.
+     *
+     * @param int $cmid course module id the caller asks with
+     * @param int $optionid
+     * @return void
+     */
+    private static function notify_if_option_is_of_another_instance(int $cmid, int $optionid): void {
+        if (empty($cmid) || empty($optionid)) {
+            return;
+        }
+        $optioncmid = (int)(self::get_instance_of_booking_option_settings($optionid)->cmid ?? 0);
+        if (empty($optioncmid) || $optioncmid === $cmid) {
+            return;
+        }
+        debugging(
+            "The booking option $optionid belongs to the course module $optioncmid, but was requested with the "
+            . "course module $cmid. Rights that were checked in the course module $cmid do not count for this option.",
+            DEBUG_DEVELOPER
+        );
     }
 
     /**
