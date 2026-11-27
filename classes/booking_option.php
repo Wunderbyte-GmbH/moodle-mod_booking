@@ -4437,6 +4437,32 @@ class booking_option {
     }
 
     /**
+     * Returns the conference link of this option that is stored for a session.
+     * The link is only looked up among the fields of this option and this session: the caller
+     * checks with show_conference_link() that the user may get the links of exactly these.
+     *
+     * @param int $sessionid id of the option date, 0 for a link of the option itself
+     * @param int $fieldid id of the field with the link; if empty, the field is found by its name
+     * @param string $meetingtype name of the field with the link
+     * @return string the stored link, empty if there is none for this option and session
+     */
+    public function get_conference_link(int $sessionid = 0, int $fieldid = 0, string $meetingtype = ''): string {
+        global $DB;
+
+        $conditions = ['optionid' => (int)$this->optionid, 'optiondateid' => $sessionid];
+        if (!empty($fieldid)) {
+            $conditions['id'] = $fieldid;
+        } else {
+            $conditions['cfgname'] = $meetingtype;
+        }
+
+        $customfields = $DB->get_records('booking_customfields', $conditions);
+        $customfield = array_pop($customfields);
+
+        return empty($customfield) ? '' : (string)$customfield->value;
+    }
+
+    /**
      * Function to return false if user has not yet the right to access conference
      * Returns the link if the user has the right
      * time before course start is hardcoded to 15 minutes

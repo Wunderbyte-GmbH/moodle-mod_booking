@@ -63,18 +63,9 @@ $explanationstring = null;
 
 // Only if there was a valid link and session is open, we redirect.
 if ($link = $bookingoption->show_conference_link($sessionid)) {
-    // We can find the actual link.
-    if (!empty($fieldid)) {
-        $link = $DB->get_field('booking_customfields', 'value', ['id' => $fieldid]);
-    } else {
-        // If fieldid is not present, we'll use optionid, optiondateid and meetingtype to find the correct link.
-        $customfields = $DB->get_records(
-            'booking_customfields',
-            ['optionid' => $optionid, 'optiondateid' => $sessionid, 'cfgname' => $meetingtype]
-        );
-        $customfield = array_pop($customfields);
-        $link = $customfield->value;
-    }
+    // We can find the actual link. It is always a link of this option and this session, the ids
+    // from the request cannot point to the link of another option.
+    $link = $bookingoption->get_conference_link((int)$sessionid, (int)$fieldid, (string)$meetingtype);
 
     // Check if it's actually a link.
     if (filter_var($link, FILTER_VALIDATE_URL)) {
