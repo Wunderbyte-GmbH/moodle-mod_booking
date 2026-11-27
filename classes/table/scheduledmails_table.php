@@ -304,6 +304,20 @@ class scheduledmails_table extends wunderbyte_table {
     public function action_deleteitem(int $id, string $data = ''): array {
         global $DB;
 
+        // Viewing the scheduled mails does not include deleting them.
+        require_capability('mod/booking:editscheduledmails', $this->context);
+
+        // The id comes from the request. Only a scheduled mail of this table can be deleted,
+        // never another background task of the site or the mail of another context.
+        [$fields, $from, $where, $params] = scheduledmails::get_sql($this->context->id);
+        $params['scheduledmailtaskid'] = $id;
+        if (!$DB->record_exists_sql("SELECT 1 FROM $from WHERE $where AND s1.id = :scheduledmailtaskid", $params)) {
+            return [
+                'success' => 0,
+                'message' => get_string('error'),
+            ];
+        }
+
         $DB->delete_records('task_adhoc', ['id' => $id]);
         // The bulk send checker keeps a row per queued send, which must not outlive the task.
         bulk_check::drop_by_task((int) $id);
@@ -324,6 +338,9 @@ class scheduledmails_table extends wunderbyte_table {
      * @return array
      */
     public function action_cleanupinvalid(int $id, string $data = ''): array {
+        // Viewing the scheduled mails does not include deleting them.
+        require_capability('mod/booking:editscheduledmails', $this->context);
+
         $contextid = $this->context->id;
         $result = scheduledmails::cleanup_invalid_tasks_in_context($contextid);
 

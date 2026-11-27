@@ -111,40 +111,43 @@ class scheduledmails implements renderable, templatable {
         $table->showreloadbutton = true;
         $table->reloadpurgescache = true;
 
-        $table->actionbuttons[] = [
-            'label' => get_string('delete'), // Name of your action button.
-            'class' => 'btn btn-danger',
-            'href' => '#',
-            'methodname' => 'deleteitem', // The method needs to be added to your child of wunderbyte_table class.
-            'nomodal' => false,
-            'selectionmandatory' => true,
-            'data' => [ // Will be added eg as data-id = $values->id, so values can be transmitted to the method above.
-                'id' => 'id',
-                'titlestring' => 'deletedatatitle',
-                'bodystring' => 'deletedatabody',
-                'submitbuttonstring' => 'deletedatasubmit',
-                'component' => 'local_wunderbyte_table',
-                'labelcolumn' => 'firstname',
-            ],
-        ];
+        // The actions delete scheduled mails, so they are for users who may edit them.
+        if (has_capability('mod/booking:editscheduledmails', context::instance_by_id($contextid))) {
+            $table->actionbuttons[] = [
+                'label' => get_string('delete'), // Name of your action button.
+                'class' => 'btn btn-danger',
+                'href' => '#',
+                'methodname' => 'deleteitem', // The method needs to be added to your child of wunderbyte_table class.
+                'nomodal' => false,
+                'selectionmandatory' => true,
+                'data' => [ // Will be added eg as data-id = $values->id, so values can be transmitted to the method above.
+                    'id' => 'id',
+                    'titlestring' => 'deletedatatitle',
+                    'bodystring' => 'deletedatabody',
+                    'submitbuttonstring' => 'deletedatasubmit',
+                    'component' => 'local_wunderbyte_table',
+                    'labelcolumn' => 'firstname',
+                ],
+            ];
 
-        $table->actionbuttons[] = [
-            'label' => get_string('delete', 'core') . ' ' . get_string('status', 'mod_booking') . ': ' . get_string('no'),
-            'class' => 'btn btn-warning',
-            'href' => '#',
-            'id' => -1,
-            'methodname' => 'cleanupinvalid',
-            'nomodal' => false,
-            'selectionmandatory' => false,
-            'data' => [
-                'id' => 'id',
-                'titlestring' => 'scheduledmailscleanupinvalidtitle',
-                'bodystring' => 'scheduledmailscleanupinvalidbody',
-                'submitbuttonstring' => 'scheduledmailscleanupinvalidsubmit',
-                'component' => 'mod_booking',
-                'noselectionbodystring' => 'scheduledmailscleanupinvalidbody',
-            ],
-        ];
+            $table->actionbuttons[] = [
+                'label' => get_string('delete', 'core') . ' ' . get_string('status', 'mod_booking') . ': ' . get_string('no'),
+                'class' => 'btn btn-warning',
+                'href' => '#',
+                'id' => -1,
+                'methodname' => 'cleanupinvalid',
+                'nomodal' => false,
+                'selectionmandatory' => false,
+                'data' => [
+                    'id' => 'id',
+                    'titlestring' => 'scheduledmailscleanupinvalidtitle',
+                    'bodystring' => 'scheduledmailscleanupinvalidbody',
+                    'submitbuttonstring' => 'scheduledmailscleanupinvalidsubmit',
+                    'component' => 'mod_booking',
+                    'noselectionbodystring' => 'scheduledmailscleanupinvalidbody',
+                ],
+            ];
+        }
 
         $this->renderedtable = $table->outhtml(5, true);
         $this->table = $table;
