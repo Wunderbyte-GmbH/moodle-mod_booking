@@ -164,6 +164,8 @@ class instanceanswers extends scope_base_answers {
             }
         }
 
+        $this->declare_users_table_access($table, $scopeid);
+
         return $table;
     }
 

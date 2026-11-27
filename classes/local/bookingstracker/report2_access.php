@@ -75,6 +75,31 @@ class report2_access {
     }
 
     /**
+     * Whether the current user may load the tables with the booked users of an option.
+     * These tables are shown in the Bookings tracker and on the page to book other users.
+     *
+     * @param int $cmid
+     * @param int $optionid
+     * @return bool
+     */
+    public static function can_load_option_users_tables(int $cmid, int $optionid): bool {
+        if (self::has_option_scope_access($cmid, $optionid)) {
+            return true;
+        }
+
+        // The page to book other users.
+        $context = context_module::instance($cmid);
+        if (
+            !has_capability('mod/booking:bookforothers', $context)
+            && !has_capability('mod/booking:bookmyteam', $context)
+        ) {
+            return false;
+        }
+        return has_capability('mod/booking:subscribeusers', $context)
+            || has_capability('moodle/site:accessallgroups', $context);
+    }
+
+    /**
      * Whether the current user may change the booking answers of the option in the
      * tracker (completion, presence status, notes).
      *

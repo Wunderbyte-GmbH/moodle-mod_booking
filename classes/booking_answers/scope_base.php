@@ -179,6 +179,85 @@ class scope_base {
     }
 
     /**
+     * Whether the current user may load the table with the booked users of this scope.
+     * This is the rule of the pages that show the table. The default is the capability to
+     * manage booked users in the context of the scope.
+     *
+     * @param int $scopeid optionid | optiondateid | cmid | courseid | 0
+     * @return bool
+     */
+    public function user_can_load_users_table(int $scopeid): bool {
+        return (bool)$this->has_capability_in_scope($scopeid, 'mod/booking:managebookedusers');
+    }
+
+    /**
+     * Declares on the table who may load it. The table is cached and reloaded by its hash
+     * (paging, filters, lazy loading), so the table itself has to know its audience.
+     *
+     * @param wunderbyte_table $table
+     * @param int $scopeid optionid | optiondateid | cmid | courseid | 0
+     * @return void
+     */
+    protected function declare_users_table_access(wunderbyte_table $table, int $scopeid): void {
+        $table->declare_access_by_callback(
+            [self::class, 'users_table_access_callback'],
+            [
+                'scope' => static::return_classname(),
+                'scopeid' => $scopeid,
+                // The rows can be limited to the users the current user may see (e.g. the own team).
+                // A table is only delivered to users with the same limit as the user it was built for.
+                'restriction' => $this->get_answers_restriction_fingerprint($scopeid),
+            ]
+        );
+    }
+
+    /**
+     * Access check of the tables with the booked users, called by the table for the current user.
+     *
+     * @param wunderbyte_table $table
+     * @param array $args scope, scopeid and restriction, see declare_users_table_access()
+     * @return bool
+     */
+    public static function users_table_access_callback(wunderbyte_table $table, array $args): bool {
+        $class = __NAMESPACE__ . '\\scopes\\' . (string)($args['scope'] ?? '');
+        if (!class_exists($class) || !is_subclass_of($class, self::class)) {
+            return false;
+        }
+        $scopeid = (int)($args['scopeid'] ?? 0);
+
+        try {
+            /** @var scope_base $scopeclass */
+            $scopeclass = new $class();
+            if (!$scopeclass->user_can_load_users_table($scopeid)) {
+                return false;
+            }
+            return hash_equals(
+                (string)($args['restriction'] ?? ''),
+                $scopeclass->get_answers_restriction_fingerprint($scopeid)
+            );
+        } catch (\Throwable $e) {
+            // The option, instance or course of the table does not exist any more.
+            return false;
+        }
+    }
+
+    /**
+     * Identifies the limit of the visible booking answers for the current user, see
+     * get_answers_restriction_sql(). Empty when the current user is not restricted.
+     *
+     * @param int $scopeid optionid | optiondateid | cmid | courseid | 0
+     * @return string
+     */
+    public function get_answers_restriction_fingerprint(int $scopeid): string {
+        $userids = answersrestriction::get_visible_user_ids($this, $scopeid);
+        if ($userids === null) {
+            return '';
+        }
+        sort($userids);
+        return sha1(implode(',', $userids));
+    }
+
+    /**
      * Returns the sql restricting the visible booking answers to the users a booking
      * extension allows the current user to see (e.g. a supervisor and their team).
      *

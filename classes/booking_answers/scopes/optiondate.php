@@ -207,7 +207,29 @@ class optiondate extends scope_base {
         // Add checkboxes for multi-selection.
         $table->addcheckboxes = true;
 
+        $this->declare_users_table_access($table, $scopeid);
+
         return $table;
+    }
+
+    /**
+     * Whether the current user may load the table with the booked users of the option date.
+     *
+     * @param int $scopeid optiondateid
+     * @return bool
+     */
+    public function user_can_load_users_table(int $scopeid): bool {
+        global $DB;
+
+        $optionid = (int)$DB->get_field('booking_optiondates', 'optionid', ['id' => $scopeid]);
+        if (empty($optionid)) {
+            return false;
+        }
+        $cmid = (int)singleton_service::get_instance_of_booking_option_settings($optionid)->cmid;
+        if (empty($cmid)) {
+            return false;
+        }
+        return report2_access::has_option_scope_access($cmid, $optionid);
     }
 
     /**

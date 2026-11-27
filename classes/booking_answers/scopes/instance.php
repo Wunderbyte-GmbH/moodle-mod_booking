@@ -144,6 +144,8 @@ class instance extends scope_base_options {
         $table->sort_default_column = 'timecreated';
         $table->sort_default_order = SORT_DESC;
 
+        $this->declare_users_table_access($table, $scopeid);
+
         return $table;
     }
 

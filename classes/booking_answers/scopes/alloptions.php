@@ -146,7 +146,19 @@ class alloptions extends option {
 
         $table->define_sortablecolumns($sortablecolumns);
 
+        $this->declare_users_table_access($table, $scopeid);
+
         return $table;
+    }
+
+    /**
+     * Whether the current user may load the table with the booked users of all options.
+     *
+     * @param int $scopeid
+     * @return bool
+     */
+    public function user_can_load_users_table(int $scopeid): bool {
+        return (bool)$this->has_capability_in_scope($scopeid, 'mod/booking:managebookedusers');
     }
 
     /**

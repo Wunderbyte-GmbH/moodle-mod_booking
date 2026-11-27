@@ -365,7 +365,26 @@ class option extends scope_base {
             }
         }
 
+        $this->declare_users_table_access($table, $scopeid);
+
         return $table;
+    }
+
+    /**
+     * Whether the current user may load the table with the booked users of the option.
+     *
+     * @param int $scopeid optionid
+     * @return bool
+     */
+    public function user_can_load_users_table(int $scopeid): bool {
+        if (empty($scopeid)) {
+            return parent::user_can_load_users_table($scopeid);
+        }
+        $cmid = (int)singleton_service::get_instance_of_booking_option_settings($scopeid)->cmid;
+        if (empty($cmid)) {
+            return false;
+        }
+        return report2_access::can_load_option_users_tables($cmid, $scopeid);
     }
 
     /**

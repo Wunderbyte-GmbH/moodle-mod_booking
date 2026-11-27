@@ -165,6 +165,8 @@ class systemanswers extends scope_base_answers {
                 $table->actionbuttons[] = booked_users::create_delete_button();
             }
         }
+        $this->declare_users_table_access($table, $scopeid);
+
         return $table;
     }
 

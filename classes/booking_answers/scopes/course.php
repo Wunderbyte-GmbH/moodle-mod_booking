@@ -151,6 +151,8 @@ class course extends scope_base_options {
         $table->add_filter($instancefilter);
         $table->showfilterontop = true;
 
+        $this->declare_users_table_access($table, $scopeid);
+
         return $table;
     }
 
