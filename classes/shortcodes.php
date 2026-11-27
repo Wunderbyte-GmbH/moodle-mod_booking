@@ -1072,10 +1072,11 @@ class shortcodes {
             return $error['message'];
         }
 
-        if (isset($args['userid']) && !empty($args['userid'])) {
-            $userid = $args['userid'];
-        } else {
-            $userid = $USER->id;
+        // The bookings of another user are only listed for users who may act for others.
+        // Everybody else gets the own bookings.
+        $userid = (int)$USER->id;
+        if (!empty($args['userid']) && self::may_see_list_of_user((int)$args['userid'])) {
+            $userid = (int)$args['userid'];
         }
         $wherearray = [];
         $course = $PAGE->course;
@@ -1182,6 +1183,10 @@ class shortcodes {
 
         // Set common table options requirelogin, sortorder, sortby.
         self::set_common_table_options_from_arguments($table, $args);
+        // The list shows the bookings of one user.
+        if ($userid > 0) {
+            self::declare_personal_table_access($table, $userid);
+        }
         [$fields, $from, $where, $params, $filter] =
                 booking::get_options_filter_sql(
                     0,
@@ -1360,6 +1365,10 @@ class shortcodes {
 
         // Set common table options requirelogin, sortorder, sortby.
         self::set_common_table_options_from_arguments($table, $args);
+        if ($bypassteacherid > 0) {
+            // In the own list the teacher also sees options that are hidden from others.
+            self::declare_personal_table_access($table, $bypassteacherid);
+        }
         // This second call is the one the table actually runs: it overwrites the filter sql set above,
         // so it must carry the teacher bypass as well.
         [$fields, $from, $where, $params, $filter] =
@@ -1980,9 +1989,6 @@ class shortcodes {
         ?string $uniquetablename = null,
         array $args = []
     ) {
-        /** @var \context $syscontext */
-        $syscontext = context_system::instance();
-
         if ($booking && !empty($booking->cmid)) {
             /** @var \context $context */
             $context = context_module::instance($booking->cmid);
@@ -1993,20 +1999,8 @@ class shortcodes {
         // Important security check.
         // Only users with one of these capabilities may fetch data of other users. The helper checks
         // them before it accepts the id of another user from the url.
-        $actforcapabilities = [
-            // This check actually corresponds to the check in booking_bookit currently line 126.
-            // It allows overriding a blocking condition under some circumstances.
-            'mod/booking:bookforothers' => $context,
-            // Team bookers (eg. supervisors) may book for some users only.
-            // The allowedtobookforuser condition decides per option and shows a label if not allowed.
-            'mod/booking:bookmyteam' => $context,
-        ];
-        if (class_exists('local_shopping_cart\shopping_cart')) {
-            // The cashier of the shopping cart.
-            $actforcapabilities['local/shopping_cart:cashier'] = $syscontext;
-        }
         // Check if rendering is for another user id.
-        $userid = actforuser::get_foruserid($args, 0, $actforcapabilities);
+        $userid = actforuser::get_foruserid($args, 0, self::capabilities_to_act_for_others($context));
 
         $tablename = $uniquetablename ?? bin2hex(random_bytes(12));
         // This is required to differentiate between instances when the table is rendered for a specific user.
@@ -2020,6 +2014,73 @@ class shortcodes {
         // phpcs:ignore
         //$table->define_columns(['titleprefix']);
         return $table;
+    }
+
+    /**
+     * The capabilities that allow rendering a list from the perspective of another user.
+     *
+     * @param \context $context context of the booking instance, or the system context
+     * @return array capability => context
+     */
+    private static function capabilities_to_act_for_others(\context $context): array {
+        $capabilities = [
+            // This check actually corresponds to the check in booking_bookit currently line 126.
+            // It allows overriding a blocking condition under some circumstances.
+            'mod/booking:bookforothers' => $context,
+            // Team bookers (eg. supervisors) may book for some users only.
+            // The allowedtobookforuser condition decides per option and shows a label if not allowed.
+            'mod/booking:bookmyteam' => $context,
+        ];
+        if (class_exists('local_shopping_cart\shopping_cart')) {
+            // The cashier of the shopping cart.
+            $capabilities['local/shopping_cart:cashier'] = context_system::instance();
+        }
+        return $capabilities;
+    }
+
+    /**
+     * Whether the current user may see a list that is built for the given user: the user
+     * themselves and users who may act for others.
+     *
+     * @param int $userid
+     * @return bool
+     */
+    public static function may_see_list_of_user(int $userid): bool {
+        global $USER;
+
+        if ($userid > 0 && $userid === (int)$USER->id) {
+            return true;
+        }
+        foreach (self::capabilities_to_act_for_others(context_system::instance()) as $capability => $context) {
+            if (has_capability($capability, $context)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Declares that a table is personal: it shows data of one user and is only delivered to this
+     * user and to users who may act for others. The table is cached and reloaded by its hash, so
+     * it has to do this check itself.
+     *
+     * @param wunderbyte_table $table
+     * @param int $userid the user the table is built for
+     * @return void
+     */
+    public static function declare_personal_table_access(wunderbyte_table $table, int $userid): void {
+        $table->declare_access_by_callback([self::class, 'personal_table_access_callback'], ['userid' => $userid]);
+    }
+
+    /**
+     * Access check of personal tables, called by the table for the current user.
+     *
+     * @param wunderbyte_table $table
+     * @param array $args userid, see declare_personal_table_access()
+     * @return bool
+     */
+    public static function personal_table_access_callback(wunderbyte_table $table, array $args): bool {
+        return self::may_see_list_of_user((int)($args['userid'] ?? 0));
     }
 
     /**
@@ -2139,8 +2200,15 @@ class shortcodes {
             }
         }
 
-        if (isset($args['requirelogin']) && $args['requirelogin'] == "false") {
-            $table->requirelogin = false;
+        // Who may load the table. The lists of booking options are for all logged in users, wherever
+        // the shortcode is used, and public if the shortcode says so. A list that is rendered from the
+        // perspective of another user (e.g. by a cashier) is personal.
+        if (!empty($table->foruserid)) {
+            self::declare_personal_table_access($table, (int)$table->foruserid);
+        } else if (isset($args['requirelogin']) && $args['requirelogin'] == "false") {
+            $table->declare_public_access();
+        } else {
+            $table->declare_access_for_logged_in_users();
         }
         // Show count label by default. Only hide it when it is turned off explicitly.
         if (!isset($args['countlabel'])) {
