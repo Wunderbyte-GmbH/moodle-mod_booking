@@ -499,11 +499,39 @@ class manageusers_table extends wunderbyte_table {
         global $DB;
 
         $jsonobject = json_decode($data);
-        $ids = $jsonobject->ids;
+        // The ids come from the request.
+        $ids = array_values(array_unique(array_map('intval', (array)($jsonobject->ids ?? []))));
 
         $this->setup();
         // First we fetch the rawdata.
         $this->query_db_cached($this->pagesize, true);
+
+        // Only booking answers of this table are reordered, never answers of another option.
+        $optionids = [];
+        foreach ($ids as $id) {
+            if (!isset($this->rawdata[$id])) {
+                return [
+                    'success' => 0,
+                    'message' => get_string('error'),
+                ];
+            }
+            $optionids[(int)$this->rawdata[$id]->optionid] = true;
+        }
+        if (empty($ids)) {
+            return [
+                'success' => 0,
+                'message' => get_string('error'),
+            ];
+        }
+
+        // The order of the waiting list decides who moves up. Changing it needs the general edit
+        // gate of the tracker, like the other actions that change booking answers.
+        foreach (array_keys($optionids) as $optionid) {
+            $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
+            if (!report2_access::can_manage_option_answers(context_module::instance($settings->cmid), $optionid)) {
+                throw new moodle_exception('Missing capability: mod/booking:managebookedusers', 'mod_booking');
+            }
+        }
 
         // We know that we already ordered for timemodified. The lastitem will have the highest time modified...
         // The first item the lowest.
@@ -524,9 +552,9 @@ class manageusers_table extends wunderbyte_table {
             ]);
         }
 
-        $record = reset($this->rawdata);
-        $optionid = $record->optionid;
-        booking_option::purge_cache_for_answers($optionid);
+        foreach (array_keys($optionids) as $optionid) {
+            booking_option::purge_cache_for_answers($optionid);
+        }
 
         return [
             'success' => 1,
