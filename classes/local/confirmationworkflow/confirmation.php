@@ -16,6 +16,11 @@
 
 namespace mod_booking\local\confirmationworkflow;
 
+use context;
+use context_module;
+use context_system;
+use mod_booking\singleton_service;
+
 /**
  * Utility class to check bookingextension subplugin confirmation capability.
  *
@@ -25,6 +30,51 @@ namespace mod_booking\local\confirmationworkflow;
  * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class confirmation {
+    /**
+     * Whether the current user may confirm (or deny) the answers of a booking option regardless of
+     * any confirmation workflow.
+     *
+     * The capability mod/booking:alwayscanapprove is checked in the module context of the option,
+     * so a role assigned on a course category or a course is sufficient for the options below it.
+     * Role assignments on system level are inherited by the module context and work as before.
+     *
+     * @param int $optionid ID of the booking option, 0 when there is no specific option.
+     * @return bool
+     */
+    public static function can_always_approve(int $optionid = 0): bool {
+        return has_capability('mod/booking:alwayscanapprove', self::get_context_for_option($optionid));
+    }
+
+    /**
+     * Returns the module context of a booking option.
+     *
+     * Falls back to the system context when no context can be determined, e.g. without an option
+     * (shortcodes listing answers of many options) or when the course module is missing.
+     *
+     * @param int $optionid ID of the booking option, 0 when there is no specific option.
+     * @return context
+     */
+    public static function get_context_for_option(int $optionid = 0): context {
+        if (empty($optionid)) {
+            return context_system::instance();
+        }
+
+        try {
+            $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
+            if (!empty($settings->cmid)) {
+                $context = context_module::instance((int) $settings->cmid, IGNORE_MISSING);
+                if (!empty($context)) {
+                    return $context;
+                }
+            }
+        } catch (\Throwable $e) {
+            // An option which can not be loaded has no context: the system context is the strictest check.
+            return context_system::instance();
+        }
+
+        return context_system::instance();
+    }
+
     /**
      * Checks all bookingextension subplugins for confirm capability.
      *

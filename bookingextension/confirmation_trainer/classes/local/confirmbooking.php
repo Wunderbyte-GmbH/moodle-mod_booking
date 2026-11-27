@@ -27,10 +27,9 @@ namespace bookingextension_confirmation_trainer\local;
 
 use context_course;
 use local_taskflow\local\supervisor\supervisor;
-use mod_booking\bo_availability\conditions\confirmation;
+use mod_booking\local\confirmationworkflow\confirmation;
 use mod_booking\local\interfaces\bookingextension\confirmbooking_interface;
 use context_module;
-use context_system;
 use mod_booking\singleton_service;
 
 /**
@@ -52,7 +51,8 @@ class confirmbooking implements confirmbooking_interface {
         global $DB;
 
         // Admin & all persons who have alwayscanapprove capability can confirm answers regardless of any other conditions.
-        if (has_capability('mod/booking:alwayscanapprove', context_system::instance())) {
+        // The capability is checked in the module context of the option (system context as fallback).
+        if (confirmation::can_always_approve($optionid)) {
             $approved = true;
             $message = '';
             $reload = false;
