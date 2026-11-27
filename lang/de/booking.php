@@ -1007,6 +1007,7 @@ $string['booking:expertoptionform'] = "Expert Buchungsoptions Formular";
 $string['booking:importoptions'] = "Optionen importieren";
 $string['booking:limitededitownoption'] = 'Weniger als editownoption, nur sehr beschränktes Editieren eigener Optionen erlaubt.';
 $string['booking:managebookedusers'] = 'Buchungen von Nutzer:innen verwalten';
+$string['booking:managebookingactions'] = 'Buchungsaktionen von Buchungsoptionen sehen und ändern';
 $string['booking:managebookingsownoption'] = 'Buchungen eigener Buchungsoptionen verwalten (eigene Buchungsoptionen sind solche,
 die man entweder selbst angelegt hat oder bei denen man als Trainer:in zugewiesen ist)';
 $string['booking:managebulkcheck'] = 'Von der Massenversand-Prüfung zurückgestellte Regel-Mails verwalten';

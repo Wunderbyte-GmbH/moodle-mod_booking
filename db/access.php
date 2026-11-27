@@ -792,6 +792,16 @@ $capabilities = [
             'manager' => CAP_ALLOW,
         ],
     ],
+    /* Capability to see and to change the booking actions of a booking option (e.g. calling an
+       external script when a user books). An action can send booking data to an address chosen
+       by the person who configures it, so no role gets this capability by default: it has to be
+       granted on purpose. */
+    'mod/booking:managebookingactions' => [
+        'captype' => 'write',
+        'riskbitmask' => RISK_CONFIG | RISK_PERSONAL,
+        'contextlevel' => CONTEXT_MODULE,
+        'archetypes' => [],
+    ],
     /* Capability to see, send or delete the rule mails that the bulk send checker parked, and to
        receive its alerts. Site wide, because booking rules can live in the system context. */
     'mod/booking:managebulkcheck' => [

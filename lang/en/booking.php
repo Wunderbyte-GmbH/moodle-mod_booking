@@ -1008,6 +1008,7 @@ $string['booking:expertoptionform'] = "Expert option form";
 $string['booking:importoptions'] = "Import Options";
 $string['booking:limitededitownoption'] = 'Less than editownoption, only allows very limited actions';
 $string['booking:managebookedusers'] = 'Manage user bookings (booking answers)';
+$string['booking:managebookingactions'] = 'See and change the booking actions of booking options';
 $string['booking:managebookingsownoption'] = 'Manage the bookings of own booking options (own booking options are those
 that you either created yourself or are assigned to as a teacher)';
 $string['booking:managebulkcheck'] = 'Manage the rule mails parked by the bulk send check';

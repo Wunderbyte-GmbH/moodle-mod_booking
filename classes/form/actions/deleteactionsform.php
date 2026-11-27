@@ -58,6 +58,8 @@ class deleteactionsform extends dynamic_form {
      */
     public function process_dynamic_submission() {
         $data = parent::get_data();
+        // The booking instance is the one of the option, whatever the request names.
+        $data->cmid = actions_info::require_manage_actions_of_option((int)$data->optionid);
 
         actions_info::delete_action($data);
 
@@ -111,6 +113,6 @@ class deleteactionsform extends dynamic_form {
      * @return void
      */
     protected function check_access_for_dynamic_submission(): void {
-        require_capability('moodle/site:config', context_system::instance());
+        actions_info::require_manage_actions_of_option((int)($this->_ajaxformdata['optionid'] ?? 0));
     }
 }

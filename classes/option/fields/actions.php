@@ -101,6 +101,24 @@ class actions extends field_base {
         // The hidden boactionsjson element is only rendered with an active PRO license and
         // showboactions enabled. If neither key is present in the submitted data, the stored
         // actions must be kept instead of being overwritten with an empty array.
+        // The actions come from the submitted data: from the keys below and, as part of the whole
+        // json of the option, from the json field that was processed before this one. They are
+        // only saved for users who may manage booking actions. For everybody else the actions
+        // that are stored for the option stay exactly as they are.
+        $optionid = (int)($formdata->id ?? $formdata->optionid ?? 0);
+        $cmid = (int)($formdata->cmid ?? 0);
+        if (empty($cmid) && $optionid > 0) {
+            $cmid = (int)singleton_service::get_instance_of_booking_option_settings($optionid)->cmid;
+        }
+        if (!actions_info::can_manage_actions($cmid)) {
+            $storedactions = $optionid > 0 ? booking_option::get_value_of_json_by_key($optionid, 'boactions') : null;
+            if ($storedactions === null) {
+                booking_option::remove_key_from_json($newoption, 'boactions');
+            } else {
+                booking_option::add_data_to_json($newoption, 'boactions', $storedactions);
+            }
+            return [];
+        }
         if (!empty($formdata->boactionsjson)) {
             booking_option::add_data_to_json($newoption, 'boactions', json_decode($formdata->boactionsjson));
         } else if (isset($formdata->boactions)) {
@@ -152,6 +170,9 @@ class actions extends field_base {
             // We don't need the boactions otherwise, but might be needed in copying etc.
             $data->boactions = booking_option::get_value_of_json_by_key($data->id, 'boactions');
         }
-        $data->boactionsjson = json_encode($data->boactions ?? []);
+        // The actions only get into the form of users who may manage them.
+        if (actions_info::can_manage_actions((int)($data->cmid ?? $settings->cmid ?? 0))) {
+            $data->boactionsjson = json_encode($data->boactions ?? []);
+        }
     }
 }

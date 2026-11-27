@@ -57,7 +57,12 @@ class actions_info {
         array &$formdata = []
     ) {
 
-        if (get_config('booking', 'showboactions') && wb_payment::pro_version_is_activated()) {
+        if (
+            get_config('booking', 'showboactions')
+            && wb_payment::pro_version_is_activated()
+            // Actions are only shown to users who may manage them.
+            && self::can_manage_actions((int)($formdata['cmid'] ?? 0))
+        ) {
             // Add header to Element.
             $mform->addElement(
                 'header',
@@ -78,6 +83,44 @@ class actions_info {
                 );
             }
         }
+    }
+
+    /**
+     * Whether the current user may see and change the booking actions of the options of a
+     * booking instance. Actions are only shown to these users and only saved for them.
+     *
+     * @param int $cmid course module id of the booking instance, 0 to ask for the whole site
+     * @return bool
+     */
+    public static function can_manage_actions(int $cmid = 0): bool {
+        return has_capability('mod/booking:managebookingactions', self::context_for_actions($cmid));
+    }
+
+    /**
+     * Requires the right to manage the booking actions of an option. The booking instance is
+     * taken from the option itself, not from the request.
+     *
+     * @param int $optionid
+     * @return int course module id of the booking instance of the option
+     */
+    public static function require_manage_actions_of_option(int $optionid): int {
+        $cmid = 0;
+        if (!empty($optionid)) {
+            $cmid = (int)singleton_service::get_instance_of_booking_option_settings($optionid)->cmid;
+        }
+        require_capability('mod/booking:managebookingactions', self::context_for_actions($cmid));
+        return $cmid;
+    }
+
+    /**
+     * The context the right to manage booking actions is checked in.
+     *
+     * @param int $cmid course module id of the booking instance, 0 for the whole site
+     * @return \context
+     */
+    private static function context_for_actions(int $cmid): \context {
+        $context = empty($cmid) ? null : context_module::instance($cmid, IGNORE_MISSING);
+        return $context ?: \context_system::instance();
     }
 
     /**

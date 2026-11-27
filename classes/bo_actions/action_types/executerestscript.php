@@ -48,6 +48,12 @@ require_once($CFG->dirroot . '/mod/booking/lib.php');
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class executerestscript extends booking_action {
+    /** @var int Seconds to wait for the connection to the external script. */
+    const CONNECT_TIMEOUT = 10;
+
+    /** @var int Seconds the whole request to the external script may take. */
+    const REQUEST_TIMEOUT = 30;
+
     /**
      * Apply action.
      * @param stdClass $actiondata
@@ -260,21 +266,13 @@ class executerestscript extends booking_action {
         $verify = !empty($actiondata->sslverify);
 
         // Moodle's wrapper is used for proxy support ($CFG->proxyhost and friends), which a raw
-        // curl handle ignores. Security is deliberately skipped: the endpoint can only be set by
-        // a site admin (see actionsform::check_access_for_dynamic_submission), so the blocklist
-        // would add no protection here, but its defaults - private ranges, localhost and any port
-        // other than 80/443 - would break existing actions that call internal endpoints.
+        // curl handle ignores. The blocklist of Moodle is deliberately skipped: its defaults -
+        // private ranges, localhost and any port other than 80/443 - would break existing actions
+        // that call internal endpoints. The endpoint can only be set by users with the capability
+        // mod/booking:managebookingactions, which no role has by default.
         $curl = new \curl(['ignoresecurity' => true]);
         $curl->setHeader($headers);
-        $curl->setopt([
-            'CURLOPT_ENCODING' => '',
-            'CURLOPT_MAXREDIRS' => 10,
-            'CURLOPT_TIMEOUT' => 0,
-            'CURLOPT_FOLLOWLOCATION' => true,
-            'CURLOPT_HTTP_VERSION' => CURL_HTTP_VERSION_1_1,
-            'CURLOPT_SSL_VERIFYPEER' => $verify,
-            'CURLOPT_SSL_VERIFYHOST' => $verify ? 2 : 0,
-        ]);
+        $curl->setopt(self::curl_options($verify));
 
         $response = $curl->post($actiondata->rest_script ?? '', $usejson ? $jsonbody : $params);
 
@@ -282,6 +280,29 @@ class executerestscript extends booking_action {
         $error = $curl->error;
 
         return $response;
+    }
+
+    /**
+     * The options of the request to the external script.
+     *
+     * The request goes to the configured address only: redirects are not followed, so the data
+     * and the secret never reach another server than the one that was entered. Time limits make
+     * sure that a script that does not answer cannot block the booking for good.
+     *
+     * @param bool $verify whether the certificate of the server is verified
+     * @return array
+     */
+    public static function curl_options(bool $verify): array {
+        return [
+            'CURLOPT_ENCODING' => '',
+            'CURLOPT_FOLLOWLOCATION' => false,
+            'CURLOPT_MAXREDIRS' => 0,
+            'CURLOPT_CONNECTTIMEOUT' => self::CONNECT_TIMEOUT,
+            'CURLOPT_TIMEOUT' => self::REQUEST_TIMEOUT,
+            'CURLOPT_HTTP_VERSION' => CURL_HTTP_VERSION_1_1,
+            'CURLOPT_SSL_VERIFYPEER' => $verify,
+            'CURLOPT_SSL_VERIFYHOST' => $verify ? 2 : 0,
+        ];
     }
 
     /**

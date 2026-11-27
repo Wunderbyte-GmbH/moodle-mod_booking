@@ -82,8 +82,10 @@ class actionsform extends dynamic_form {
         global $USER;
         $data = parent::get_data();
 
-        $cmid = (int) $data->cmid;
         $optionid = $data->optionid;
+        // The booking instance is the one of the option, whatever the request names.
+        $cmid = actions_info::require_manage_actions_of_option((int)$optionid);
+        $data->cmid = $cmid;
 
         actions_info::save_action($data);
 
@@ -148,6 +150,6 @@ class actionsform extends dynamic_form {
      * @return void
      */
     protected function check_access_for_dynamic_submission(): void {
-        require_capability('moodle/site:config', context_system::instance());
+        actions_info::require_manage_actions_of_option((int)($this->_ajaxformdata['optionid'] ?? 0));
     }
 }
