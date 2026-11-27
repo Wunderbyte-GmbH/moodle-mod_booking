@@ -36,13 +36,11 @@ global $DB, $CFG, $COURSE, $USER, $OUTPUT, $PAGE;
 require_login(0, false);
 
 $encodedurl = required_param('encodedurl', PARAM_TEXT); // The base64 encoded URL.
-$link = base64_decode($encodedurl);
+$link = \mod_booking\booking::decode_redirect_url($encodedurl);
 
-// Check if it's actually a link.
-if (filter_var($link, FILTER_VALIDATE_URL)) {
-    // Now open the link.
-    header("Location: $link");
-    exit();
+// Only links to pages of this site are opened.
+if ($link !== '') {
+    redirect($link);
 }
 
 echo get_string('error:invalidredirecturl', 'mod_booking');

@@ -1556,6 +1556,29 @@ class booking {
     }
 
     /**
+     * Returns the target of a link created with encode_moodle_url(), for bookingredirect.php.
+     * The value comes from the request, so only pages of this site are accepted as target:
+     * encode_moodle_url() never encodes anything else.
+     *
+     * @param string $encodedurl the base64 encoded url from the request
+     * @return string the url to redirect to, empty if the value is no page of this site
+     */
+    public static function decode_redirect_url(string $encodedurl): string {
+        global $CFG;
+
+        $link = (string)base64_decode($encodedurl);
+
+        if (
+            $link === ''
+            || !str_starts_with($link, $CFG->wwwroot . '/')
+            || clean_param($link, PARAM_LOCALURL) !== $link
+        ) {
+            return '';
+        }
+        return $link;
+    }
+
+    /**
      * This function is called by the entities callback service_provider class.
      * It's used to return all the booking dates of the given IDs in a special format.
      *
